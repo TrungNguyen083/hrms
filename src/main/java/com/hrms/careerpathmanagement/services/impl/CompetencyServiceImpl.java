@@ -11,6 +11,7 @@ import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
+import com.mysema.commons.lang.Pair;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -275,44 +276,44 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId) {
-//        List<CompetencyEvaluation> compEvaluates = positionId != null
-//                ? findByPositionAndCycle(positionId, competencyCycleId)
-//                : findByCycle(competencyCycleId);
-//        List<Integer> jobLevelIds = jobLevelRepository
-//                .findAll()
-//                .stream()
-//                .map(JobLevel::getId)
-//                .toList();
-//        List<Integer> competencyIds = competencyRepository
-//                .findAll()
-//                .stream().
-//                map(Competency::getId)
-//                .toList();
-//
-//        //Join 2 list using flatMap and store it by Pair
-//        List<Pair<Integer, Integer>> pairItems = jobLevelIds.stream()
-//                .flatMap(jobLevel -> competencyIds
-//                        .stream()
-//                        .map(competency -> new Pair<>(jobLevel, competency)))
-//                .toList();
-//
-//        return pairItems.stream().map(pair -> {
-//            var jobLevel = pair.getFirst();
-//            var competency = pair.getSecond();
-//            List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = compEvaluates.stream()
-//                    .filter(compEva -> compEva.getEmployee().getJobLevel().getId() == jobLevel
-//                            && compEva.getCompetency().getId().equals(competency))
-//                    .toList();
-//            float avgScore = evaluationsHasJobLevelAndCompetency.isEmpty() ? 0
-//                    : (float) evaluationsHasJobLevelAndCompetency.stream()
-//                    .map(CompetencyEvaluation::getProficiencyLevel)
-//                    .filter(Objects::nonNull)
-//                    .mapToInt(ProficiencyLevel::getScore)
-//                    .average()
-//                    .orElse(0);
-//            return new AvgCompetencyDTO(jobLevel, competency, avgScore);
-//        }).toList();
-        return null;
+        Specification<CompetencyEvaluation> hasCycSpec = competencySpecification.hasCycleId(competencyCycleId);
+        Specification<CompetencyEvaluation> hasPosSpec = employeeSpecification.hasPositionId(positionId);
+        List<CompetencyEvaluation> compEvaluates = positionId != null
+                ? competencyEvaluationRepository.findAll(hasCycSpec.and(hasPosSpec))
+                : competencyEvaluationRepository.findAll(hasCycSpec);
+        List<Integer> jobLevelIds = jobLevelRepository
+                .findAll()
+                .stream()
+                .map(JobLevel::getId)
+                .toList();
+        List<Integer> competencyIds = competencyRepository
+                .findAll()
+                .stream().
+                map(Competency::getId)
+                .toList();
+
+        //Join 2 list using flatMap and store it by Pair
+        List<Pair<Integer, Integer>> pairItems = jobLevelIds.stream()
+                .flatMap(jobLevel -> competencyIds
+                        .stream()
+                        .map(competency -> new Pair<>(jobLevel, competency)))
+                .toList();
+
+        return pairItems.stream().map(pair -> {
+            var jobLevel = pair.getFirst();
+            var competency = pair.getSecond();
+            List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = compEvaluates.stream()
+                    .filter(compEva -> compEva.getEmployee().getJobLevel().getId() == jobLevel
+                            && compEva.getCompetency().getId().equals(competency))
+                    .toList();
+            float avgScore = evaluationsHasJobLevelAndCompetency.isEmpty() ? 0
+                    : (float) evaluationsHasJobLevelAndCompetency.stream()
+                    .map(CompetencyEvaluation::getFinalEvaluation)
+                    .filter(Objects::nonNull).mapToDouble(Float::doubleValue)
+                    .average()
+                    .orElse(0);
+            return new AvgCompetencyDTO(jobLevel, competency, avgScore);
+        }).toList();
     }
 
     @Override
@@ -536,15 +537,15 @@ public class CompetencyServiceImpl implements CompetencyService {
                                        Integer competencyId, String evaluationType) {
         return evaluations.stream()
                 .filter(eva -> eva.getCompetency().getId().equals(competencyId))
-                .map(eva -> {
-                    return switch (evaluationType) {
-                        case "self" -> eva.getSelfEvaluation();
-                        case "supervisor" -> eva.getSupervisorEvaluation();
-                        case "final" -> eva.getFinalEvaluation();
-                        default -> null;
-                    };
+                .map(eva -> switch (evaluationType) {
+                    case "self" -> eva.getSelfEvaluation();
+                    case "supervisor" -> eva.getSupervisorEvaluation();
+                    case "final" -> eva.getFinalEvaluation();
+                    default -> null;
                 })
-                .findFirst().get();
+                .findFirst().orElseThrow(
+                        () -> new RuntimeException("Evaluation type is not valid")
+                );
     }
 
 
