@@ -21,4 +21,9 @@ public class PositionLevel {
     @ManyToOne
     @JoinColumn(name = "job_level_id")
     private JobLevel jobLevel;
+
+    public String getTitle() {
+        return jobLevel.getJobLevelName() + " " + position.getPositionName();
+    }
+
 }

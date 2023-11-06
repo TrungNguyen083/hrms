@@ -1,7 +1,6 @@
 package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
-import com.hrms.careerpathmanagement.models.CompetencyEvaluation;
 import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import jakarta.annotation.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +14,6 @@ public interface CompetencyService {
     List<DepartmentInCompleteDTO> getDepartmentIncompletePercent(Integer competencyCycleId);
     List<CompanyIncompletedDTO> getCompanyIncompletePercent(Integer competencyCycleId);
     List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId);
-    RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
     SkillSetPagingDTO getHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
     SkillMatrixOverallDTO getSkillMatrixOverall(Integer employeeId);
@@ -29,4 +27,11 @@ public interface CompetencyService {
     CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent();
 
     List<CompetencyChartDTO> getCompetencyChart();
+
+    RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
+
+
+    List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId);
+
+    RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
 }

@@ -25,4 +25,8 @@ public class EmployeeCareerPath {
     @ManyToOne
     @JoinColumn(name = "position_level_id")
     PositionLevel positionLevel;
+
+    Integer order;
+
+    Float matchPercentage;
 }
