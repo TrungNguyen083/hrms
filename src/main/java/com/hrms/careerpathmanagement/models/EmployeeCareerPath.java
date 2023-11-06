@@ -26,7 +26,9 @@ public class EmployeeCareerPath {
     @JoinColumn(name = "position_level_id")
     PositionLevel positionLevel;
 
-    Integer order;
+    @Column(name = "ordered")
+    Integer ordered;
 
+    @Column(name = "match_percentage")
     Float matchPercentage;
 }

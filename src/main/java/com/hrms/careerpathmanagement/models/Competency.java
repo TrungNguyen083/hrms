@@ -27,6 +27,7 @@ public class Competency {
     @JoinColumn(name = "competency_group_id")
     private CompetencyGroup competencyGroup;
 
-    private Integer order;
+    @Column(name = "ordered")
+    private Integer ordered;
 }
 
