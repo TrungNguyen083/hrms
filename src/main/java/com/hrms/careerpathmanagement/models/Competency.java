@@ -26,5 +26,7 @@ public class Competency {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competency_group_id")
     private CompetencyGroup competencyGroup;
+
+    private Integer order;
 }
 

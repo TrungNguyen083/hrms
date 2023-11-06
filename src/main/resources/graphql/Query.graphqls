@@ -27,7 +27,7 @@ type Query {
     employeesPotentialPerformance(departmentId: Int): [EmployeePotentialPerformance]
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [AvgCompetency]
-    competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
+    competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
     topHighestSkillSet(employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
@@ -36,10 +36,11 @@ type Query {
     skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
     currentEvaluation(employeeId: Int!): CurrentEvaluation
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
-    getOverallCompetencyScore(employeeId: Int!): RadarChart
+    getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
     getQualifications(employeeId: Int!): [SourceFile]
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
     getUsers: [UserDto]
     companyCompetencyDiffPercent: CompanyCompetencyDiffPercent
     competencyChart: [CompetencyChart]
+    getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
 }

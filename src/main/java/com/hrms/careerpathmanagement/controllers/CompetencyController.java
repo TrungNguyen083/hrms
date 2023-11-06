@@ -180,4 +180,8 @@ public class CompetencyController {
         }
     }
 
+    @QueryMapping
+    public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
+    }
 }
