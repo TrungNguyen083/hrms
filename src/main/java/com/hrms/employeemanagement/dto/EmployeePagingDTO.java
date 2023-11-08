@@ -7,5 +7,5 @@ import com.hrms.global.paging.Pagination;
 import java.util.List;
 
 
-public record EmployeePagingDTO(List<Employee> data, Pagination pagination) {
+public record EmployeePagingDTO(List<EmployeeDTO> data, Pagination pagination) {
 }

@@ -30,4 +30,7 @@ public class CompetencyCycle {
 
     @Column(name = "year")
     private Integer year;
+
+    @Column(name = "status")
+    private String status;
 }
