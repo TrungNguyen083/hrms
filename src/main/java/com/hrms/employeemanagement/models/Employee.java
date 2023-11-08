@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.Date;
 
@@ -13,15 +16,19 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
+@Document(indexName = "employee_index")
 public class Employee {
 	@Id
 	@Column(name = "employee_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
+	@Field(type = FieldType.Text)
 	@Column(name = "last_name")
 	private String lastName;
 
+	@Field(type = FieldType.Text)
 	@Column(name = "first_name")
 	private String firstName;
 

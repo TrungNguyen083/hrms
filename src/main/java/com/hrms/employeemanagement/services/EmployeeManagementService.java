@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.services;
 
+import com.hrms.employeemanagement.documents.EmployeeDocument;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.paging.PagingInfo;
@@ -10,9 +11,9 @@ import java.util.List;
 
 public interface EmployeeManagementService {
 	List<Employee> getAllEmployees();
-	Employee createEmployee(EmployeeDTO input) throws Exception;
+	Employee createEmployee(EmployeeInputDTO input) throws Exception;
 	Employee findEmployee(Integer id);
-	Employee updateEmployee(EmployeeDTO input);
+	Employee updateEmployee(EmployeeInputDTO input);
 	EmployeeDetailDTO getEmployeeDetail(Integer id);
 	List<Employee> findEmployees(List<Integer> departmentIds);
 	List<Employee> findEmployees(Integer departmentId);
@@ -25,8 +26,6 @@ public interface EmployeeManagementService {
 	HeadcountDTO getHeadcountsStatistic();
 	List<HeadcountChartDataDTO> getHeadcountChartData();
 	void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException;
-
-	String getEmployeeProfilePictureUrl(Integer employeeId);
-
 	String getQualifications(Integer employeeId);
+	List<EmployeeDocument> searchEmployees(String name);
 }
