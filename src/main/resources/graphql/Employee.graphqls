@@ -21,16 +21,21 @@ type Employee {
     sourceFile: ImageSource
     status: Int
     leftDate: String
-    damId: Int
 }
 
 type EmployeeDetail {
     employee: Employee
     emergencyContacts: [EmergencyContact]
+    imageUrl: String
+}
+
+type EmployeeDTO {
+    employee: Employee
+    imageUrl: String
 }
 
 type EmployeePaging {
-    data: [Employee]!
+    data: [EmployeeDTO]!
     pagination: Pagination!
 }
 

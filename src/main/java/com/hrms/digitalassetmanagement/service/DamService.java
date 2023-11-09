@@ -24,7 +24,7 @@ public class DamService {
     @Value("${cloudinary.folder}")
     private String folder;
 
-    public String uploadFile(MultipartFile file) throws IOException {
+    public Map uploadFile(MultipartFile file) throws IOException {
         // Get the original file name
         String originalFileName = file.getOriginalFilename();
 
@@ -34,10 +34,7 @@ public class DamService {
         String filePath = String.format("%s/%s", folder, uniqueFileName);
 
         // Upload the file to Cloudinary with the unique file name
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(publicId, filePath));
-
-        // Return the public ID of the uploaded file
-        return uploadResult.get(publicId).toString();
+        return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(publicId, filePath, "resource_type", "auto"));
     }
 
     public String getFileUrl(String publicId) {

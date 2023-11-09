@@ -3,7 +3,6 @@ type EmergencyContact {
     firstName: String
     lastName: String
     phoneNumber: String
-    employee: Employee
 }
 
 input EmergencyContactInput {

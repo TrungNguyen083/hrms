@@ -30,4 +30,7 @@ public class PerformanceCycle {
 
     @Column(name = "is_done")
     private Boolean isDone;
+
+    @Column(name = "status")
+    private String status;
 }

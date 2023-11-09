@@ -184,4 +184,14 @@ public class CompetencyController {
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }
+
+    @QueryMapping(name = "evaluationCycles")
+    public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
+        try {
+            return competencyService.getEvaluationCycles();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
 }

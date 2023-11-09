@@ -21,15 +21,16 @@ public interface CompetencyService {
     SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize);
     CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
-
     SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId);
-
     CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent();
-
     List<CompetencyChartDTO> getCompetencyChart();
-
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
+<<<<<<< HEAD
 
 
+=======
+    List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId);
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
+    List<EvaluationCycleInfoDTO> getEvaluationCycles();
 }

@@ -3,12 +3,14 @@ package com.hrms.employeemanagement.services.impl;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
+import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.global.paging.PagingInfo;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.unboundid.util.NotNull;
+import com.unboundid.util.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,14 +18,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+
 
 
 @Service
@@ -36,7 +41,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Autowired
     private EmergencyContactRepository emergencyContactRepository;
     @Autowired
-    private EmployeeDamRepository employeeDamRepository;
+    private EmployeeDamInfoRepository employeeDamInfoRepository;
     @Autowired
     private DamService damService;
     private ModelMapper modelMapper;
@@ -74,10 +79,15 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         Specification<EmergencyContact> contactSpec = (root, query, builder)
                 -> builder.equal(root.get("employee").get("id"), id);
         List<EmergencyContact> emergencyContacts = emergencyContactRepository.findAll(contactSpec);
-        return new EmployeeDetailDTO(employee, emergencyContacts);
+        //Get employeeDamInfo have employeeId = id and type = "Profile Picture" and has the latest uploadedAt
+        String imageUrl = employeeDamInfoRepository
+                .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(id, "Profile Picture"))
+                .stream()
+                .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
+                .orElse(null);
+        return new EmployeeDetailDTO(employee, emergencyContacts, imageUrl);
     }
 
-    //TODO:Input DepartmentIds
     @Override
     public List<Employee> findEmployees(List<Integer> departmentIds) {
         Specification<Employee> spec = (root, query, criteriaBuilder) -> root.get("department").get("id").in(departmentIds);
@@ -101,49 +111,61 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         return employeeRepository.findAll(pageRequest).getContent();
     }
 
-    //TODO: ADD SORTING
     @Override
-    public EmployeePagingDTO filterEmployees(List<Integer> departmentIds,
-                                             List<Integer> currentContracts,
-                                             Boolean status,
-                                             String name,
+    public EmployeePagingDTO filterEmployees(@Nullable List<Integer> departmentIds,
+                                             @Nullable List<Integer> currentContracts,
+                                             @Nullable Boolean status,
+                                             @Nullable String name,
                                              PagingInfo pagingInfo) {
         Sort sort = pagingInfo.getSortBy() != null ? Sort.by(Sort.Direction.DESC, pagingInfo.getSortBy()) : null;
         Pageable pageable = sort != null
                 ? PageRequest.of(pagingInfo.getPageNo() - 1, pagingInfo.getPageSize(), sort)
                 : PageRequest.of(pagingInfo.getPageNo() - 1, pagingInfo.getPageSize());
         Specification<Employee> filterSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                departmentIds != null ? root.get("department").get("id").in(departmentIds) : criteriaBuilder.conjunction(),
-                currentContracts != null ? root.get("currentContract").in(currentContracts) : criteriaBuilder.conjunction(),
-                status != null ? criteriaBuilder.equal(root.get("user").get("isEnabled"), status) : criteriaBuilder.conjunction(),
-                name != null ? criteriaBuilder.or(
+                departmentIds != null && !departmentIds.isEmpty()
+                        ? root.get("department").get("id").in(departmentIds)
+                        : criteriaBuilder.conjunction(),
+                currentContracts != null && !currentContracts.isEmpty()
+                        ? root.get("currentContract").in(currentContracts)
+                        : criteriaBuilder.conjunction(),
+                status != null
+                        ? criteriaBuilder.equal(root.get("user").get("isEnabled"), status)
+                        : criteriaBuilder.conjunction(),
+                name != null
+                        ? criteriaBuilder.or(
                         criteriaBuilder.like(root.get("lastName"), "%" + name + "%"),
-                        criteriaBuilder.like(root.get("firstName"), "%" + name + "%")
-                ) : criteriaBuilder.conjunction()
+                        criteriaBuilder.like(root.get("firstName"), "%" + name + "%"))
+                        : criteriaBuilder.conjunction()
         );
-        Page<Employee> empPage = employeeRepository.findAll(filterSpec, pageable);
+
+        Page<EmployeeDTO> empPage = employeeRepository.findAll(filterSpec, pageable).map(employee -> {
+            String imageUrl = employeeDamInfoRepository
+                    .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(employee.getId(), "Profile Picture"))
+                    .stream()
+                    .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
+                    .orElse(null);
+            return new EmployeeDTO(employee, imageUrl);
+        });
+
         Pagination pagination = PaginationSetup.setupPaging(empPage.getTotalElements(), pagingInfo.getPageNo(), pagingInfo.getPageSize());
         return new EmployeePagingDTO(empPage.getContent(), pagination);
     }
 
-    //TODO: REPLACE TO YEAR
     @Override
     public HeadcountDTO getHeadcountsStatistic() {
         //Get all new employees have joinedDate between 2 years ago and 1 year ago
-        LocalDate fromDatePrevious = LocalDate.now().minusYears(2);
-        LocalDate toDatePrevious = LocalDate.now().minusYears(1);
-        var countPreviousEmployees = countEmployeesByYear(fromDatePrevious, toDatePrevious);
+        LocalDate datePrevious = LocalDate.now().minusYears(1);
+        var countPreviousYearEmployees = countEmployeesByYear(datePrevious);
 
         //Get all new employees have joinedDate between today and 1 year ago
-        LocalDate fromDateCurrent = LocalDate.now().minusYears(1);
-        LocalDate toDateCurrent = LocalDate.now();
-        var countCurrentEmployees = countEmployeesByYear(fromDateCurrent, toDateCurrent);
+        LocalDate dateCurrent = LocalDate.now();
+        var countCurrentYearEmployees = countEmployeesByYear(dateCurrent);
 
         var countAllEmployee = getAllEmployees().size();
 
-        float diffPercent = ((float) (countCurrentEmployees - countPreviousEmployees) / countPreviousEmployees) * 100;
+        float diffPercent = ((float) (countCurrentYearEmployees - countPreviousYearEmployees) / countPreviousYearEmployees) * 100;
 
-        return new HeadcountDTO(countAllEmployee, diffPercent, countPreviousEmployees <= countCurrentEmployees);
+        return new HeadcountDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
     }
 
     @Override
@@ -166,10 +188,10 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         }).toList();
     }
 
-    private long countEmployeesByYear(LocalDate fromDate, LocalDate toDate) {
-        //Get all new employees have joinedDate between fromDate and toDate and have status not equal to 0
+    private long countEmployeesByYear(LocalDate date) {
+        //Get all new employees have joinedDate before date and have status not equal to 0
         Specification<Employee> spec = (root, query, builder) -> builder.and(
-                builder.between(root.get("joinedDate"), fromDate, toDate),
+                builder.lessThan(root.get("joinedDate"), date),
                 builder.notEqual(root.get("status"), 0)
         );
 
@@ -178,25 +200,25 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     @Transactional
-    public Employee createEmployee(EmployeeDTO employeeDTO) {
+    public Employee createEmployee(EmployeeInputDTO employeeInputDTO) {
         Employee employee = new Employee();
 
-        return updateEmployee(employeeDTO, employee);
+        return updateEmployee(employeeInputDTO, employee);
     }
 
     @Override
     @Transactional
-    public Employee updateEmployee(EmployeeDTO input) {
+    public Employee updateEmployee(EmployeeInputDTO input) {
         Employee employee = findEmployee(input.getId());
 
         return updateEmployee(input, employee);
     }
 
     @NotNull
-    private Employee updateEmployee(EmployeeDTO employeeDTO, Employee employee) {
-        modelMapper.map(employeeDTO, employee);
+    private Employee updateEmployee(EmployeeInputDTO employeeInputDTO, Employee employee) {
+        modelMapper.map(employeeInputDTO, employee);
         employeeRepository.save(employee);
-        manageEmergencyContacts(employeeDTO.getEmergencyContacts(), employee);
+        manageEmergencyContacts(employeeInputDTO.getEmergencyContacts(), employee);
 
         return employee;
     }
@@ -247,16 +269,26 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Override
     public void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException {
         // Upload the image using the DamService with the original file name
-        String publicId = damService.uploadFile(file);
-
+        Map uploadResult = damService.uploadFile(file);
+        // Get the file's extension like jpg, png, docx, ...
+        String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+        String url = uploadResult.get("url").toString();
         // Update the employee's profile picture public ID in the database
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(
                 () -> new RuntimeException("Employee not found with id: " + employeeId));
+<<<<<<< HEAD
         EmployeeDamInfo employeeDamInfo = EmployeeDamInfo.builder()
+=======
+        EmployeeDamInfo employeeDam = EmployeeDamInfo.builder()
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
                 .employee(employee)
-                .publicId(publicId)
+                .fileName(file.getOriginalFilename())
                 .type(type)
+                .extension(extension)
+                .url(url)
+                .uploadedAt(new Date(System.currentTimeMillis()))
                 .build();
+<<<<<<< HEAD
         employeeDamRepository.save(employeeDamInfo);
     }
 
@@ -268,6 +300,9 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         );
         EmployeeDamInfo employeeDamInfo = employeeDamRepository.findOne(spec).orElse(null);
         return employeeDamInfo != null ? damService.getFileUrl(employeeDamInfo.getPublicId()) : null;
+=======
+        employeeDamInfoRepository.save(employeeDam);
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
     }
 
     @Override

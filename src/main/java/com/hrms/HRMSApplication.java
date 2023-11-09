@@ -12,8 +12,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
+<<<<<<< HEAD
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+=======
+import org.springframework.context.annotation.Configuration;
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.lang.reflect.Array;
@@ -37,6 +41,7 @@ import java.util.Arrays;
         "com.hrms.performancemanagement.model"
 })
 @SpringBootApplication
+@Configuration
 @CrossOrigin
 public class HRMSApplication {
     @Autowired

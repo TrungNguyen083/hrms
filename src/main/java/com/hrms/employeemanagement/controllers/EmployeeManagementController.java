@@ -68,12 +68,12 @@ public class EmployeeManagementController {
     }
 
     @MutationMapping
-    public Employee createProfile(@Argument EmployeeDTO input) throws Exception {
+    public Employee createProfile(@Argument EmployeeInputDTO input) throws Exception {
         return employeeManagementService.createEmployee(input);
     }
 
     @MutationMapping
-    public Employee updateEmployee(@Argument EmployeeDTO input) {
+    public Employee updateEmployee(@Argument EmployeeInputDTO input) {
         return employeeManagementService.updateEmployee(input);
     }
 
@@ -98,13 +98,14 @@ public class EmployeeManagementController {
     }
 
     @PostMapping("/dam/upload/{employeeId}")
-    public ResponseEntity<String> uploadEmployeeProfilePicture(@PathVariable Integer employeeId,
+    public ResponseEntity<String> uploadFile(@PathVariable Integer employeeId,
                                                                @RequestParam("file") MultipartFile file,
                                                                @RequestParam("type") String type) {
         try {
             employeeManagementService.uploadFile(file, employeeId, type);
-            return ResponseEntity.ok("Profile picture uploaded for Employee ID: " + employeeId);
+            return ResponseEntity.ok("Upload successful.");
         } catch (Exception e) {
+<<<<<<< HEAD
             return ResponseEntity.badRequest().body("Failed to upload profile picture.");
         }
     }
@@ -128,4 +129,41 @@ public class EmployeeManagementController {
             return ResponseEntity.notFound().build();
         }
     }
+=======
+            return ResponseEntity.badRequest().body("Upload failed.");
+        }
+    }
+//
+//    @GetMapping("/dam/retrieve/{employeeId}")
+//    public ResponseEntity<Resource> getEmployeeProfilePictureUrl(@PathVariable Integer employeeId) {
+//        try {
+//            String url = employeeManagementService.getEmployeeProfilePictureUrl(employeeId);
+//
+//            // Check if the URL is not empty or null
+//            if (url != null && !url.isEmpty()) {
+//                // Fetch the image data from the Cloudinary URL
+//                byte[] imageBytes = IOUtils.toByteArray(new URL(url).openStream());
+//
+//                // Create a ByteArrayResource from the image data
+//                ByteArrayResource resource = new ByteArrayResource(imageBytes);
+//
+//                // Set the response headers for image data
+//                HttpHeaders headers = new HttpHeaders();
+//                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//                headers.setContentLength(imageBytes.length);
+//
+//                // Set the Content-Disposition header for download with a suggested filename
+//                headers.set("Content-Disposition", "attachment; filename=image.jpg");
+//
+//                return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+//            } else {
+//                // If the URL is empty or null, return a "not found" response
+//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//            }
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//
+//    }
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 }
