@@ -74,8 +74,11 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Autowired
     PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
     @Autowired
+<<<<<<< HEAD
+=======
     EmployeeCareerPathRepository employeeCareerPathRepository;
     @Autowired
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
     CareerSpecification careerSpecification;
     @Autowired
     EmployeeSpecification employeeSpecification;
@@ -142,7 +145,11 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         //2. Skill Set Target Score
         var positionLevel = getPositionLevel(employeeId);
-        var skillSetBaselineScore = getBaselineSkillSetScore(positionLevel.positionId(), positionLevel.jobLevelId());
+        var skillSetBaselineScore = getBaselineSkillSetScore(
+                positionLevel
+                        .getPosition().getId(),
+                positionLevel
+                        .getJobLevel().getId());
 
         return new SkillSetSummarizationDTO(skillSetAvgScore, skillSetBaselineScore);
     }
@@ -173,9 +180,9 @@ public class CompetencyServiceImpl implements CompetencyService {
         return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
     }
 
-    private PositionLevelDTO getPositionLevel(Integer empId) {
+    private PositionLevel getPositionLevel(Integer empId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<PositionLevelDTO> query = cb.createQuery(PositionLevelDTO.class);
+        CriteriaQuery<PositionLevel> query = cb.createQuery(PositionLevel.class);
         Root<Employee> root = query.from(Employee.class);
         Join<Employee, Position> positionJoin = root.join("position");
         Join<Employee, JobLevel> jobLevelJoin = root.join("jobLevel");
@@ -717,6 +724,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     //HAVE NOT DONE YET
+<<<<<<< HEAD
+
+=======
     @Override
     public List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId) {
         Specification<EmployeeCareerPath> hasEmpId = employeeSpecification.hasEmployeeId(employeeId);
@@ -734,6 +744,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         return targetsDTO;
     }
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {

@@ -26,7 +26,7 @@ public class PerformanceRange {
     private Integer maxValue;
 
     @Column(name = "order_number")
-    private Integer order;
+    private Integer ordered;
 
     @Column(name = "text")
     private String text;

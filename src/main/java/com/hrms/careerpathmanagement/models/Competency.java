@@ -27,7 +27,10 @@ public class Competency {
     @JoinColumn(name = "competency_group_id")
     private CompetencyGroup competencyGroup;
 
+<<<<<<< HEAD
+=======
     @Column(name = "ordered")
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
     private Integer ordered;
 }
 

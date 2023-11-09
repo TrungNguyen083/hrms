@@ -9,8 +9,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PositionLevelNode {
+public class PositionLevelNodeDTO {
+    Integer id;
     String title;
     Float matchPercentage;
-    List<PositionLevelNode> nextPositionLevels;
+    List<PositionLevelNodeDTO> nextPositionLevels;
 }

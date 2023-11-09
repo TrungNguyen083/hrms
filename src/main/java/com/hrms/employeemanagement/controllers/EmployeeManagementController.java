@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.controllers;
 
+import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.dto.EmployeePagingDTO;
@@ -8,7 +9,6 @@ import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.repositories.PositionRepository;
 import com.hrms.employeemanagement.services.*;
-import com.hrms.damservice.DamService;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -105,6 +105,31 @@ public class EmployeeManagementController {
             employeeManagementService.uploadFile(file, employeeId, type);
             return ResponseEntity.ok("Upload successful.");
         } catch (Exception e) {
+<<<<<<< HEAD
+            return ResponseEntity.badRequest().body("Failed to upload profile picture.");
+        }
+    }
+
+    @GetMapping("/dam/retrieve/{employeeId}")
+    public ResponseEntity<String> getEmployeeProfilePictureUrl(@PathVariable Integer employeeId) {
+        try {
+            String url = employeeManagementService.getProfilePicture(employeeId);
+            return ResponseEntity.ok(url);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/dam/retrieve/{employeeId}/{type}")
+    public ResponseEntity<String> getEmployeeQualifications(@PathVariable Integer employeeId) {
+        try {
+            List<EmployeeDamInfo> infos = employeeManagementService.getQualifications(employeeId);
+            return ResponseEntity.ok(infos.toString());
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+=======
             return ResponseEntity.badRequest().body("Upload failed.");
         }
     }
@@ -140,4 +165,5 @@ public class EmployeeManagementController {
 //        }
 //
 //    }
+>>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 }

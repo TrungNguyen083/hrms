@@ -1,5 +1,6 @@
 package com.hrms.careerpathmanagement.controllers;
 
+import com.hrms.careerpathmanagement.dto.PositionLevelNodeDTO;
 import com.hrms.careerpathmanagement.repositories.PositionLevelPathRepository;
 import com.hrms.careerpathmanagement.services.CareerPathManagementService;
 import com.hrms.employeemanagement.models.PositionLevel;
@@ -23,6 +24,11 @@ public class CareerController {
     @Autowired
     PositionLevelPathRepository positionLevelPathRepository;
 
+    @QueryMapping(name = "getCareerPath")
+    public PositionLevelNodeDTO getCareerPath(@Argument Integer employeeId) {
+        return careerPathManagementService.getCareerPath(employeeId);
+    }
+
     @QueryMapping(name = "getNextPositionLevel")
     public List<PositionLevel> getNextsPositionLevels(@Argument Integer currentPositionLevelId) {
         Stack<PositionLevel> stack = new Stack<>();
@@ -33,7 +39,7 @@ public class CareerController {
             var children = positionLevelPathRepository.findAllByCurrentId(top.getId());
             children.forEach(c -> stack.push(positionLevelRepository.findById(c.getNext().getId()).get()));
         }
-        return careerPathManagementService.getNextPositionLevels(currentPositionLevelId);
+        return careerPathManagementService.getNextPositionLevel(currentPositionLevelId);
     }
 
 }

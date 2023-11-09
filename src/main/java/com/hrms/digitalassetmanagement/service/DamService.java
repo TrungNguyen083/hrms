@@ -1,8 +1,8 @@
-package com.hrms.damservice.impl;
+package com.hrms.digitalassetmanagement.service;
+
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.hrms.damservice.DamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class DamServiceImpl implements DamService {
+public class DamService {
     @Autowired
     private Cloudinary cloudinary; // Inject Cloudinary instance
     @Value("${cloudinary.publicId}")
