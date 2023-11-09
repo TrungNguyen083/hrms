@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.services;
 
-import com.hrms.employeemanagement.documents.EmployeeDocument;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.paging.PagingInfo;
@@ -27,5 +26,4 @@ public interface EmployeeManagementService {
 	List<HeadcountChartDataDTO> getHeadcountChartData();
 	void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException;
 	String getQualifications(Integer employeeId);
-	List<EmployeeDocument> searchEmployees(String name);
 }

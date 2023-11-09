@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.controllers;
 
-import com.hrms.employeemanagement.documents.EmployeeDocument;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.dto.EmployeePagingDTO;
@@ -108,11 +107,6 @@ public class EmployeeManagementController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Upload failed.");
         }
-    }
-
-    @QueryMapping(name = "searchEmployees")
-    public List<EmployeeDocument> searchEmployees(@Argument String name) {
-        return employeeManagementService.searchEmployees(name);
     }
 //
 //    @GetMapping("/dam/retrieve/{employeeId}")
