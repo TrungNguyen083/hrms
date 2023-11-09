@@ -1,7 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.damservice.DamService;
-import com.hrms.employeemanagement.documents.EmployeeDocument;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
@@ -20,11 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +29,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 
 @Service
@@ -52,8 +45,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Autowired
     private DamService damService;
     private ModelMapper modelMapper;
-    @Autowired
-    private ElasticsearchOperations elasticsearchOperations;
 
     @Bean
     public void setUpMapper() {
@@ -295,19 +286,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Override
     public String getQualifications(Integer employeeId) {
         return null;
-    }
-
-    @Override
-    public List<EmployeeDocument> searchEmployees(String name) {
-        Query searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(matchQuery("firstName", name).minimumShouldMatch("75%"))
-                .build();
-
-        SearchHits<EmployeeDocument> employees =
-                elasticsearchOperations.search(searchQuery, EmployeeDocument.class, IndexCoordinates.of("employee"));
-
-        return employees.stream().map(SearchHit::getContent).toList();
-
     }
 
 }
