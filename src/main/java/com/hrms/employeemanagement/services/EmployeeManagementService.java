@@ -26,12 +26,8 @@ public interface EmployeeManagementService {
 	HeadcountDTO getHeadcountsStatistic();
 	List<HeadcountChartDataDTO> getHeadcountChartData();
 	void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException;
-<<<<<<< HEAD
 
 	String getProfilePicture(Integer employeeId);
 
 	List<EmployeeDamInfo> getQualifications(Integer employeeId);
-=======
-	String getQualifications(Integer employeeId);
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 }

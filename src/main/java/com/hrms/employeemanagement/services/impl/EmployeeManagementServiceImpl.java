@@ -276,11 +276,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         // Update the employee's profile picture public ID in the database
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(
                 () -> new RuntimeException("Employee not found with id: " + employeeId));
-<<<<<<< HEAD
         EmployeeDamInfo employeeDamInfo = EmployeeDamInfo.builder()
-=======
-        EmployeeDamInfo employeeDam = EmployeeDamInfo.builder()
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
                 .employee(employee)
                 .fileName(file.getOriginalFilename())
                 .type(type)
@@ -288,8 +284,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 .url(url)
                 .uploadedAt(new Date(System.currentTimeMillis()))
                 .build();
-<<<<<<< HEAD
-        employeeDamRepository.save(employeeDamInfo);
+        employeeDamInfoRepository.save(employeeDamInfo);
     }
 
     @Override
@@ -298,11 +293,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 builder.equal(root.get("employee").get("id"), employeeId),
                 builder.equal(root.get("type"), PROFILE_IMAGE)
         );
-        EmployeeDamInfo employeeDamInfo = employeeDamRepository.findOne(spec).orElse(null);
-        return employeeDamInfo != null ? damService.getFileUrl(employeeDamInfo.getPublicId()) : null;
-=======
-        employeeDamInfoRepository.save(employeeDam);
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
+        EmployeeDamInfo employeeDamInfo = employeeDamInfoRepository.findOne(spec).orElse(null);
+        return employeeDamInfo != null ? damService.getFileUrl(employeeDamInfo.getUrl()) : null;
     }
 
     @Override
@@ -312,7 +304,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 builder.equal(root.in("type").not(), PROFILE_IMAGE)
         );
 
-        return employeeDamRepository.findAll(spec);
+        return employeeDamInfoRepository.findAll(spec);
 
     }
 

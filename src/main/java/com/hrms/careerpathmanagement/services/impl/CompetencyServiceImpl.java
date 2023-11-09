@@ -74,11 +74,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Autowired
     PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
     @Autowired
-<<<<<<< HEAD
-=======
-    EmployeeCareerPathRepository employeeCareerPathRepository;
-    @Autowired
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
     CareerSpecification careerSpecification;
     @Autowired
     EmployeeSpecification employeeSpecification;
@@ -723,28 +718,23 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .status(Objects.requireNonNull(eval).getFinalStatus()).build();
     }
 
-    //HAVE NOT DONE YET
-<<<<<<< HEAD
-
-=======
     @Override
     public List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId) {
         Specification<EmployeeCareerPath> hasEmpId = employeeSpecification.hasEmployeeId(employeeId);
-        var targets = employeeCareerPathRepository.findAll(hasEmpId)
-                .stream()
-                .sorted(Comparator.comparing(EmployeeCareerPath::getOrdered))
-                .toList();
+//        var targets = employeeCareerPathRepository.findAll(hasEmpId)
+//                .stream()
+//                .sorted(Comparator.comparing(EmployeeCareerPath::getOrdered))
+//                .toList();
 
         List<TargetPositionLevelDTO> targetsDTO = new ArrayList<>();
 
-        targets.forEach(item -> targetsDTO.add(new TargetPositionLevelDTO(
-                item.getPositionLevel().getId(),
-                item.getPositionLevel().getTitle(),
-                item.getMatchPercentage())));
+//        targets.forEach(item -> targetsDTO.add(new TargetPositionLevelDTO(
+//                item.getPositionLevel().getId(),
+//                item.getPositionLevel().getTitle(),
+//                item.getMatchPercentage())));
 
         return targetsDTO;
     }
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {

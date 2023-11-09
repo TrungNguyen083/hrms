@@ -43,12 +43,7 @@ type Query {
     companyCompetencyDiffPercent: CompanyCompetencyDiffPercent
     competencyChart: [CompetencyChart]
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
-<<<<<<< HEAD
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
-}
-
-=======
     evaluationCycles: [EvaluationCycleInfo]
     searchEmployees(name: String!): [Employee]
 }
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142

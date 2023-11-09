@@ -99,14 +99,13 @@ public class EmployeeManagementController {
 
     @PostMapping("/dam/upload/{employeeId}")
     public ResponseEntity<String> uploadFile(@PathVariable Integer employeeId,
-                                                               @RequestParam("file") MultipartFile file,
-                                                               @RequestParam("type") String type) {
+                                             @RequestParam("file") MultipartFile file,
+                                             @RequestParam("type") String type) {
         try {
             employeeManagementService.uploadFile(file, employeeId, type);
             return ResponseEntity.ok("Upload successful.");
         } catch (Exception e) {
-<<<<<<< HEAD
-            return ResponseEntity.badRequest().body("Failed to upload profile picture.");
+            return ResponseEntity.badRequest().body("Upload failed.");
         }
     }
 
@@ -128,10 +127,7 @@ public class EmployeeManagementController {
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
-    }
-=======
-            return ResponseEntity.badRequest().body("Upload failed.");
-        }
+
     }
 //
 //    @GetMapping("/dam/retrieve/{employeeId}")
@@ -165,5 +161,4 @@ public class EmployeeManagementController {
 //        }
 //
 //    }
->>>>>>> 8dd1e773209e31c3ae8778294673222599dfc142
 }
