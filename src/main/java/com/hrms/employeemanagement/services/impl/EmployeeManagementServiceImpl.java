@@ -1,6 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.damservice.DamService;
+import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.global.paging.Pagination;
@@ -40,6 +40,10 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Autowired
     private DamService damService;
     private ModelMapper modelMapper;
+
+    static String PROFILE_IMAGE = "PROFILE_IMAGE";
+    static String QUALIFICATION = "QUALIFICATION";
+    static String DEGREE = "DEGREE";
 
     @Bean
     public void setUpMapper() {
@@ -248,27 +252,34 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         // Update the employee's profile picture public ID in the database
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(
                 () -> new RuntimeException("Employee not found with id: " + employeeId));
-        EmployeeDam employeeDam = EmployeeDam.builder()
+        EmployeeDamInfo employeeDamInfo = EmployeeDamInfo.builder()
                 .employee(employee)
                 .publicId(publicId)
                 .type(type)
                 .build();
-        employeeDamRepository.save(employeeDam);
+        employeeDamRepository.save(employeeDamInfo);
     }
 
     @Override
-    public String getEmployeeProfilePictureUrl(Integer employeeId) {
-        Specification<EmployeeDam> spec = (root, query, builder) -> builder.and(
+    public String getProfilePicture(Integer employeeId) {
+        Specification<EmployeeDamInfo> spec = (root, query, builder) -> builder.and(
                 builder.equal(root.get("employee").get("id"), employeeId),
-                builder.equal(root.get("type"), "Profile Image")
+                builder.equal(root.get("type"), PROFILE_IMAGE)
         );
-        EmployeeDam employeeDam = employeeDamRepository.findOne(spec).orElse(null);
-        return employeeDam != null ? damService.getFileUrl(employeeDam.getPublicId()) : null;
+        EmployeeDamInfo employeeDamInfo = employeeDamRepository.findOne(spec).orElse(null);
+        return employeeDamInfo != null ? damService.getFileUrl(employeeDamInfo.getPublicId()) : null;
     }
 
     @Override
-    public String getQualifications(Integer employeeId) {
-        return null;
+    public List<EmployeeDamInfo> getQualifications(Integer employeeId) {
+        Specification<EmployeeDamInfo> spec = (root, query, builder) -> builder.and(
+                builder.equal(root.get("employee").get("id"), employeeId),
+                builder.equal(root.in("type").not(), PROFILE_IMAGE)
+        );
+
+        return employeeDamRepository.findAll(spec);
+
     }
+
 
 }

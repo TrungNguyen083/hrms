@@ -68,9 +68,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Autowired
     PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
     @Autowired
-    EmployeeCareerPathRepository employeeCareerPathRepository;
-
-    @Autowired
     CareerSpecification careerSpecification;
     @Autowired
     EmployeeSpecification employeeSpecification;
@@ -139,7 +136,11 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         //2. Skill Set Target Score
         var positionLevel = getPositionLevel(employeeId);
-        var skillSetBaselineScore = getBaselineSkillSetScore(positionLevel.positionId(), positionLevel.jobLevelId());
+        var skillSetBaselineScore = getBaselineSkillSetScore(
+                positionLevel
+                        .getPosition().getId(),
+                positionLevel
+                        .getJobLevel().getId());
 
         return new SkillSetSummarizationDTO(skillSetAvgScore, skillSetBaselineScore);
     }
@@ -170,9 +171,9 @@ public class CompetencyServiceImpl implements CompetencyService {
         return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
     }
 
-    private PositionLevelDTO getPositionLevel(Integer empId) {
+    private PositionLevel getPositionLevel(Integer empId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<PositionLevelDTO> query = cb.createQuery(PositionLevelDTO.class);
+        CriteriaQuery<PositionLevel> query = cb.createQuery(PositionLevel.class);
         Root<Employee> root = query.from(Employee.class);
         Join<Employee, Position> positionJoin = root.join("position");
         Join<Employee, JobLevel> jobLevelJoin = root.join("jobLevel");
@@ -517,7 +518,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<CompetencyEvaluation> hasCycId = competencySpecification.hasCycleId(cycleId);
         var evaluations = competencyEvaluationRepository.findAll(hasEmpId.and(hasCycId));
         var competencies = competencyRepository.findAll()
-                .stream().sorted(Comparator.comparing(Competency::getOrder)).toList();
+                .stream().sorted(Comparator.comparing(Competency::getOrdered)).toList();
 
         var self_eval_data = new RadarDatasetDTO(SELF_EVAL_LABEL_NAME, new ArrayList<>());
         var supervisor_eval_data = new RadarDatasetDTO(SUPERVISOR_EVAL_LABEL_NAME, new ArrayList<>());
@@ -694,25 +695,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     //HAVE NOT DONE YET
-    @Override
-    public List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId) {
-        Specification<EmployeeCareerPath> hasEmpId = employeeSpecification.hasEmployeeId(employeeId);
-        var targets = employeeCareerPathRepository.findAll(hasEmpId)
-                .stream()
-                .sorted(Comparator.comparing(EmployeeCareerPath::getOrder))
-                .toList();
 
-        List<TargetPositionLevelDTO> targetsDTO = new ArrayList<>();
-
-        targets.stream().forEach(item -> {
-            targetsDTO.add(new TargetPositionLevelDTO(
-                    item.getPositionLevel().getId(),
-                    item.getPositionLevel().getTitle(),
-                    item.getMatchPercentage()));
-        });
-
-        return targetsDTO;
-    }
 
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {

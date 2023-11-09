@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PositionLevelRepository extends JpaRepository<PositionLevel, Integer>, JpaSpecificationExecutor<PositionLevel> {
+    PositionLevel findByPositionIdAndJobLevelId(Integer positionId, Integer jobLevelId);
 }

@@ -31,7 +31,5 @@ public interface CompetencyService {
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
 
 
-    List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId);
-
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
 }

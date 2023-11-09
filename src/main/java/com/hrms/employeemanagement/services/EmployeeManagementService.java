@@ -2,6 +2,7 @@ package com.hrms.employeemanagement.services;
 
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.EmployeeDamInfo;
 import com.hrms.global.paging.PagingInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,7 @@ public interface EmployeeManagementService {
 	List<HeadcountChartDataDTO> getHeadcountChartData();
 	void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException;
 
-	String getEmployeeProfilePictureUrl(Integer employeeId);
+	String getProfilePicture(Integer employeeId);
 
-	String getQualifications(Integer employeeId);
+	List<EmployeeDamInfo> getQualifications(Integer employeeId);
 }
