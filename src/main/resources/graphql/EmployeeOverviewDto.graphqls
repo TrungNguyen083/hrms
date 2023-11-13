@@ -1,5 +1,5 @@
 type EmployeeOverviewDto {
-    employee: Employee
+    employeeDocument: Employee
     address: String
     skills: [SkillSet]
     interests: [SkillSet]

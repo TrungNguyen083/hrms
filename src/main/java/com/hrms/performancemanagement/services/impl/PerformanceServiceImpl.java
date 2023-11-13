@@ -176,8 +176,8 @@ public class PerformanceServiceImpl implements PerformanceService {
 
 //THIS SOLUTION IS NOT WORKING FOR N+1 PROBLEM
 //Specification<PerformanceEvaluation> spec = (root, query, cb) -> {
-//    Join<PerformanceEvaluation, Employee> employeeJoin = root.join("employee");
-//    Join<Employee, Position> positionJoin = employeeJoin.join("position");
+//    Join<PerformanceEvaluation, EmployeeDocument> employeeJoin = root.join("employee");
+//    Join<EmployeeDocument, Position> positionJoin = employeeJoin.join("position");
 //    Join<PerformanceEvaluation, PerformanceCycle> cycleJoin = root.join("performanceCycle");
 //    return cb.and(
 //            cb.equal(positionJoin.get("id"), positionId),

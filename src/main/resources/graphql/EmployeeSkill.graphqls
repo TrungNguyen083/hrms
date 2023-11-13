@@ -1,6 +1,6 @@
 type EmployeeSkill {
     id: Int!
-    employee: Employee
+    employeeDocument: Employee
     skill: Skill
     proficiencyLevel: ProficiencyLevel
 }

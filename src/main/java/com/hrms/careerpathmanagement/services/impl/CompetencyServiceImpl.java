@@ -811,5 +811,10 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .count();
         return (float) totalEmpCompleted / totalEmp * 100;
     }
+
+    @Override
+    public List<CompetencyCycle> getCompetencyCycles() {
+        return competencyCycleRepository.findAll();
+    }
 }
 

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-class EmployeeManagementSearchControllerServiceImplTest {
+class EmployeeDocumentManagementSearchControllerServiceImplTest {
 
     @MockBean
     private EmployeeRepository employeeRepository;
@@ -41,7 +41,7 @@ class EmployeeManagementSearchControllerServiceImplTest {
         Employee result = employeeManagementService.findEmployee(employeeId);
 
         // Debugging information
-        System.out.println("Mocked Employee ID: " + result.getId());
+        System.out.println("Mocked EmployeeDocument ID: " + result.getId());
 
         // Assert
         Mockito.verify(employeeRepository).findOne(expectedSpec);

@@ -1,7 +1,7 @@
-# Define a query to fetch employees
+# Define a query to fetch employeeDocuments
 type Query {
-    employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
-    employee(id: Int!): EmployeeDetail
+    employeeDocuments(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
+    employeeDocument(id: Int!): EmployeeDetail
     newEmployees: [Employee]
     departments: [Department]
     NumberOfDepartments: Int
@@ -45,5 +45,5 @@ type Query {
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
     evaluationCycles: [EvaluationCycleInfo]
-    searchEmployees(name: String!): [Employee]
+    searchEmployees(searchText: String!): [Employee]
 }

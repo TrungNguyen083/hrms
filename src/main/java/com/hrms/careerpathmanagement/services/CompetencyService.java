@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import jakarta.annotation.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,4 +29,5 @@ public interface CompetencyService {
     List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
     List<EvaluationCycleInfoDTO> getEvaluationCycles();
+    List<CompetencyCycle> getCompetencyCycles();
 }

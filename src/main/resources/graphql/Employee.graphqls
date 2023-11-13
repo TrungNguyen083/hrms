@@ -1,4 +1,4 @@
-# Define the Employee type
+# Define the EmployeeDocument type
 type Employee {
     id: Int!
     firstName: String
@@ -24,13 +24,13 @@ type Employee {
 }
 
 type EmployeeDetail {
-    employee: Employee
+    employeeDocument: Employee
     emergencyContacts: [EmergencyContact]
     imageUrl: String
 }
 
 type EmployeeDTO {
-    employee: Employee
+    employeeDocument: Employee
     imageUrl: String
 }
 

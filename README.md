@@ -59,7 +59,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-A Human Resources Management System (HRMS), also known as Human Resources Information System (HRIS) or Human Capital Management (HCM) software, is a comprehensive software solution designed to help organizations manage and streamline various aspects of their human resources functions. It serves as a centralized digital platform for managing employee data, personnel records, payroll, benefits administration, recruitment, talent management, performance evaluations, and other HR-related processes.
+A Human Resources Management System (HRMS), also known as Human Resources Information System (HRIS) or Human Capital Management (HCM) software, is a comprehensive software solution designed to help organizations manage and streamline various aspects of their human resources functions. It serves as a centralized digital platform for managing employeeDocument data, personnel records, payroll, benefits administration, recruitment, talent management, performance evaluations, and other HR-related processes.
 
 Use the `BLANK_README.md` to get started.
 

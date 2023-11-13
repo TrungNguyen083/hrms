@@ -69,6 +69,16 @@ public class CompetencyController {
         }
     }
 
+    @QueryMapping(name = "competencyCycles")
+    public List<CompetencyCycle> getCompetencyCycles() {
+        try {
+            return competencyService.getCompetencyCycles();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     @QueryMapping(name = "competencyRadarChart")
     public RadarChartDTO getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId,
                                                  @Argument Integer departmentId) {

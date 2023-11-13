@@ -1,7 +1,5 @@
 package com.hrms;
 
-import com.hrms.search.repository.EmpRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -30,8 +28,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @Configuration
 @CrossOrigin
 public class HRMSApplication {
-    @Autowired
-    EmpRepository employeeRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(HRMSApplication.class, args);

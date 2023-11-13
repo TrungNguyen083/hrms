@@ -8,18 +8,21 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 
-@Document(indexName = "employees")
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Builder
-public class Employee {
+@Getter
+@Document(indexName = "employees")
+public class EmployeeDocument {
     @Id
     private String id;
 
-    @Field(name = "first_name")
+    private String index;
+    private float score;
+
+    @Field(name = "firstName")
     private String firstName;
 
-    @Field(name = "last_name")
+    @Field(name = "lastName")
     private String lastName;
 }

@@ -1,6 +1,6 @@
 type EmployeePerformance {
     employeePerformanceId: Int!
-    employee: Employee!
+    employeeDocument: Employee!
     selfAssessment: Int!
     supervisorAssessment: Int!
     finalAssessment: Int!

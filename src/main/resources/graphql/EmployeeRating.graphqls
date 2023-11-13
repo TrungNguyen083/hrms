@@ -1,4 +1,4 @@
 type EmployeeRating {
-    employee: Employee
+    employeeDocument: Employee
     rating: Float
 }

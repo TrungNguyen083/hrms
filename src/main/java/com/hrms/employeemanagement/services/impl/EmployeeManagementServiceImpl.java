@@ -67,7 +67,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
         return employeeRepository
                 .findOne(spec)
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("EmployeeDocument not found with id: " + id));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
         Employee employee = employeeRepository
                 .findOne(spec)
-                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("EmployeeDocument not found with id: " + id));
         Specification<EmergencyContact> contactSpec = (root, query, builder)
                 -> builder.equal(root.get("employee").get("id"), id);
         List<EmergencyContact> emergencyContacts = emergencyContactRepository.findAll(contactSpec);
@@ -275,7 +275,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         String url = uploadResult.get("url").toString();
         // Update the employee's profile picture public ID in the database
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(
-                () -> new RuntimeException("Employee not found with id: " + employeeId));
+                () -> new RuntimeException("EmployeeDocument not found with id: " + employeeId));
         EmployeeDamInfo employeeDamInfo = EmployeeDamInfo.builder()
                 .employee(employee)
                 .fileName(file.getOriginalFilename())
