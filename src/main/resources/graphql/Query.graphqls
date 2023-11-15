@@ -45,5 +45,4 @@ type Query {
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
     evaluationCycles: [EvaluationCycleInfo]
-    searchEmployees(searchText: String!): [Employee]
 }

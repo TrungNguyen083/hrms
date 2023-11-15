@@ -1,23 +1,22 @@
 package com.hrms.search.document;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 
-@Document(indexName = "employee")
-@AllArgsConstructor
-@NoArgsConstructor
+@Document(indexName = "skill-set")
+@Setter
 @Getter
-@Builder
-public class EmployeeDocument {
+@NoArgsConstructor
+@AllArgsConstructor
+public class SkillSetDocument {
     @Id
     private String id;
 
-    @Field(name = "full_name")
-    private String fullName;
-
+    @Field(name = "skill_set_name")
+    private String skillSetName;
 }

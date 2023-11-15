@@ -33,4 +33,14 @@ public class PerformanceCycle {
 
     @Column(name = "status")
     private String status;
+
+    // For modification time
+    @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @Temporal(TemporalType.TIMESTAMP)
+    private java.util.Date modificationTime;
+
+    // For insertion time
+    @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Temporal(TemporalType.TIMESTAMP)
+    private java.util.Date insertionTime;
 }

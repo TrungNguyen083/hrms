@@ -751,7 +751,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         List<CompetencyEvaluationOverall> compEvalOverall = evaluationOverallRepository.findAll();
         long totalEmp = employeeManagementService.getAllEmployees().size();
 
-        //Handle Competency Cycle
+        //Handle CompetencyDocument Cycle
         List<CompetencyCycle> compCycles = competencyCycleRepository.findAll();
         compCycles.forEach(item -> evaluationCycleInfoDTOS.add(new EvaluationCycleInfoDTO(
                 item.getCompetencyCycleName(),

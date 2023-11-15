@@ -127,38 +127,5 @@ public class EmployeeManagementController {
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
-
     }
-//
-//    @GetMapping("/dam/retrieve/{employeeId}")
-//    public ResponseEntity<Resource> getEmployeeProfilePictureUrl(@PathVariable Integer employeeId) {
-//        try {
-//            String url = employeeManagementService.getEmployeeProfilePictureUrl(employeeId);
-//
-//            // Check if the URL is not empty or null
-//            if (url != null && !url.isEmpty()) {
-//                // Fetch the image data from the Cloudinary URL
-//                byte[] imageBytes = IOUtils.toByteArray(new URL(url).openStream());
-//
-//                // Create a ByteArrayResource from the image data
-//                ByteArrayResource resource = new ByteArrayResource(imageBytes);
-//
-//                // Set the response headers for image data
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//                headers.setContentLength(imageBytes.length);
-//
-//                // Set the Content-Disposition header for download with a suggested filename
-//                headers.set("Content-Disposition", "attachment; filename=image.jpg");
-//
-//                return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-//            } else {
-//                // If the URL is empty or null, return a "not found" response
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//            }
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//    }
 }
