@@ -43,46 +43,67 @@ public class CompetencyServiceImpl implements CompetencyService {
     static String SELF_EVAL_LABEL_NAME = "Self Evaluation";
     static String SUPERVISOR_EVAL_LABEL_NAME = "Supervisor";
     static String FINAL_EVAL_LABEL_NAME = "Final Score";
-    @Autowired
-    private CompetencyEvaluationRepository competencyEvaluationRepository;
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private CompetencyTimeLineRepository competencyTimeLineRepository;
-    @Autowired
-    private SkillSetEvaluationRepository skillSetEvaluationRepository;
-    @Autowired
-    private SkillSetTargetRepository skillSetTargetRepository;
-    @Autowired
-    private PositionSkillSetRepository positionSkillSetRepository;
-    @Autowired
-    private CompetencyRepository competencyRepository;
-    @Autowired
-    private CompetencyCycleRepository competencyCycleRepository;
-    @Autowired
-    private ProficiencyLevelRepository proficiencyLevelRepository;
-    @Autowired
-    private EvaluationOverallRepository evaluationOverallRepository;
-    @Autowired
-    private SkillSetRepository skillSetRepository;
-    @Autowired
-    private DepartmentRepository departmentRepository;
-    @Autowired
-    private EmployeeManagementService employeeManagementService;
-    @Autowired
-    JobLevelRepository jobLevelRepository;
-    @Autowired
-    PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
-    @Autowired
-    CareerSpecification careerSpecification;
-    @Autowired
-    EmployeeSpecification employeeSpecification;
-    @Autowired
-    CompetencySpecification competencySpecification;
-    @Autowired
-    PerformanceCycleRepository performanceCycleRepository;
-
+    private final CompetencyEvaluationRepository competencyEvaluationRepository;
+    private final EmployeeRepository employeeRepository;
+    private final CompetencyTimeLineRepository competencyTimeLineRepository;
+    private final SkillSetEvaluationRepository skillSetEvaluationRepository;
+    private final SkillSetTargetRepository skillSetTargetRepository;
+    private final PositionSkillSetRepository positionSkillSetRepository;
+    private final CompetencyRepository competencyRepository;
+    private final CompetencyCycleRepository competencyCycleRepository;
+    private final ProficiencyLevelRepository proficiencyLevelRepository;
+    private final EvaluationOverallRepository evaluationOverallRepository;
+    private final SkillSetRepository skillSetRepository;
+    private final DepartmentRepository departmentRepository;
+    private final EmployeeManagementService employeeManagementService;
+    private final JobLevelRepository jobLevelRepository;
+    private final PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
+    private final CareerSpecification careerSpecification;
+    private final EmployeeSpecification employeeSpecification;
+    private final CompetencySpecification competencySpecification;
+    private final PerformanceCycleRepository performanceCycleRepository;
     private CompetencyCycle latestCycle;
+
+    @Autowired
+    public CompetencyServiceImpl(CompetencyEvaluationRepository competencyEvaluationRepository,
+                                 EmployeeRepository employeeRepository,
+                                 CompetencyTimeLineRepository competencyTimeLineRepository,
+                                 SkillSetEvaluationRepository skillSetEvaluationRepository,
+                                 SkillSetTargetRepository skillSetTargetRepository,
+                                 PositionSkillSetRepository positionSkillSetRepository,
+                                 CompetencyRepository competencyRepository,
+                                 CompetencyCycleRepository competencyCycleRepository,
+                                 ProficiencyLevelRepository proficiencyLevelRepository,
+                                 EvaluationOverallRepository evaluationOverallRepository,
+                                 SkillSetRepository skillSetRepository,
+                                 DepartmentRepository departmentRepository,
+                                 EmployeeManagementService employeeManagementService,
+                                 JobLevelRepository jobLevelRepository,
+                                 PositionJobLevelSkillSetRepository positionLevelSkillSetRepository,
+                                 CareerSpecification careerSpecification,
+                                 EmployeeSpecification employeeSpecification,
+                                 CompetencySpecification competencySpecification,
+                                 PerformanceCycleRepository performanceCycleRepository) {
+        this.competencyEvaluationRepository = competencyEvaluationRepository;
+        this.employeeRepository = employeeRepository;
+        this.competencyTimeLineRepository = competencyTimeLineRepository;
+        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
+        this.skillSetTargetRepository = skillSetTargetRepository;
+        this.positionSkillSetRepository = positionSkillSetRepository;
+        this.competencyRepository = competencyRepository;
+        this.competencyCycleRepository = competencyCycleRepository;
+        this.proficiencyLevelRepository = proficiencyLevelRepository;
+        this.evaluationOverallRepository = evaluationOverallRepository;
+        this.skillSetRepository = skillSetRepository;
+        this.departmentRepository = departmentRepository;
+        this.employeeManagementService = employeeManagementService;
+        this.jobLevelRepository = jobLevelRepository;
+        this.positionLevelSkillSetRepository = positionLevelSkillSetRepository;
+        this.careerSpecification = careerSpecification;
+        this.employeeSpecification = employeeSpecification;
+        this.competencySpecification = competencySpecification;
+        this.performanceCycleRepository = performanceCycleRepository;
+    }
 
     @PostConstruct
     private void initialize() {
