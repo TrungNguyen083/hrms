@@ -1,0 +1,11 @@
+type EmployeeOverviewDTO {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    profileImgUri: String
+    position: String!
+    level: String!
+    skills: [Skill!]!
+    interests: [Skill!]!
+    certifications: [String]
+}

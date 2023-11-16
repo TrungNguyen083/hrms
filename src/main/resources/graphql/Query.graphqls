@@ -1,7 +1,7 @@
-# Define a query to fetch employeeDocuments
+# Define a query to fetch employees
 type Query {
-    employeeDocuments(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
-    employeeDocument(id: Int!): EmployeeDetail
+    employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
+    employee(id: Int!): EmployeeDetail
     newEmployees: [Employee]
     departments: [Department]
     NumberOfDepartments: Int
@@ -21,10 +21,12 @@ type Query {
     departmentInComplete(competencyCycleId: Int!): MultiChartDTO
     companyInComplete(competencyCycleId: Int!): PieChartDTO
     topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
+    topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
+    topCompetencyRating(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
-    topEmployeeCompetencies(competencyCycleId: Int!, limit: Int): [EmployeeRating]
+    topEmployeeCompetencies(competencyCycleId: Int!, limit: Int): [EmployeeRatingDTO]
     employeesCompetency(pageNo: Int, pageSize: Int): EmployeeRatingPagination
-    employeesPotentialPerformance(departmentId: Int): [EmployeePotentialPerformance]
+    employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [AvgCompetency]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
@@ -45,4 +47,8 @@ type Query {
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
     evaluationCycles: [EvaluationCycleInfo]
+    searchEmployees(name: String!): [Employee]
+    overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
+
+    skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
 }

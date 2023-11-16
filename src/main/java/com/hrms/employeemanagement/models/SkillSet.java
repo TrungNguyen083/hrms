@@ -27,13 +27,12 @@ public class SkillSet {
     @JoinColumn(name = "competency_id")
     private Competency competency;
 
-    // For modification time
-    @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "modification_time")
     private Date modificationTime;
 
-    // For insertion time
-    @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "insertion_time")
     private Date insertionTime;
 }

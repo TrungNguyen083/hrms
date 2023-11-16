@@ -1,4 +1,0 @@
-type EmployeeRating {
-    employeeDocument: Employee
-    rating: Float
-}

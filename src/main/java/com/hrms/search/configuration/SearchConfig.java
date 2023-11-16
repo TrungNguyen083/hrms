@@ -12,7 +12,7 @@ public class SearchConfig {
     }
 
     public static class SkillSet {
-        public static final String INDEX = "skill-set";
+        public static final String INDEX = "skill_set";
         public static final List<String> FIELDS = List.of("skill_set_name");
     }
 
@@ -22,12 +22,12 @@ public class SearchConfig {
     }
 
     public static class CompetencyCycle {
-        public static final String INDEX = "competency-cycle";
+        public static final String INDEX = "competency_cycle";
         public static final List<String> FIELDS = List.of("competency_cycle_name", "description");
     }
 
     public static class PerformanceCycle {
-        public static final String INDEX = "performance-cycle";
+        public static final String INDEX = "performance_cycle";
         public static final List<String> FIELDS = List.of("performance_cycle_name", "description");
     }
 

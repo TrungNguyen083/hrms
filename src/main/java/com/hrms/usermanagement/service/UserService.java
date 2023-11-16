@@ -79,7 +79,8 @@ public class UserService {
 
     public List<Role> getRoles(Integer userId) {
         Specification<UserRole> spec = (root, query, builder) -> builder.equal(root.get("user").get("userId"), userId);
-        return userRoleRepository.findAllByUserId(userId);
+
+        return userRoleRepository.findAll(spec).stream().map(UserRole::getRole).toList();
     }
 
     public UserDto getUser(Integer userId) throws Exception {
@@ -144,26 +145,5 @@ public class UserService {
 
         em.createQuery(update).executeUpdate();
     }
-
-    //    private UserDto getUserDto(Integer userId) throws Exception {
-//        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-//        CriteriaQuery<UserDto> query = cb.createQuery(UserDto.class);
-//        Root<User> root = query.from(User.class);
-//
-//        query.multiselect(root.get("userId"), root.get("username"), root.get("isEnabled"), root.get("createdAt"));
-//        query.where(cb.equal(root.get("userId"), userId));
-//
-//        return entityManager.createQuery(query).getSingleResult();
-//    }
-
-    //CODE TO DISCUSS WITH MR.DAO ABOUT SELECT SPECIFIC COLUMNS + PAGEABLE + SPECIFICATION --> NOT WORKING
-    // Solution: Custom?
-    public List<UserDto> getUsers(Integer userId) throws Exception {
-        Specification<User> spec = ((root, query, builder) -> builder.greaterThan(root.get("userId"), userId));
-        return userRepository.findAll(spec).stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .toList();
-    }
-
 
 }

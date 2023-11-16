@@ -1,9 +1,14 @@
 package com.hrms.employeemanagement.services.impl;
 
+import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
+import com.hrms.careerpathmanagement.models.SkillSetTarget;
+import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
+import com.hrms.careerpathmanagement.repositories.SkillSetTargetRepository;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
+import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.global.paging.PagingInfo;
@@ -18,7 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +38,7 @@ import java.util.*;
 @Service
 @Transactional
 public class EmployeeManagementServiceImpl implements EmployeeManagementService {
+
     @Autowired
     private EmployeeRepository employeeRepository;
     @Autowired
@@ -42,6 +47,12 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private EmergencyContactRepository emergencyContactRepository;
     @Autowired
     private EmployeeDamInfoRepository employeeDamInfoRepository;
+    @Autowired
+    private SkillSetEvaluationRepository skillSetEvaluationRepository;
+    @Autowired
+    private SkillSetTargetRepository skillSetTargetRepository;
+    @Autowired
+    private EmployeeSpecification employeeSpecification;
     @Autowired
     private DamService damService;
     private ModelMapper modelMapper;
@@ -280,7 +291,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 .employee(employee)
                 .fileName(file.getOriginalFilename())
                 .type(type)
-                .extension(extension)
                 .url(url)
                 .uploadedAt(new Date(System.currentTimeMillis()))
                 .build();
@@ -298,15 +308,45 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public List<EmployeeDamInfo> getQualifications(Integer employeeId) {
-        Specification<EmployeeDamInfo> spec = (root, query, builder) -> builder.and(
-                builder.equal(root.get("employee").get("id"), employeeId),
-                builder.equal(root.in("type").not(), PROFILE_IMAGE)
-        );
-
-        return employeeDamInfoRepository.findAll(spec);
-
+    public List<EmployeeDamInfoDTO> getQualifications(Integer employeeId) {
+        var spec = EmployeeDamInfoSpec.hasEmployeeAndType(employeeId, QUALIFICATION);
+        return employeeDamInfoRepository.findAll(spec)
+                .stream().map(e -> {
+                    return new EmployeeDamInfoDTO(e.getEmployee().getId(),
+                            e.getExtension().getName(),
+                            e.getUrl(),
+                            e.getExtension().getIconUri(),
+                            e.getUploadedAt());
+                })
+                .toList();
     }
 
+    @Override
+    public EmployeeOverviewDTO getProfileOverview(Integer employeeId) {
+        Specification<Employee> spec = (root, query, builder) -> builder.equal(root.get("id"), employeeId);
+        Employee employee = employeeRepository.findOne(spec).orElseThrow(
+                () -> new RuntimeException("Employee not found with id: " + employeeId));
 
+        Specification<SkillSetEvaluation> hasEmp = employeeSpecification.hasEmployeeId(employeeId);
+        List<SkillSet> skillSets = skillSetEvaluationRepository
+                .findAll(hasEmp)
+                .stream().map(SkillSetEvaluation::getSkillSet).toList();
+
+        Specification<SkillSetTarget> hasEmp2 = employeeSpecification.hasEmployeeId(employeeId);
+        List<SkillSet> interests = skillSetTargetRepository
+                .findAll(hasEmp2)
+                .stream().map(SkillSetTarget::getSkillSet).toList();
+
+        String profileImgUri = getProfilePicture(employeeId);
+
+        return new EmployeeOverviewDTO(employee.getId(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                profileImgUri,
+                employee.getPosition().getPositionName(),
+                employee.getJobLevel().getJobLevelName(),
+                skillSets.stream().map(SkillSet::getSkillSetName).toList(),
+                interests.stream().map(SkillSet::getSkillSetName).toList(),
+                null);
+    }
 }

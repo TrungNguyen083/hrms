@@ -10,6 +10,8 @@ import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.repositories.PositionRepository;
 import com.hrms.employeemanagement.services.*;
 import jakarta.annotation.Nullable;
+import org.elasticsearch.logging.Logger;
+import org.elasticsearch.logging.internal.spi.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -25,6 +27,7 @@ import java.util.List;
 @CrossOrigin
 //Controller
 public class EmployeeManagementController {
+
     @Autowired
     EmployeeManagementService employeeManagementService;
     @Autowired
@@ -69,6 +72,7 @@ public class EmployeeManagementController {
 
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInputDTO input) throws Exception {
+        //logger.info("Create profile for employee: " + input.getFirstName() + " " + input.getLastName());
         return employeeManagementService.createEmployee(input);
     }
 
@@ -119,13 +123,8 @@ public class EmployeeManagementController {
         }
     }
 
-    @GetMapping("/dam/retrieve/{employeeId}/{type}")
-    public ResponseEntity<String> getEmployeeQualifications(@PathVariable Integer employeeId) {
-        try {
-            List<EmployeeDamInfo> infos = employeeManagementService.getQualifications(employeeId);
-            return ResponseEntity.ok(infos.toString());
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/qualifications/{employeeId}/{type}")
+    public ResponseEntity<List<EmployeeDamInfoDTO>> getEmployeeQualifications(@PathVariable Integer employeeId) {
+        return ResponseEntity.ok(employeeManagementService.getQualifications(employeeId));
     }
 }

@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PerformanceCycleRepository extends JpaRepository<PerformanceCycle, Integer>, JpaSpecificationExecutor<PerformanceCycle> {
     List<PerformanceCycle> findAll(Sort sort);
-    PerformanceCycle findFirstByOrderByPerformanceCycleIdDesc();
+
+    Optional<Integer> findTopByOrderByPerformanceCycleIdDesc();
 }
