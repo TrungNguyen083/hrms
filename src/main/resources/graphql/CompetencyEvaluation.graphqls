@@ -1,18 +1,9 @@
-type DepartmentInCompleted {
-    departmentId: Int
-    employeePercentage: Float
-    evaluatorPercentage: Float
-}
+
 
 type AvgCompetency {
     jobLevelId: Int
     competencyId: Int
     average: Float
-}
-
-type CompanyEvaPercent {
-    label: String
-    data: Float
 }
 
 type CurrentEvaluation{

@@ -39,22 +39,22 @@ public class CompetencyController {
 
     //TODO:DTO
     @QueryMapping(name = "departmentInComplete")
-    public List<DepartmentInCompleteDTO> getAllDepartmentInComplete(@Argument Integer competencyCycleId) {
+    public MultiBarChartDTO getAllDepartmentInComplete(@Argument Integer competencyCycleId) {
         try {
             return competencyService.getDepartmentIncompletePercent(competencyCycleId);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return Collections.emptyList();
+            return null;
         }
     }
 
     @QueryMapping(name = "companyInComplete")
-    public List<CompanyIncompletedDTO> getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
+    public PieChartDTO getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
         try {
             return competencyService.getCompanyIncompletePercent(competencyCycleId);
         } catch (Exception e) {
             log.error(e.getMessage());
-            return Collections.emptyList();
+            return null;
         }
     }
 
