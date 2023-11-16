@@ -15,8 +15,8 @@ public interface CompetencyService {
     @Scheduled(cron = "0 0 0 * * *")
     void updateIsDoneForOverdueItems();
     List<CompetencyTimeLine> getCompetencyTimeline(Integer competencyCycleId);
-    List<DepartmentInCompleteDTO> getDepartmentIncompletePercent(Integer competencyCycleId);
-    List<CompanyIncompletedDTO> getCompanyIncompletePercent(Integer competencyCycleId);
+    MultiBarChartDTO getDepartmentIncompletePercent(Integer competencyCycleId);
+    PieChartDTO getCompanyIncompletePercent(Integer competencyCycleId);
     List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId);
     SkillSetPagingDTO getHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);

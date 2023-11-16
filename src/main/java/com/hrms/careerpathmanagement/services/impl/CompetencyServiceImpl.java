@@ -49,6 +49,30 @@ public class CompetencyServiceImpl implements CompetencyService {
     static String SELF_EVAL_LABEL_NAME = "Self Evaluation";
     static String SUPERVISOR_EVAL_LABEL_NAME = "Supervisor";
     static String FINAL_EVAL_LABEL_NAME = "Final Score";
+    static String COMPLETED_LABEL_NAME = "Completed";
+    static String IN_COMPLETED_LABEL_NAME = "InCompleted";
+  
+    private final CompetencyEvaluationRepository competencyEvaluationRepository;
+    private final EmployeeRepository employeeRepository;
+    private final CompetencyTimeLineRepository competencyTimeLineRepository;
+    private final SkillSetEvaluationRepository skillSetEvaluationRepository;
+    private final SkillSetTargetRepository skillSetTargetRepository;
+    private final PositionSkillSetRepository positionSkillSetRepository;
+    private final CompetencyRepository competencyRepository;
+    private final CompetencyCycleRepository competencyCycleRepository;
+    private final ProficiencyLevelRepository proficiencyLevelRepository;
+    private final EvaluationOverallRepository evaluationOverallRepository;
+    private final SkillSetRepository skillSetRepository;
+    private final DepartmentRepository departmentRepository;
+    private final EmployeeManagementService employeeManagementService;
+    private final JobLevelRepository jobLevelRepository;
+    private final PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
+    private final CareerSpecification careerSpecification;
+    private final EmployeeSpecification employeeSpecification;
+    private final CompetencySpecification competencySpecification;
+    private final PerformanceCycleRepository performanceCycleRepository;
+    private CompetencyCycle latestCycle;
+
     @Autowired
     private CompetencyEvaluationRepository competencyEvaluationRepository;
     @Autowired
@@ -205,60 +229,60 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<DepartmentInCompleteDTO> getDepartmentIncompletePercent(Integer competencyCycleId) {
-        List<Integer> departmentIds = departmentRepository
-                .findAll()
-                .stream()
-                .map(Department::getId)
-                .toList();
+    public MultiBarChartDTO getDepartmentIncompletePercent(Integer competencyCycleId) {
+        List<Department> departments = departmentRepository.findAll();
 
-        //for each all departments
-        return departmentIds.stream().map(item -> {
-            //get all employees of each department
+        //Get all CompetencyEvaluationOverall of all employees have final status is agreed and get the latest cycle
+
+
+        List<Float> selfData = processDepartmentData(departments, SELF_EVAL_LABEL_NAME, competencyCycleId);
+        List<Float> managerData = processDepartmentData(departments, SUPERVISOR_EVAL_LABEL_NAME, competencyCycleId);
+
+        List<BarChartDataDTO> datasets = new ArrayList<>();
+        datasets.add(new BarChartDataDTO(SELF_EVAL_LABEL_NAME, selfData));
+        datasets.add(new BarChartDataDTO(SUPERVISOR_EVAL_LABEL_NAME, managerData));
+
+        List<String> labels = departments.stream().map(Department::getDepartmentName).toList();
+        return new MultiBarChartDTO(labels, datasets);
+    }
+
+    private List<Float> processDepartmentData(List<Department> departments, String type, Integer competencyCycleId) {
+        return departments.parallelStream().map(item -> {
             List<Integer> empIdSet = employeeManagementService
-                    .findEmployees(item)
+                    .findEmployees(item.getId())
                     .stream()
                     .map(Employee::getId)
                     .toList();
 
-            float employeePercent = getEmployeeInCompletedPercent(competencyCycleId, empIdSet);
-            float evaluatorPercent = getEvaluatorInCompletePercent(competencyCycleId, empIdSet);
-
-            return new DepartmentInCompleteDTO(item, employeePercent, evaluatorPercent);
+            return (type.equals(SELF_EVAL_LABEL_NAME))
+                    ? getEmployeeInCompletedPercent(competencyCycleId, empIdSet)
+                    : getEvaluatorInCompletePercent(competencyCycleId, empIdSet);
         }).toList();
     }
 
-    private float getEvaluatorInCompletePercent(Integer competencyCycleId, List<Integer> empIdSet) {
-        //get all employees who have completed evaluator-evaluation
-        Specification<CompetencyEvaluationOverall> specCompleteEvaluator = (root, query, criteriaBuilder)
-                -> criteriaBuilder.and(
-                root.get("employee").get("id").in(empIdSet),
-                criteriaBuilder.equal(root.get("evaluatorStatus"), "Completed"),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
-
-        var evaluatorHasCompleted = evaluationOverallRepository.count(specCompleteEvaluator);
-        var evaluatorHasInCompleted = empIdSet.size() - evaluatorHasCompleted;
-        return (float) evaluatorHasInCompleted / empIdSet.size() * 100;
+    private Float getEvaluatorInCompletePercent(Integer competencyCycleId, List<Integer> empIdSet) {
+        return calculatePercentage(competencyCycleId, empIdSet, "evaluatorStatus");
     }
 
-    private float getEmployeeInCompletedPercent(Integer competencyCycleId, List<Integer> empIdSet) {
-        //get all employees who have completed self-evaluation
-        Specification<CompetencyEvaluationOverall> specCompleteEval = (root, query, criteriaBuilder)
-                -> criteriaBuilder.and(
+    private Float getEmployeeInCompletedPercent(Integer competencyCycleId, List<Integer> empIdSet) {
+        return calculatePercentage(competencyCycleId, empIdSet, "employeeStatus");
+    }
+
+    private Float calculatePercentage(Integer competencyCycleId, List<Integer> empIdSet, String roleField) {
+        if (empIdSet.isEmpty()) return null;
+        Specification<CompetencyEvaluationOverall> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 root.get("employee").get("id").in(empIdSet),
-                criteriaBuilder.equal(root.get("employeeStatus"), "Completed"),
+                criteriaBuilder.equal(root.get(roleField), "Completed"),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
 
-        var employeesHasCompleted = evaluationOverallRepository.count(specCompleteEval);
-        var employeesHasInCompleted = empIdSet.size() - employeesHasCompleted;
-        return (float) employeesHasInCompleted / empIdSet.size() * 100;
+        var completedCount = evaluationOverallRepository.count(specification);
+        return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
     }
 
     @Override
-    public List<CompanyIncompletedDTO> getCompanyIncompletePercent(Integer competencyCycleId) {
-        List<CompanyIncompletedDTO> companyEvaPercents = new ArrayList<>();
-        List<Integer> empIdSet = employeeRepository
-                .findAll()
+    public PieChartDTO getCompanyIncompletePercent(Integer competencyCycleId) {
+
+        List<Integer> empIdSet = employeeManagementService.getAllEmployees()
                 .stream()
                 .map(Employee::getId)
                 .toList();
@@ -266,16 +290,16 @@ public class CompetencyServiceImpl implements CompetencyService {
         //get all employees who have completed evaluation
         Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 root.get("employee").get("id").in(empIdSet),
-                criteriaBuilder.equal(root.get("finalStatus"), "Agreed"),
+                criteriaBuilder.equal(root.get("finalStatus"), "Completed"),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId)
         );
 
-        var hasCompletedPercent = (float) evaluationOverallRepository.count(spec) / empIdSet.size() * 100;
-        var hasInCompleted = 100 - hasCompletedPercent;
+        List<Float> datasets = new ArrayList<>();
+        var completedPercent = (float) evaluationOverallRepository.count(spec) / empIdSet.size() * 100;
+        datasets.add(completedPercent);
+        datasets.add(100 - completedPercent);
 
-        companyEvaPercents.add(new CompanyIncompletedDTO("Completed", hasCompletedPercent));
-        companyEvaPercents.add(new CompanyIncompletedDTO("InCompleted", hasInCompleted));
-        return companyEvaPercents;
+        return new PieChartDTO(List.of(COMPLETED_LABEL_NAME, IN_COMPLETED_LABEL_NAME), datasets);
     }
 
 

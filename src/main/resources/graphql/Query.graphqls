@@ -18,8 +18,8 @@ type Query {
     competencyCycles: [CompetencyCycle]
     competencyTimeLine(competencyCycleId: Int!): [CompetencyTimeLine]
     employeeOverview(employeeId: Int!): EmployeeOverviewDto
-    departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
-    companyInComplete(competencyCycleId: Int!): [CompanyEvaPercent]
+    departmentInComplete(competencyCycleId: Int!): MultiChartDTO
+    companyInComplete(competencyCycleId: Int!): PieChartDTO
     topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
     topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     topCompetencyRating(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination

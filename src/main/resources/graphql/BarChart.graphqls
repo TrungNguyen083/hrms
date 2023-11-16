@@ -1,0 +1,14 @@
+type MultiChartDTO {
+    labels: [String]
+    datasets: [BarChartDataDTO]
+}
+
+type BarChartDataDTO {
+    label: String
+    data: [Float]
+}
+
+type PieChartDTO {
+    labels: [String]
+    datasets: [Float]
+}
