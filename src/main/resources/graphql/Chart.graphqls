@@ -1,0 +1,9 @@
+type BarChartDTO {
+    title: String
+    items: [BarChartItemDTO!]
+}
+
+type BarChartItemDTO {
+    label: String
+    value: Float
+}

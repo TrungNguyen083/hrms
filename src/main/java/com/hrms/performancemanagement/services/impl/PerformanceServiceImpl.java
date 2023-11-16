@@ -1,13 +1,21 @@
 package com.hrms.performancemanagement.services.impl;
 
+import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.models.PerformanceRange;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
+import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
+import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
+import com.hrms.employeemanagement.models.EmployeeDamInfo;
 import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
+import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.paging.Pagination;
+import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
+import com.hrms.performancemanagement.dto.RatingDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.performancemanagement.model.PerformanceCycle;
@@ -16,9 +24,12 @@ import com.hrms.performancemanagement.services.PerformanceService;
 import com.hrms.performancemanagement.specification.PerformanceSpecification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,6 +42,9 @@ import java.util.List;
 public class PerformanceServiceImpl implements PerformanceService {
     @PersistenceContext
     EntityManager em;
+
+    @Autowired
+    EmployeeManagementService employeeService;
 
     @Autowired
     PerformanceEvaluationRepository performanceEvaluationRepository;
@@ -54,7 +68,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     PerformanceSpecification performanceSpecification;
 
     private Integer getLatestCycleId() {
-        return performanceCycleRepository.findFirstByOrderByPerformanceCycleIdDesc().getPerformanceCycleId();
+        return performanceCycleRepository.findTopByOrderByPerformanceCycleIdDesc().orElse(0);
     }
 
     @Override
@@ -83,13 +97,55 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public PerformanceByJobLevalChartDTO getPerformanceStatistic(Integer positionId, Integer cycleId) {
+    public PerformanceByJobLevalChartDTO getPerformanceByJobLevel(Integer positionId, Integer cycleId) {
         var evaluations = performanceEvaluationRepository.findByCycleIdAndPositionId(positionId, cycleId);
         var performanceRanges = performanceRangeRepository.findAll();
         var labels = jobLevelRepository.findAll();
         var datasets = createDatasets(evaluations, performanceRanges, labels);
 
         return new PerformanceByJobLevalChartDTO(labels, datasets);
+    }
+
+    @Override
+    public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId) {
+        Specification<PerformanceEvaluation> empSpec = employeeSpecification.hasDepartmentId(departmentId);
+        Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasPerformanceCycleId(cycleId);
+
+        var evaluations = performanceEvaluationRepository.findAll(empSpec.and(cycleSpec));
+        evaluations.forEach(e -> log.info(e.getEmployee().getFullName()));
+
+        List<EmployeePotentialPerformanceDTO> results = new ArrayList<>();
+
+        evaluations.forEach(item -> {
+            results.add(new EmployeePotentialPerformanceDTO(
+                    item.getEmployee().getFullName(),
+                    item.getEmployee().getProfileBio(),
+                    item.getPotentialScore(),
+                    item.getFinalAssessment()
+            ));
+        });
+        return results;
+    }
+
+    @Override
+    public EmployeeRatingPagination getPerformanceRating(Integer cycleId, PageRequest pageable) {
+        Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasPerformanceCycleId(cycleId);
+        var evaluations = performanceEvaluationRepository.findAll(cycleSpec, pageable);
+
+        List<EmployeeRatingDTO> results = new ArrayList<>();
+
+        evaluations.forEach(item -> {
+            results.add(new EmployeeRatingDTO(
+                    item.getEmployee().getId(),
+                    item.getEmployee().getFirstName(),
+                    item.getEmployee().getLastName(),
+                    employeeService.getProfilePicture(item.getEmployee().getId()),
+                    item.getFinalAssessment()
+            ));
+        });
+
+        Pagination pagination = PaginationSetup.setupPaging(evaluations.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        return new EmployeeRatingPagination(results, pagination);
     }
 
     private List<DatasetDTO> createDatasets(List<PerformanceEvaluation> evaluations,
@@ -139,58 +195,3 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
 }
-
-
-//"Unsatisfactory", "Partially meet expectation", "Meet expectation", "Exceed expectation", "Outstanding"
-//        var labels = jobLevelRepository.findAll();
-//
-//        Map<JobLevel, Integer> jobLevelCount = countEmpInJoblevel();
-//
-//        var datasets = performanceRangeRepository.findAll().stream()
-//                .map(range -> {
-//                    var dataset = new Dataset(range.getText(), new ArrayList());
-//                    labels.forEach(level -> {
-//                        Specification<PerformanceEvaluation> posSpec = employeeSpecification.hasPositionId(positionId);
-//                        Specification<PerformanceEvaluation> levelSpec = employeeSpecification.hasJobLevelId(level.getId());
-//                        var countEmpIsLevelPosition = performanceEvaluationRepository.count(posSpec.and(levelSpec));
-//                        var count = (float) evaluations.stream()
-//                                .filter(eval -> eval.getEmployee().getJobLevel().getId() == level.getId())
-//                                .filter(eval -> eval.getFinalAssessment() >= range.getMinValue())
-//                                .filter(eval -> eval.getFinalAssessment() <= range.getMaxValue())
-//                                .count();
-//                        dataset.getData().add( (float)  (count / countEmpIsLevelPosition) * 100);
-//                    });
-//                    return dataset;
-//                })
-//                .toList();
-//
-//
-//        return new PerformanceByJobLevelChart(labels.stream().map(l -> l.getJobLevelName()).toList(),
-//                datasets);
-//    }
-//
-//    private HashMap<JobLevel, Integer> countEmpInJoblevel() {
-//        HashMap<Job, Integer> countMap = new HashMap<>();
-//
-
-
-//THIS SOLUTION IS NOT WORKING FOR N+1 PROBLEM
-//Specification<PerformanceEvaluation> spec = (root, query, cb) -> {
-//    Join<PerformanceEvaluation, EmployeeDocument> employeeJoin = root.join("employee");
-//    Join<EmployeeDocument, Position> positionJoin = employeeJoin.join("position");
-//    Join<PerformanceEvaluation, PerformanceCycle> cycleJoin = root.join("performanceCycle");
-//    return cb.and(
-//            cb.equal(positionJoin.get("id"), positionId),
-//            cb.equal(cycleJoin.get("performanceCycleId"), cycleId)
-//    );
-//};
-//
-//    CriteriaQuery<PerformanceEvaluation> criteriaQuery = em.getCriteriaBuilder().createQuery(PerformanceEvaluation.class);
-//    Root<PerformanceEvaluation> root = criteriaQuery.from(PerformanceEvaluation.class);
-//        criteriaQuery.where(spec.toPredicate(root, criteriaQuery, em.getCriteriaBuilder()));
-//                root.join("employee");
-//                root.join("performanceCycle");
-//                root.join("employee").join("position");
-//                root.join("employee").join("jobLevel");
-//                TypedQuery<PerformanceEvaluation> query = em.createQuery(criteriaQuery);
-//        List<PerformanceEvaluation> evaluations = query.getResultList();

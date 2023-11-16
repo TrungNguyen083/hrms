@@ -3,7 +3,10 @@ package com.hrms.careerpathmanagement.services;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
+import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
+import com.hrms.global.dto.BarChartDTO;
 import jakarta.annotation.Nullable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
@@ -29,5 +32,10 @@ public interface CompetencyService {
     List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
     List<EvaluationCycleInfoDTO> getEvaluationCycles();
+
+    BarChartDTO getSkillGapBarChart(Integer employeeId, Integer cycleId);
+
     List<CompetencyCycle> getCompetencyCycles();
+
+    EmployeeRatingPagination getCompetencyRating(Integer cycleId, PageRequest pageable);
 }

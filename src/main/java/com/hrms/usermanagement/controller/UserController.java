@@ -40,7 +40,11 @@ public class UserController {
                                    @Argument int pageSize)
     {
         var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
-        return userService.searchUsers(search, roleIds, status, pageable);
+        var users = userService.searchUsers(search, roleIds, status, pageable);
+        users.data().stream().forEach(user -> {
+            user.setRoles(userService.getRoles(user.getUserId()));
+        });
+        return users;
     }
 
     @MutationMapping
@@ -54,11 +58,6 @@ public class UserController {
                                @Argument List<Integer> roles)
     {
         return userService.updateUsers(ids, status, roles);
-    }
-
-    @QueryMapping
-    public List<UserDto> getUsers() throws Exception {
-        return userService.getUsers(1);
     }
 
 }

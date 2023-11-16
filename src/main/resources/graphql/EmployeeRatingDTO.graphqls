@@ -1,0 +1,7 @@
+type EmployeeRatingDTO {
+    id: Int
+    firstName: String
+    lastName: String
+    profileImgUrl: String
+    rating: Float
+}

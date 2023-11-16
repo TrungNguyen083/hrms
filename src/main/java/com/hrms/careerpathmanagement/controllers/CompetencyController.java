@@ -3,13 +3,17 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
+import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
+import com.hrms.global.dto.BarChartDTO;
 import jakarta.annotation.Nullable;
 
 import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -61,12 +65,7 @@ public class CompetencyController {
     @QueryMapping(name = "avgCompetencyScore")
     public List<AvgCompetencyDTO> getAvgCompetencyScore(@Argument @Nullable Integer positionId,
                                                         @Argument Integer competencyCycleId) {
-        try {
-            return competencyService.getAvgCompetencies(positionId, competencyCycleId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
-        }
+        return competencyService.getAvgCompetencies(positionId, competencyCycleId);
     }
 
     @QueryMapping(name = "competencyCycles")
@@ -114,12 +113,7 @@ public class CompetencyController {
 
     @QueryMapping(name = "skillMatrixOverall")
     public SkillMatrixOverallDTO getEmpSkillMatrixOverall(@Argument(name = "employeeId") Integer empId) {
-        try {
-            return competencyService.getSkillMatrixOverall(empId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+        return competencyService.getSkillMatrixOverall(empId);
     }
 
     @QueryMapping(name = "topKeenSkillSetEmployee")
@@ -132,64 +126,40 @@ public class CompetencyController {
     public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(@Argument(name = "employeeId") Integer empId,
                                                                  @Argument Integer pageNo,
                                                                  @Argument Integer pageSize) {
-        try {
-            return competencyService.getTopHighestSkillSetTargetEmployee(empId, pageNo, pageSize);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+        return competencyService.getTopHighestSkillSetTargetEmployee(empId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "currentEvaluation")
     public CurrentEvaluationDTO getCurrentEvaluation(@Argument("employeeId") Integer empId) {
-        try {
-            return competencyService.getCurrentEvaluation(empId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+        return competencyService.getCurrentEvaluation(empId);
     }
 
     @QueryMapping(name = "historyEvaluation")
     public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument("employeeId") Integer empId) {
-        try {
-            return competencyService.getHistoryEvaluations(empId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
-        }
+        return competencyService.getHistoryEvaluations(empId);
     }
 
     @QueryMapping
     public SkillSetSummarizationDTO skillSetSummarization(@Argument Integer employeeId, @Argument Integer cycleId) {
-        try {
-            return competencyService.getSkillSummarization(employeeId, cycleId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+        return competencyService.getSkillSummarization(employeeId, cycleId);
     }
 
     @QueryMapping(name = "companyCompetencyDiffPercent")
     public CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent() {
-        try {
-            return competencyService.getCompanyCompetencyDiffPercent();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+        return competencyService.getCompanyCompetencyDiffPercent();
     }
 
     @QueryMapping(name = "competencyChart")
     public List<CompetencyChartDTO> getCompetencyChart() {
-        try {
-            return competencyService.getCompetencyChart();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
-        }
+        return competencyService.getCompetencyChart();
     }
 
+    /**
+     * DONE - Employee Dashboard, Overall Competency Score Radar Chart
+     * @param employeeId
+     * @param cycleId
+     * @return
+     */
     @QueryMapping
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
@@ -197,11 +167,6 @@ public class CompetencyController {
 
     @QueryMapping(name = "evaluationCycles")
     public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
-        try {
-            return competencyService.getEvaluationCycles();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+        return competencyService.getEvaluationCycles();
     }
 }

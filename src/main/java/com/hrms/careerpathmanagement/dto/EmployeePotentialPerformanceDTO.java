@@ -11,6 +11,6 @@ import lombok.*;
 public class EmployeePotentialPerformanceDTO {
     String fullName;
     String profileImgUri;
-    Integer potential;
-    Integer performance;
+    Float potential;
+    Float performance;
 }
