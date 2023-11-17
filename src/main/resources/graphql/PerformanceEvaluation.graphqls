@@ -17,11 +17,6 @@ type EmployeePerformanceRatingScore {
     score: Int
 }
 
-type EmployeePerformanceRatingScorePaging {
-    data: [EmployeePerformanceRatingScore]!
-    pagination: Pagination!
-}
-
 type EmployeePotentialPerformance {
     employeeDocument: Employee
     profileImgUri: String

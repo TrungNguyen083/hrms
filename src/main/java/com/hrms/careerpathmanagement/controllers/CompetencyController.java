@@ -134,13 +134,13 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "currentEvaluation")
-    public CurrentEvaluationDTO getCurrentEvaluation(@Argument("employeeId") Integer empId) {
+    public List<CurrentEvaluationDTO> getCurrentEvaluation(@Argument("employeeId") Integer empId) {
         return competencyService.getCurrentEvaluation(empId);
     }
 
     @QueryMapping(name = "historyEvaluation")
-    public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument("employeeId") Integer empId) {
-        return competencyService.getHistoryEvaluations(empId);
+    public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument Integer employeeId) {
+        return competencyService.getHistoryEvaluations(employeeId);
     }
 
     @QueryMapping

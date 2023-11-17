@@ -42,7 +42,7 @@ type Query {
     topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     employeeSkillMatrix(employeeId: Int!): [SkillMatrixTree]
     skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
-    currentEvaluation(employeeId: Int!): CurrentEvaluation
+    currentEvaluation(employeeId: Int!): [CurrentEvaluation]
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
     getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
@@ -59,8 +59,7 @@ type Query {
     employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
     employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
-    employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeePerformanceRatingScorePaging
-
+    employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
 
 
     #CarreerManagement:
