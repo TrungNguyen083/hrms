@@ -2,6 +2,7 @@ package com.hrms.careerpathmanagement.dto;
 
 import lombok.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -12,6 +13,5 @@ import java.util.List;
 public class PositionLevelNodeDTO {
     Integer id;
     String title;
-    Float matchPercentage;
-    List<PositionLevelNodeDTO> nextPositionLevels;
+    LinkedList<PositionLevelNodeDTO> nextPositionLevels;
 }
