@@ -21,25 +21,14 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "*")
 public class PerformanceController {
-    @Autowired
-    PerformanceService performanceService;
-    //TODO: get all performance cycles -> Do not caching
-//    @QueryMapping(name = "employeePerformanceRatingScore")
-//    //
-//    public EmployeePotentialPerformanceDTO getEmployeePerformanceRatingScore(@Argument(name = "employeeId") Integer empId,
-//                                                                             @Argument int pageNo,
-//                                                                             @Argument int pageSize)
-//    {
-//        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-//        Page<PerformanceEvaluation> empPerformances = performanceService.getPerformanceEvaluations(empId, pageable);
-//        List<LabelScoreDTO> data = empPerformances.stream()
-//                .map(item ->
-//                        new LabelScoreDTO(item.getPerformanceCycle().getPerformanceCycleName(), item.getFinalAssessment()))
-//                .toList();
-//        Pagination pagination = setupPaging(empPerformances.getTotalElements(), pageNo, pageSize);
-//        return new (data, pagination);
-//    }
 
+    private final PerformanceService performanceService;
+
+    @Autowired
+    public PerformanceController(PerformanceService performanceService)
+    {
+        this.performanceService = performanceService;
+    }
 
     @QueryMapping(name = "performanceByJobLevel")
     public PerformanceByJobLevalChartDTO getPerformanceByJobLevel(@Argument Integer positionId,
@@ -56,13 +45,6 @@ public class PerformanceController {
     }
 
 
-    /**
-     * HR Dashboard - Get top performers
-     * @param cycleId
-     * @param pageNo
-     * @param pageSize
-     * @return
-     */
     @QueryMapping(name = "topPerformers")
     public EmployeeRatingPagination getPerformanceRating(@Argument Integer cycleId,
                                                          @Argument Integer pageNo,

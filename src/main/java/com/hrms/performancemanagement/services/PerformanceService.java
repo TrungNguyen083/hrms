@@ -1,10 +1,8 @@
 package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
-import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
-import com.hrms.performancemanagement.dto.RatingDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import org.springframework.data.domain.Page;

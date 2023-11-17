@@ -2,12 +2,11 @@ package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.models.PerformanceRange;
+import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
-import com.hrms.employeemanagement.models.EmployeeDamInfo;
 import com.hrms.employeemanagement.models.JobLevel;
-import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
@@ -15,20 +14,14 @@ import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
-import com.hrms.performancemanagement.dto.RatingDTO;
-import com.hrms.performancemanagement.model.PerformanceEvaluation;
-import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.performancemanagement.model.PerformanceCycle;
+import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
 import com.hrms.performancemanagement.specification.PerformanceSpecification;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -40,32 +33,31 @@ import java.util.List;
 @Service
 @Slf4j
 public class PerformanceServiceImpl implements PerformanceService {
-    @PersistenceContext
-    EntityManager em;
+    private final EmployeeManagementService employeeService;
+    private final PerformanceEvaluationRepository performanceEvaluationRepository;
+    private final PerformanceCycleRepository performanceCycleRepository;
+    private final JobLevelRepository jobLevelRepository;
+    private final PerformanceRangeRepository performanceRangeRepository;
+    private final EmployeeSpecification employeeSpecification;
+    private final PerformanceSpecification performanceSpecification;
 
     @Autowired
-    EmployeeManagementService employeeService;
-
-    @Autowired
-    PerformanceEvaluationRepository performanceEvaluationRepository;
-
-    @Autowired
-    PerformanceCycleRepository performanceCycleRepository;
-
-    @Autowired
-    JobLevelRepository jobLevelRepository;
-
-    @Autowired
-    PerformanceRangeRepository performanceRangeRepository;
-
-    @Autowired
-    EmployeeRepository employeeRepository;
-
-    @Autowired
-    EmployeeSpecification employeeSpecification;
-
-    @Autowired
-    PerformanceSpecification performanceSpecification;
+    public PerformanceServiceImpl(EmployeeManagementService employeeService,
+                                  PerformanceEvaluationRepository performanceEvaluationRepository,
+                                  PerformanceCycleRepository performanceCycleRepository,
+                                  JobLevelRepository jobLevelRepository,
+                                  PerformanceRangeRepository performanceRangeRepository,
+                                  EmployeeSpecification employeeSpecification,
+                                  PerformanceSpecification performanceSpecification)
+    {
+        this.employeeService = employeeService;
+        this.performanceEvaluationRepository = performanceEvaluationRepository;
+        this.performanceCycleRepository = performanceCycleRepository;
+        this.jobLevelRepository = jobLevelRepository;
+        this.performanceRangeRepository = performanceRangeRepository;
+        this.employeeSpecification = employeeSpecification;
+        this.performanceSpecification = performanceSpecification;
+    }
 
     private Integer getLatestCycleId() {
         return performanceCycleRepository.findTopByOrderByPerformanceCycleIdDesc().orElse(0);
@@ -116,14 +108,12 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         List<EmployeePotentialPerformanceDTO> results = new ArrayList<>();
 
-        evaluations.forEach(item -> {
-            results.add(new EmployeePotentialPerformanceDTO(
-                    item.getEmployee().getFullName(),
-                    item.getEmployee().getProfileBio(),
-                    item.getPotentialScore(),
-                    item.getFinalAssessment()
-            ));
-        });
+        evaluations.forEach(item -> results.add(new EmployeePotentialPerformanceDTO(
+                item.getEmployee().getFullName(),
+                item.getEmployee().getProfileBio(),
+                item.getPotentialScore(),
+                item.getFinalAssessment()
+        )));
         return results;
     }
 
@@ -134,15 +124,13 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         List<EmployeeRatingDTO> results = new ArrayList<>();
 
-        evaluations.forEach(item -> {
-            results.add(new EmployeeRatingDTO(
-                    item.getEmployee().getId(),
-                    item.getEmployee().getFirstName(),
-                    item.getEmployee().getLastName(),
-                    employeeService.getProfilePicture(item.getEmployee().getId()),
-                    item.getFinalAssessment()
-            ));
-        });
+        evaluations.forEach(item -> results.add(new EmployeeRatingDTO(
+                item.getEmployee().getId(),
+                item.getEmployee().getFirstName(),
+                item.getEmployee().getLastName(),
+                employeeService.getProfilePicture(item.getEmployee().getId()),
+                item.getFinalAssessment()
+        )));
 
         Pagination pagination = PaginationSetup.setupPaging(evaluations.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return new EmployeeRatingPagination(results, pagination);

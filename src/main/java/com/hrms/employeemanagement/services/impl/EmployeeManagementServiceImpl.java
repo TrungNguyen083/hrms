@@ -29,7 +29,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -42,27 +41,38 @@ import java.util.*;
 @Transactional
 public class EmployeeManagementServiceImpl implements EmployeeManagementService {
 
+    private final EmployeeRepository employeeRepository;
+    private final DepartmentRepository departmentRepository;
+    private final EmergencyContactRepository emergencyContactRepository;
+    private final EmployeeDamInfoRepository employeeDamInfoRepository;
+    private final SkillSetEvaluationRepository skillSetEvaluationRepository;
+    private final SkillSetTargetRepository skillSetTargetRepository;
+    private final EmployeeSpecification employeeSpecification;
+    private final DamService damService;
+
     @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private DepartmentRepository departmentRepository;
-    @Autowired
-    private EmergencyContactRepository emergencyContactRepository;
-    @Autowired
-    private EmployeeDamInfoRepository employeeDamInfoRepository;
-    @Autowired
-    private SkillSetEvaluationRepository skillSetEvaluationRepository;
-    @Autowired
-    private SkillSetTargetRepository skillSetTargetRepository;
-    @Autowired
-    private EmployeeSpecification employeeSpecification;
-    @Autowired
-    private DamService damService;
+    public EmployeeManagementServiceImpl(EmployeeRepository employeeRepository,
+                                         DepartmentRepository departmentRepository,
+                                         EmergencyContactRepository emergencyContactRepository,
+                                         EmployeeDamInfoRepository employeeDamInfoRepository,
+                                         SkillSetEvaluationRepository skillSetEvaluationRepository,
+                                         SkillSetTargetRepository skillSetTargetRepository,
+                                         EmployeeSpecification employeeSpecification,
+                                         DamService damService) {
+        this.employeeRepository = employeeRepository;
+        this.departmentRepository = departmentRepository;
+        this.emergencyContactRepository = emergencyContactRepository;
+        this.employeeDamInfoRepository = employeeDamInfoRepository;
+        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
+        this.skillSetTargetRepository = skillSetTargetRepository;
+        this.employeeSpecification = employeeSpecification;
+        this.damService = damService;
+    }
+
     private ModelMapper modelMapper;
 
     static String PROFILE_IMAGE = "PROFILE_IMAGE";
     static String QUALIFICATION = "QUALIFICATION";
-    static String DEGREE = "DEGREE";
 
     @Bean
     public void setUpMapper() {
@@ -287,7 +297,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         // Upload the image using the DamService with the original file name
         Map uploadResult = damService.uploadFile(file);
         // Get the file's extension like jpg, png, docx, ...
-        String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         String url = uploadResult.get("url").toString();
         // Update the employee's profile picture public ID in the database
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(
@@ -316,13 +325,11 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     public List<EmployeeDamInfoDTO> getQualifications(Integer employeeId) {
         var spec = EmployeeDamInfoSpec.hasEmployeeAndType(employeeId, QUALIFICATION);
         return employeeDamInfoRepository.findAll(spec)
-                .stream().map(e -> {
-                    return new EmployeeDamInfoDTO(e.getEmployee().getId(),
-                            e.getExtension().getName(),
-                            e.getUrl(),
-                            e.getExtension().getIconUri(),
-                            e.getUploadedAt());
-                })
+                .stream().map(e -> new EmployeeDamInfoDTO(e.getEmployee().getId(),
+                        e.getExtension().getName(),
+                        e.getUrl(),
+                        e.getExtension().getIconUri(),
+                        e.getUploadedAt()))
                 .toList();
     }
 
