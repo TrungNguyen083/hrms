@@ -3,7 +3,6 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
-import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.global.dto.*;
 import jakarta.annotation.Nullable;
 
@@ -22,11 +21,12 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Slf4j
 public class CompetencyController {
-    @Autowired
-    EmployeeManagementService employeeManagementService;
+    private final CompetencyService competencyService;
 
     @Autowired
-    CompetencyService competencyService;
+    public CompetencyController(CompetencyService competencyService) {
+        this.competencyService = competencyService;
+    }
 
     @QueryMapping(name = "competencyTimeLine")
     public List<CompetencyTimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
@@ -38,7 +38,6 @@ public class CompetencyController {
         }
     }
 
-    //TODO:DTO
     @QueryMapping(name = "departmentInComplete")
     public MultiBarChartDTO getAllDepartmentInComplete(@Argument Integer competencyCycleId) {
         try {
@@ -156,12 +155,7 @@ public class CompetencyController {
         return competencyService.getCompetencyChart();
     }
 
-    /**
-     * DONE - Employee Dashboard, Overall Competency Score Radar Chart
-     * @param employeeId
-     * @param cycleId
-     * @return
-     */
+
     @QueryMapping
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
