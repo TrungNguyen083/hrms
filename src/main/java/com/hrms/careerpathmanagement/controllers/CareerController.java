@@ -17,12 +17,18 @@ import java.util.Stack;
 @Controller
 @Slf4j
 public class CareerController {
+    private final CareerPathManagementService careerPathManagementService;
+    private final PositionLevelRepository positionLevelRepository;
+    private final PositionLevelPathRepository positionLevelPathRepository;
+
     @Autowired
-    CareerPathManagementService careerPathManagementService;
-    @Autowired
-    PositionLevelRepository positionLevelRepository;
-    @Autowired
-    PositionLevelPathRepository positionLevelPathRepository;
+    public CareerController(CareerPathManagementService careerPathManagementService,
+                            PositionLevelRepository positionLevelRepository,
+                            PositionLevelPathRepository positionLevelPathRepository) {
+        this.careerPathManagementService = careerPathManagementService;
+        this.positionLevelRepository = positionLevelRepository;
+        this.positionLevelPathRepository = positionLevelPathRepository;
+    }
 
     @QueryMapping(name = "getCareerPath")
     public PositionLevelNodeDTO getCareerPath(@Argument Integer employeeId) {

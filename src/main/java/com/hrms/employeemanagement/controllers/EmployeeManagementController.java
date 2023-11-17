@@ -12,10 +12,7 @@ import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.repositories.PositionRepository;
 import com.hrms.employeemanagement.services.*;
 import jakarta.annotation.Nullable;
-import org.elasticsearch.logging.Logger;
-import org.elasticsearch.logging.internal.spi.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -29,20 +26,22 @@ import java.util.List;
 @CrossOrigin
 //Controller
 public class EmployeeManagementController {
-
-    @Autowired
     EmployeeManagementService employeeManagementService;
-    @Autowired
     DamService damService;
-    @Autowired
     DepartmentRepository departmentRepository;
-    @Autowired
     JobLevelRepository jobLevelRepository;
-    @Autowired
     PositionRepository positionRepository;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    @Autowired
+    public EmployeeManagementController(EmployeeManagementService employeeManagementService, DamService damService,
+                                        DepartmentRepository departmentRepository, JobLevelRepository jobLevelRepository,
+                                        PositionRepository positionRepository) {
+        this.employeeManagementService = employeeManagementService;
+        this.damService = damService;
+        this.departmentRepository = departmentRepository;
+        this.jobLevelRepository = jobLevelRepository;
+        this.positionRepository = positionRepository;
+    }
 
     @QueryMapping(name = "employees")
     public EmployeePagingDTO findAllEmployees(@Nullable @Argument List<Integer> departmentIds,
@@ -74,7 +73,6 @@ public class EmployeeManagementController {
 
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInputDTO input) throws Exception {
-        //logger.info("Create profile for employee: " + input.getFirstName() + " " + input.getLastName());
         return employeeManagementService.createEmployee(input);
     }
 
@@ -126,7 +124,8 @@ public class EmployeeManagementController {
     }
 
     @GetMapping("/qualifications/{employeeId}/{type}")
-    public ResponseEntity<List<EmployeeDamInfoDTO>> getEmployeeQualifications(@PathVariable Integer employeeId) {
+    public ResponseEntity<List<EmployeeDamInfoDTO>> getEmployeeQualifications(@PathVariable Integer employeeId,
+                                                                              @PathVariable String type) {
         return ResponseEntity.ok(employeeManagementService.getQualifications(employeeId));
     }
 }

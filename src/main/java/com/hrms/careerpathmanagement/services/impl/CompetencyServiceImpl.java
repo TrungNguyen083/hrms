@@ -132,7 +132,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         return (root, query, builder) -> builder.equal(root.get("competencyCycle").get("id"), cycleId);
     }
 
-    //TODO: TARGET SKILL SET -> FROM HR SET (BASE ON POSITION & JOB LEVEL)
     public List<SkillSet> getBaselineSkillsSet(Integer positionId, Integer levelId) {
         Specification<PositionJobLevelSkillSet> posSpec = careerSpecification.hasPositionId(positionId);
         Specification<PositionJobLevelSkillSet> levelSpec = careerSpecification.hasJobLevelId(levelId);
@@ -163,7 +162,6 @@ public class CompetencyServiceImpl implements CompetencyService {
      * @return SkillSummarization (DTO)
      */
     public SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId) {
-        //TODO: SQL GROUP BY SKILL SET AND GET AVG OF ALL SKILLS -- DONE
         //1. Skill Set Average Score
         var skillSetAvgScore = getAverageSkillSet(employeeId, cycleId);
 
@@ -370,7 +368,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         Page<DataItemDTO> ssEvaluates = skillSetEvaluationRepository
                 .findAll(spec, pageable)
                 .map(item -> new DataItemDTO(item.getSkillSet().getSkillSetName(),
-                        (float) item.getFinalProficiencyLevel().getScore()));
+                        item.getFinalProficiencyLevel().getScore()));
         Pagination pagination = setupPaging(ssEvaluates.getTotalElements(), pageNo, pageSize);
         return new DataItemPagingDTO(ssEvaluates.getContent(), pagination);
     }
@@ -476,15 +474,15 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<CompetencyCycle> cycleSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("status"), "Completed")
         );
-        CompetencyCycle latestCycle = competencyCycleRepository.findAll(cycleSpec)
+        CompetencyCycle currentCycle = competencyCycleRepository.findAll(cycleSpec)
                 .stream()
                 .max(Comparator.comparing(CompetencyCycle::getDueDate))
                 .orElseThrow(() -> new RuntimeException("No cycle found"));
 
-        float avgCurrentEvalScore = getAvgEvalScore(latestCycle.getId());
+        float avgCurrentEvalScore = getAvgEvalScore(currentCycle.getId());
 
         //Get previous cycle by current year - 1
-        Integer previousYear = latestCycle.getYear() - 1;
+        Integer previousYear = currentCycle.getYear() - 1;
         Integer previousCycleId = competencyCycleRepository.findByYear(previousYear).getId();
         float avgPreviousEvalScore = getAvgEvalScore(previousCycleId);
 
@@ -770,10 +768,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         return null;
     }
 
-    private Float getMatchPercentage(Integer employeeId, Integer positionLevelId) {
-        return null;
-    }
-
     @Override
     public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
         List<EvaluationCycleInfoDTO> evaluationCycleInfoDTOS = new ArrayList<>();
@@ -874,14 +868,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         return entityManager.createQuery(query).getSingleResult();
     }
 
-
-    /**
-     * Employee Dashboard - At Glance Component
-     *
-     * @param employeeId
-     * @param cycleId
-     * @return BarChartDTO
-     */
     @Override
     public BarChartDTO getSkillGapBarChart(Integer employeeId, Integer cycleId) {
         var positionLevelId = getPosition(employeeId).getId();
