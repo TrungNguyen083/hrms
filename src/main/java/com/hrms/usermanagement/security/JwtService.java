@@ -4,6 +4,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.DefaultClaims;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -11,7 +12,8 @@ import java.util.Map;
 
 @Component
 public class JwtService {
-    private final String jwtSecret = System.getenv("SECRET");
+    @Value("${SECRET}")
+    private String jwtSecret;
 
     private final int JwtExpiration = 86400;
 
