@@ -1,9 +1,69 @@
 type BarChartDTO {
     title: String
-    items: [BarChartItemDTO!]
+    items: [DataItemDTO!]
 }
 
-type BarChartItemDTO {
+type DataItemDTO {
     label: String
     value: Float
+}
+
+type DataItemPagingDTO{
+    data: [DataItemDTO]!
+    pagination: Pagination!
+}
+
+type MultiChartDTO {
+    labels: [String]
+    datasets: [MultiBarChartDataDTO]
+}
+
+type MultiBarChartDataDTO {
+    label: String
+    data: [Float]
+}
+
+type PieChartDTO {
+    labels: [String]
+    datasets: [Float]
+}
+
+type HeatmapItemDTO {
+    verticalColumnName: String
+    horizontalColumnName: String
+    score: Float
+}
+
+type RadarChartDTO {
+    labels: [String]
+    datasets: [RadarDatasetDTO]
+}
+
+type RadarDatasetDTO {
+    lineName: String
+    dataset: [Float]
+}
+
+type DatasetDTO {
+    columnName: String!
+    data: [Float!]!
+}
+
+type SkillMatrixTree {
+    data: SkillMatrixData
+    children: [SkillMatrixTree]
+}
+
+type SkillMatrixData {
+    name: String
+    targetSkillLevel: Float
+    skillLevelTotal: Float
+    skillLevelSelf: Float
+    skillLevelManager: Float
+    competencyLevel: Float
+}
+
+type SkillMatrixOverall{
+    managerName: String
+    status: String
 }

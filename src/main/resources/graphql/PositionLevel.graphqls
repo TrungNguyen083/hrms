@@ -1,5 +1,0 @@
-type PositionLevel {
-    id: Int!
-    position: Position
-    jobLevel: JobLevel
-}

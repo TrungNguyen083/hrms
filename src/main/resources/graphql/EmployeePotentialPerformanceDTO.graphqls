@@ -1,6 +1,0 @@
-type EmployeePotentialPerformanceDTO {
-    fullName: String!
-    profileImgUri: String!
-    potential: Int!
-    performance: Int!
-}

@@ -1,8 +1,24 @@
 # Define a query to fetch employees
 type Query {
+    #EmployeeManagement:
     employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
     employee(id: Int!): EmployeeDetail
     newEmployees: [Employee]
+    currentHeadcounts: DiffPercentDTO
+    headcountChart: BarChartDTO
+    employeeOverview(employeeId: Int!): EmployeeOverviewDTO
+
+
+
+    #UserManagement:
+    login(username: String!, password: String!): Token
+    user(userId: Int): UserDto
+    users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
+    getUsers: [UserDto]
+
+
+
+    #Company:
     departments: [Department]
     NumberOfDepartments: Int
     positions: [Position]
@@ -10,45 +26,47 @@ type Query {
     roles: [Role]
     competencies: [Competency]
     proficiencyLevels: [ProficiencyLevel]
-    login(username: String!, password: String!): Token
-    user(userId: Int): UserDto
-    users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
-    currentHeadcounts: CurrentHeadcount
-    headcountChart: [HeadcountChartData]
     competencyCycles: [CompetencyCycle]
     competencyTimeLine(competencyCycleId: Int!): [CompetencyTimeLine]
-    employeeOverview(employeeId: Int!): EmployeeOverviewDto
+
+
+
+    #CompetencyEvaluation:
     departmentInComplete(competencyCycleId: Int!): MultiChartDTO
     companyInComplete(competencyCycleId: Int!): PieChartDTO
-    topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
-    topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     topCompetencyRating(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
-    employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
     topEmployeeCompetencies(competencyCycleId: Int!, limit: Int): [EmployeeRatingDTO]
     employeesCompetency(pageNo: Int, pageSize: Int): EmployeeRatingPagination
-    employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
-    performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
-    avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [AvgCompetency]
+    avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [HeatmapItemDTO]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
-    topHighestSkillSet(employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
-    topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
-    topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
-    employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeePerformanceRatingScorePaging
+    topHighestSkillSet(employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     employeeSkillMatrix(employeeId: Int!): [SkillMatrixTree]
     skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
     currentEvaluation(employeeId: Int!): CurrentEvaluation
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
     getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
-    getQualifications(employeeId: Int!): [SourceFile]
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
-    getUsers: [UserDto]
-    companyCompetencyDiffPercent: CompanyCompetencyDiffPercent
-    competencyChart: [CompetencyChart]
+    companyCompetencyDiffPercent: DiffPercentDTO
+    competencyChart: [CompetencyChart]evaluationCycles: [EvaluationCycleInfo]
+    overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
+    skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
+
+
+
+    #PerformanceEvaluation:
+    topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
+    topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
+    employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
+    employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
+    performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
+    employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeePerformanceRatingScorePaging
+
+
+
+    #CarreerManagement:
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
-    evaluationCycles: [EvaluationCycleInfo]
-    searchEmployees(name: String!): [Employee]
-    overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
 
-    skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
 }

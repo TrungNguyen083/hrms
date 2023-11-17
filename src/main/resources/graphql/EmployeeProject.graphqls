@@ -1,5 +1,0 @@
-type EmployeeProject{
-    id: Int!
-    project: Project
-    employeeDocument: Employee
-}

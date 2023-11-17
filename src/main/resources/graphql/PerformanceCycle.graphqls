@@ -1,7 +1,0 @@
-type PerformanceCycle {
-    performanceCycleId: Int!
-    performanceCycleName: String
-    performanceCycleStartDate: String
-    performanceCycleEndDate: String
-    isDone: Boolean
-}

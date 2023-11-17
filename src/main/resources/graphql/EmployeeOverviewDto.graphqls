@@ -1,7 +1,0 @@
-type EmployeeOverviewDto {
-    employeeDocument: Employee
-    address: String
-    skills: [SkillSet]
-    interests: [SkillSet]
-    certification: [String]
-}

@@ -1,4 +1,0 @@
-type EmployeePerformancePagination {
-    data: [EmployeePerformance]
-    pagination: Pagination
-}

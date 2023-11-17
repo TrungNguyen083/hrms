@@ -1,0 +1,38 @@
+input SignupDto {
+    username: String
+    password: String
+}
+
+type Token {
+    owner: User
+    token: String
+}
+
+type User {
+    userId: Int!
+    username: String
+    password: String
+    isEnabled: Boolean
+    createdAt: String
+    roles: [Role]
+}
+
+type Role {
+    roleId: Int!
+    name: String
+}
+
+type UserDto {
+    userId: Int
+    name: String
+    status: Boolean
+    userName: String
+    createdAt: String
+    roles: [Role]
+}
+
+type UserDtoConnection {
+    data: [UserDto]
+    totalCount: Int
+    pagination: Pagination
+}

@@ -21,6 +21,6 @@ public class ProficiencyLevel {
     private String proficiencyLevelName;
 
     @Column(name = "score")
-    private Integer score;
+    private Float score;
 }
 

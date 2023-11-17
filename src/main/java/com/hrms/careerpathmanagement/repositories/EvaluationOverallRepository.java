@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 public interface EvaluationOverallRepository extends JpaRepository<CompetencyEvaluationOverall, Integer>, JpaSpecificationExecutor<CompetencyEvaluationOverall> {
-    @Query("SELECT s.competencyCycle FROM CompetencyEvaluationOverall s WHERE s.employee.id = ?1 AND s.finalStatus = 'Agreed' ORDER BY s.competencyCycle.startDate DESC LIMIT 1")
+    @Query("SELECT s.competencyCycle FROM CompetencyEvaluationOverall s WHERE s.employee.id = ?1 AND s.finalStatus = 'Completed' ORDER BY s.competencyCycle.startDate DESC LIMIT 1")
     CompetencyCycle latestEvalCompetencyCycle(Integer employeeId);
 }
