@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @Slf4j
 public class CareerController {
-    @Autowired
     private CareerManagementService careerManagementService;
 
     @GetMapping("/career/{positionLevelId}")
