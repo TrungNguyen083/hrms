@@ -10,4 +10,5 @@ public interface PositionLevelPathRepository extends JpaRepository<PositionLevel
         JpaSpecificationExecutor<PositionLevelPath>
 {
     List<PositionLevelPath> findAllByCurrentId(Integer currentId);
+    boolean existsByCurrentId(Integer currentId);
 }
