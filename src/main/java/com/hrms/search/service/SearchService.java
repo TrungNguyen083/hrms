@@ -5,6 +5,8 @@ import com.hrms.search.configuration.SearchConfig;
 import com.hrms.search.document.*;
 import com.hrms.search.dto.ResultItemDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.json.JSONParser;
+import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -12,6 +14,8 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -110,5 +114,11 @@ public class SearchService {
         return Stream.of(employees, skillSets, competencies, positions, competencyCycles, performanceCycles)
                 .flatMap(List::stream).toList()
                 .stream().sorted((o1, o2) -> o2.getRankingScore().compareTo(o1.getRankingScore())).toList();
+    }
+
+    public List<Object> getIndicesConfig() throws FileNotFoundException, ParseException {
+        FileReader reader = new FileReader("src/main/java/com/hrms/search/configuration/tagsinfo.json");
+        JSONParser parser = new JSONParser(reader);
+        return parser.parseArray();
     }
 }

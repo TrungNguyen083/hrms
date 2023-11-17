@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
+import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.global.dto.*;
 import jakarta.annotation.Nullable;
 
@@ -10,6 +11,8 @@ import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -141,8 +144,8 @@ public class CompetencyController {
     }
 
     @QueryMapping
-    public SkillSetSummarizationDTO skillSetSummarization(@Argument Integer employeeId, @Argument Integer cycleId) {
-        return competencyService.getSkillSummarization(employeeId, cycleId);
+    public BarChartDTO getSkillSetGap(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getSkillSetGap(employeeId, cycleId);
     }
 
     @QueryMapping(name = "companyCompetencyDiffPercent")
@@ -155,6 +158,22 @@ public class CompetencyController {
         return competencyService.getCompetencyChart();
     }
 
+
+    /**
+     * HR Dashboard - Top Competencies Component
+     * @param cycleId
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @QueryMapping(name = "topCompetencyRating")
+    public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument Integer cycleId,
+                                                               @Argument Integer pageNo,
+                                                               @Argument Integer pageSize)
+    {
+
+        return competencyService.getCompetencyRating(cycleId, PageRequest.of(pageNo, pageSize));
+    }
 
     @QueryMapping
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {

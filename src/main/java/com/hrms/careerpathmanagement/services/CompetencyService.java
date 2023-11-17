@@ -25,7 +25,7 @@ public interface CompetencyService {
     DataItemPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize);
     CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
-    SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId);
+    BarChartDTO getSkillSetGap(Integer employeeId, Integer cycleId);
     DiffPercentDTO getCompanyCompetencyDiffPercent();
     BarChartDTO getCompetencyChart();
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
