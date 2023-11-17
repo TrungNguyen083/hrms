@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
+
 @Entity
 @Table(name = "performance_evaluation")
 @Getter
@@ -38,4 +40,13 @@ public class PerformanceEvaluation {
 
     @Column(name = "potential_score")
     private Float potentialScore;
+
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "completed_date")
+    private Date completedDate;
+
+    @Column(name = "last_updated")
+    private Date lastUpdated;
 }

@@ -10,6 +10,8 @@ import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.dto.DataItemDTO;
+import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
@@ -180,6 +182,28 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private float calculatePercentage(long amount, long total) {
         return total == 0 ? 0 : (float) (amount * 100) / total;
+    }
+
+
+
+    @Override
+    public DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId,
+                                                                     Integer pageNo, Integer pageSize) {
+        performanceCycleRepository.findAll();
+
+        Specification<PerformanceEvaluation> spec = employeeSpecification.hasEmployeeId(employeeId);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<PerformanceEvaluation> page = performanceEvaluationRepository.findAll(spec, pageable);
+        List<DataItemDTO> data = page.map(item -> new DataItemDTO(
+                item.getPerformanceCycle().getPerformanceCycleName(),
+                item.getFinalAssessment()
+        )).getContent();
+
+        Pagination pagination = PaginationSetup.setupPaging(page.getTotalElements(),
+                pageable.getPageNumber(),
+                pageable.getPageSize());
+
+        return new DataItemPagingDTO(data, pagination);
     }
 
 }

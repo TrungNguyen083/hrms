@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
+import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -62,6 +63,14 @@ public class PerformanceController {
     {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         return performanceService.getPerformanceEvaluations(cycleId, pageable);
+    }
+
+    @QueryMapping(name = "employeePerformanceRatingScore")
+    public DataItemPagingDTO getEmployeePerformanceRatingScore(@Argument Integer employeeId,
+                                                                     @Argument int pageNo,
+                                                                     @Argument int pageSize)
+    {
+        return performanceService.getEmployeePerformanceRatingScore(employeeId, pageNo, pageSize);
     }
 
 }

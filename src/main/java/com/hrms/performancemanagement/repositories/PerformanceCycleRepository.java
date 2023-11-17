@@ -12,4 +12,6 @@ public interface PerformanceCycleRepository extends JpaRepository<PerformanceCyc
     List<PerformanceCycle> findAll(Sort sort);
 
     Optional<Integer> findTopByOrderByPerformanceCycleIdDesc();
+
+    PerformanceCycle findFirstByOrderByPerformanceCycleStartDateDesc();
 }
