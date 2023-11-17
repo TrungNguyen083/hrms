@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Component
 public class JwtService {
-    private final String jwtsecret = "secret";
+    private final String jwtSecret = System.getenv("SECRET");
 
     private final int JwtExpiration = 86400;
 
@@ -28,7 +28,7 @@ public class JwtService {
     }
 
     public String generateToken(String username) {
-        Algorithm algorithm = Algorithm.HMAC256(jwtsecret);
+        Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
         return com.auth0.jwt.JWT.create()
                 .withClaim("username", username)
                 .sign(algorithm);
