@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MultiBarChartDTO {
-    private List<String> labels;
-    private List<BarChartDataDTO> datasets;
+public class DiffPercentDTO {
+    private String data;
+    private Float diffPercent;
+    private Boolean isIncreased;
 }

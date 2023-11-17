@@ -1,6 +1,0 @@
-type PositionLevelNodeDTO {
-    id: Int!
-    title: String!
-    matchPercentage: Float!
-    nextPositionLevels: [PositionLevelNodeDTO]
-}

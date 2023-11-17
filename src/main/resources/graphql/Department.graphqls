@@ -1,5 +1,0 @@
-type Department {
-    id: Int!
-    departmentName: String
-    sum: Employee
-}

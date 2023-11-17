@@ -18,7 +18,6 @@ type Employee {
     department: Department
     position: Position
     jobLevel: JobLevel
-    sourceFile: ImageSource
     status: Int
     leftDate: String
 }
@@ -61,13 +60,42 @@ input EmployeeInput {
     emergencyContacts: [EmergencyContactInput!]!
 }
 
-type CurrentHeadcount {
-    totalEmployee: Int
-    percentage: Float
-    isIncreased: Boolean
+type EmergencyContact {
+    id: Int!
+    firstName: String
+    lastName: String
+    phoneNumber: String
 }
 
-type HeadcountChartData {
-    label: String
-    data: Int
+input EmergencyContactInput {
+    id: Int
+    firstName: String!
+    lastName: String!
+    phoneNumber: String!
 }
+
+type EmployeeOverviewDTO {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    profileImgUri: String
+    position: String!
+    level: String!
+    skills: [Skill!]!
+    interests: [Skill!]!
+    certifications: [String]
+}
+
+type EmployeeRatingDTO {
+    id: Int
+    firstName: String
+    lastName: String
+    profileImgUrl: String
+    rating: Float
+}
+
+type EmployeeRatingPagination {
+    data: [EmployeeRatingDTO]
+    pagination: Pagination
+}
+

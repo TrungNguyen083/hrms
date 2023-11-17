@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
+import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
 import com.hrms.careerpathmanagement.models.SkillSetTarget;
 import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
@@ -9,6 +10,8 @@ import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.dto.BarChartDTO;
+import com.hrms.global.dto.DataItemDTO;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.global.paging.PagingInfo;
@@ -163,7 +166,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public HeadcountDTO getHeadcountsStatistic() {
+    public DiffPercentDTO getHeadcountsStatistic() {
         //Get all new employees have joinedDate between 2 years ago and 1 year ago
         LocalDate datePrevious = LocalDate.now().minusYears(1);
         var countPreviousYearEmployees = countEmployeesByYear(datePrevious);
@@ -172,15 +175,15 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         LocalDate dateCurrent = LocalDate.now();
         var countCurrentYearEmployees = countEmployeesByYear(dateCurrent);
 
-        var countAllEmployee = getAllEmployees().size();
+        var countAllEmployee = String.valueOf(getAllEmployees().size());
 
         float diffPercent = ((float) (countCurrentYearEmployees - countPreviousYearEmployees) / countPreviousYearEmployees) * 100;
 
-        return new HeadcountDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
+        return new DiffPercentDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
     }
 
     @Override
-    public List<HeadcountChartDataDTO> getHeadcountChartData() {
+    public BarChartDTO getHeadcountChartData() {
         List<Department> department = departmentRepository.findAll();
         List<Integer> departmentIds = department.stream().map(Department::getId).toList();
         //Find all employees in departmentIds and have status not equal to 0
@@ -190,13 +193,15 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         );
         List<Employee> employees = employeeRepository.findAll(spec);
 
-        return department.stream().map(item -> {
-            Integer countEmployee = Math.toIntExact(employees
+        List<DataItemDTO> items = department.stream().map(item -> {
+            Float countEmployee = (float) employees
                     .stream()
                     .filter(employee -> employee.getDepartment().getId() == item.getId())
-                    .count());
-            return new HeadcountChartDataDTO(item.getDepartmentName(), countEmployee);
+                    .count();
+            return new DataItemDTO(item.getDepartmentName(), countEmployee);
         }).toList();
+
+        return new BarChartDTO("Department's Employees", items);
     }
 
     private long countEmployeesByYear(LocalDate date) {

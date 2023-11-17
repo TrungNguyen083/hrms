@@ -1,5 +1,0 @@
-type ProficiencyLevel {
-    id: Int!
-    proficiencyLevelName: String
-    score: Int
-}

@@ -10,8 +10,7 @@ import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
-import com.hrms.global.dto.BarChartDTO;
-import com.hrms.global.dto.BarChartItemDTO;
+import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
@@ -51,7 +50,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     static String FINAL_EVAL_LABEL_NAME = "Final Score";
     static String COMPLETED_LABEL_NAME = "Completed";
     static String IN_COMPLETED_LABEL_NAME = "InCompleted";
-  
+
     private final CompetencyEvaluationRepository competencyEvaluationRepository;
     private final EmployeeRepository employeeRepository;
     private final CompetencyTimeLineRepository competencyTimeLineRepository;
@@ -74,47 +73,45 @@ public class CompetencyServiceImpl implements CompetencyService {
     private CompetencyCycle latestCycle;
 
     @Autowired
-    private CompetencyEvaluationRepository competencyEvaluationRepository;
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private CompetencyTimeLineRepository competencyTimeLineRepository;
-    @Autowired
-    private SkillSetEvaluationRepository skillSetEvaluationRepository;
-    @Autowired
-    private SkillSetTargetRepository skillSetTargetRepository;
-    @Autowired
-    private PositionSkillSetRepository positionSkillSetRepository;
-    @Autowired
-    private CompetencyRepository competencyRepository;
-    @Autowired
-    private CompetencyCycleRepository competencyCycleRepository;
-    @Autowired
-    private CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository;
-    @Autowired
-    private ProficiencyLevelRepository proficiencyLevelRepository;
-    @Autowired
-    private EvaluationOverallRepository evaluationOverallRepository;
-    @Autowired
-    private SkillSetRepository skillSetRepository;
-    @Autowired
-    private DepartmentRepository departmentRepository;
-    @Autowired
-    private EmployeeManagementService employeeManagementService;
-    @Autowired
-    JobLevelRepository jobLevelRepository;
-    @Autowired
-    PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
-    @Autowired
-    CareerSpecification careerSpecification;
-    @Autowired
-    EmployeeSpecification employeeSpecification;
-    @Autowired
-    CompetencySpecification competencySpecification;
-    @Autowired
-    PerformanceCycleRepository performanceCycleRepository;
-
-    private CompetencyCycle latestCycle;
+    public CompetencyServiceImpl(CompetencyEvaluationRepository competencyEvaluationRepository,
+                                 EmployeeRepository employeeRepository,
+                                 CompetencyTimeLineRepository competencyTimeLineRepository,
+                                 SkillSetEvaluationRepository skillSetEvaluationRepository,
+                                 SkillSetTargetRepository skillSetTargetRepository,
+                                 PositionSkillSetRepository positionSkillSetRepository,
+                                 CompetencyRepository competencyRepository,
+                                 CompetencyCycleRepository competencyCycleRepository,
+                                 ProficiencyLevelRepository proficiencyLevelRepository,
+                                 EvaluationOverallRepository evaluationOverallRepository,
+                                 SkillSetRepository skillSetRepository,
+                                 DepartmentRepository departmentRepository,
+                                 EmployeeManagementService employeeManagementService,
+                                 JobLevelRepository jobLevelRepository,
+                                 PositionJobLevelSkillSetRepository positionLevelSkillSetRepository,
+                                 CareerSpecification careerSpecification,
+                                 EmployeeSpecification employeeSpecification,
+                                 CompetencySpecification competencySpecification,
+                                 PerformanceCycleRepository performanceCycleRepository) {
+        this.competencyEvaluationRepository = competencyEvaluationRepository;
+        this.employeeRepository = employeeRepository;
+        this.competencyTimeLineRepository = competencyTimeLineRepository;
+        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
+        this.skillSetTargetRepository = skillSetTargetRepository;
+        this.positionSkillSetRepository = positionSkillSetRepository;
+        this.competencyRepository = competencyRepository;
+        this.competencyCycleRepository = competencyCycleRepository;
+        this.proficiencyLevelRepository = proficiencyLevelRepository;
+        this.evaluationOverallRepository = evaluationOverallRepository;
+        this.skillSetRepository = skillSetRepository;
+        this.departmentRepository = departmentRepository;
+        this.employeeManagementService = employeeManagementService;
+        this.jobLevelRepository = jobLevelRepository;
+        this.positionLevelSkillSetRepository = positionLevelSkillSetRepository;
+        this.careerSpecification = careerSpecification;
+        this.employeeSpecification = employeeSpecification;
+        this.competencySpecification = competencySpecification;
+        this.performanceCycleRepository = performanceCycleRepository;
+    }
 
     @PostConstruct
     private void initialize() {
@@ -238,9 +235,9 @@ public class CompetencyServiceImpl implements CompetencyService {
         List<Float> selfData = processDepartmentData(departments, SELF_EVAL_LABEL_NAME, competencyCycleId);
         List<Float> managerData = processDepartmentData(departments, SUPERVISOR_EVAL_LABEL_NAME, competencyCycleId);
 
-        List<BarChartDataDTO> datasets = new ArrayList<>();
-        datasets.add(new BarChartDataDTO(SELF_EVAL_LABEL_NAME, selfData));
-        datasets.add(new BarChartDataDTO(SUPERVISOR_EVAL_LABEL_NAME, managerData));
+        List<MultiBarChartDataDTO> datasets = new ArrayList<>();
+        datasets.add(new MultiBarChartDataDTO(SELF_EVAL_LABEL_NAME, selfData));
+        datasets.add(new MultiBarChartDataDTO(SUPERVISOR_EVAL_LABEL_NAME, managerData));
 
         List<String> labels = departments.stream().map(Department::getDepartmentName).toList();
         return new MultiBarChartDTO(labels, datasets);
@@ -270,10 +267,10 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private Float calculatePercentage(Integer competencyCycleId, List<Integer> empIdSet, String roleField) {
         if (empIdSet.isEmpty()) return null;
-        Specification<CompetencyEvaluationOverall> specification = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                root.get("employee").get("id").in(empIdSet),
-                criteriaBuilder.equal(root.get(roleField), "Completed"),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
+        Specification<CompetencyEvaluationOverall> specification = (root, query, criteriaBuilder) ->
+                criteriaBuilder.and(root.get("employee").get("id").in(empIdSet),
+                        criteriaBuilder.equal(root.get(roleField), "Completed"),
+                        criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
 
         var completedCount = evaluationOverallRepository.count(specification);
         return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
@@ -288,11 +285,11 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .toList();
 
         //get all employees who have completed evaluation
-        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                root.get("employee").get("id").in(empIdSet),
-                criteriaBuilder.equal(root.get("finalStatus"), "Completed"),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId)
-        );
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.and(root.get("employee").get("id").in(empIdSet),
+                        criteriaBuilder.equal(root.get("finalStatus"), "Completed"),
+                        criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId)
+                );
 
         List<Float> datasets = new ArrayList<>();
         var completedPercent = (float) evaluationOverallRepository.count(spec) / empIdSet.size() * 100;
@@ -304,14 +301,10 @@ public class CompetencyServiceImpl implements CompetencyService {
 
 
     @Override
-    public List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId) {
+    public List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer competencyCycleId) {
         List<CompetencyEvaluation> compEvaluates = fetchCompetencyEvaluations(positionId, competencyCycleId);
-        List<Integer> jobLevelIds = jobLevelRepository.findAll().stream()
-                .map(JobLevel::getId)
-                .toList();
-        List<Integer> competencyIds = competencyRepository.findAll().stream()
-                .map(Competency::getId)
-                .toList();
+        List<JobLevel> jobLevelIds = jobLevelRepository.findAll();
+        List<Competency> competencyIds = competencyRepository.findAll();
 
         return jobLevelIds.stream()
                 .flatMap(jobLevel -> competencyIds.stream()
@@ -329,13 +322,14 @@ public class CompetencyServiceImpl implements CompetencyService {
                 : competencyEvaluationRepository.findAll(hasCycSpec);
     }
 
-    private AvgCompetencyDTO calculateAvgCompetency(List<CompetencyEvaluation> compEvaluates, Pair<Integer, Integer> pair) {
-        int jobLevel = pair.getFirst();
-        int competency = pair.getSecond();
+    private HeatmapItemDTO calculateAvgCompetency(List<CompetencyEvaluation> compEvaluates,
+                                                  Pair<JobLevel, Competency> pair) {
+        JobLevel jobLevel = pair.getFirst();
+        Competency competency = pair.getSecond();
 
         List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = compEvaluates.stream()
-                .filter(compEva -> compEva.getEmployee().getJobLevel().getId() == jobLevel
-                        && compEva.getCompetency().getId() == competency)
+                .filter(compEva -> compEva.getEmployee().getJobLevel().getId() == jobLevel.getId()
+                        && Objects.equals(compEva.getCompetency().getId(), competency.getId()))
                 .toList();
 
         float avgScore = evaluationsHasJobLevelAndCompetency.isEmpty() ? 0 :
@@ -346,12 +340,12 @@ public class CompetencyServiceImpl implements CompetencyService {
                         .average()
                         .orElse(0);
 
-        return new AvgCompetencyDTO(jobLevel, competency, avgScore);
+        return new HeatmapItemDTO(jobLevel.getJobLevelName(), competency.getCompetencyName(), avgScore);
     }
 
 
     @Override
-    public SkillSetPagingDTO getHighestSkillSet(@Nullable Integer employeeId,
+    public DataItemPagingDTO getHighestSkillSet(@Nullable Integer employeeId,
                                                 Integer competencyCycleId, int pageNo, int pageSize) {
         CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
@@ -373,31 +367,27 @@ public class CompetencyServiceImpl implements CompetencyService {
                     return query.getRestriction();
                 };
 
-        Page<SkillSetDTO> ssEvaluates = skillSetEvaluationRepository
+        Page<DataItemDTO> ssEvaluates = skillSetEvaluationRepository
                 .findAll(spec, pageable)
-                .map(item -> new SkillSetDTO(item.getEmployee().getId(),
-                        item.getSkillSet().getSkillSetName(),
-                        item.getFinalProficiencyLevel().getScore()));
+                .map(item -> new DataItemDTO(item.getSkillSet().getSkillSetName(),
+                        (float) item.getFinalProficiencyLevel().getScore()));
         Pagination pagination = setupPaging(ssEvaluates.getTotalElements(), pageNo, pageSize);
-        return new SkillSetPagingDTO(ssEvaluates.getContent(), pagination);
+        return new DataItemPagingDTO(ssEvaluates.getContent(), pagination);
     }
 
     @Override
-    public SkillSetPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
+    public DataItemPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
         CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<SkillSetDTO> criteriaQuery = criteriaBuilder.createQuery(SkillSetDTO.class);
+        CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
 
         Root<SkillSetEvaluation> sseRoot = criteriaQuery.from(SkillSetEvaluation.class);
         Join<SkillSetEvaluation, ProficiencyLevel> plJoin = sseRoot.join("finalProficiencyLevel");
         Join<SkillSetEvaluation, SkillSet> ssJoin = sseRoot.join("skillSet");
-        Join<SkillSetEvaluation, Employee> eJoin = sseRoot.join("employee");
 
         criteriaQuery.multiselect(
-                eJoin.get("id"),
-                ssJoin.get("skillSetName"),
-                plJoin.get("score")
-        );
+                ssJoin.get("skillSetName").alias("label"),
+                plJoin.get("score").alias("value"));
 
         criteriaQuery.where(
                 criteriaBuilder.and(
@@ -408,30 +398,27 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
 
-        TypedQuery<SkillSetDTO> query = entityManager.createQuery(criteriaQuery);
-        List<SkillSetDTO> results = query.getResultList();
+        TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
+        List<DataItemDTO> results = query.getResultList();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Page<SkillSetDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
+        Page<DataItemDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
         Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
-        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
+        return new DataItemPagingDTO(topsHighest.getContent(), pagination);
     }
 
     @Override
-    public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
+    public DataItemPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<SkillSetDTO> criteriaQuery = criteriaBuilder.createQuery(SkillSetDTO.class);
+        CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
 
         Root<SkillSetTarget> sseRoot = criteriaQuery.from(SkillSetTarget.class);
         Join<SkillSetTarget, ProficiencyLevel> plJoin = sseRoot.join("targetProficiencyLevel");
         Join<SkillSetTarget, SkillSet> ssJoin = sseRoot.join("skillSet");
-        Join<SkillSetTarget, Employee> eJoin = sseRoot.join("employee");
 
         criteriaQuery.multiselect(
-                eJoin.get("id"),
-                ssJoin.get("skillSetName"),
-                plJoin.get("score")
-        );
+                ssJoin.get("skillSetName").alias("label"),
+                plJoin.get("score").alias("value"));
 
         criteriaQuery.where(
                 criteriaBuilder.and(
@@ -442,13 +429,13 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
 
-        TypedQuery<SkillSetDTO> query = entityManager.createQuery(criteriaQuery);
-        List<SkillSetDTO> results = query.getResultList();
+        TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
+        List<DataItemDTO> results = query.getResultList();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Page<SkillSetDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
+        Page<DataItemDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
         Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
-        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
+        return new DataItemPagingDTO(topsHighest.getContent(), pagination);
     }
 
     @Override
@@ -484,29 +471,37 @@ public class CompetencyServiceImpl implements CompetencyService {
 
 
     @Override
-    public CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent() {
-        //Check if now is after latestCycle end date the current cycle is the latest cycle
-        // else get the previous cycle
-        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
-                ? latestCycle.getYear()
-                : latestCycle.getYear() - 1;
-        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
-        float avgCurrentEvalScore = getAvgEvalScore(currentCycleId);
+    public DiffPercentDTO getCompanyCompetencyDiffPercent() {
+        //Find competencyCycle has the latest due date and status is Completed
+        Specification<CompetencyCycle> cycleSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("status"), "Completed")
+        );
+        CompetencyCycle latestCycle = competencyCycleRepository.findAll(cycleSpec)
+                .stream()
+                .max(Comparator.comparing(CompetencyCycle::getDueDate))
+                .orElseThrow(() -> new RuntimeException("No cycle found"));
+
+        float avgCurrentEvalScore = getAvgEvalScore(latestCycle.getId());
 
         //Get previous cycle by current year - 1
-        Integer previousYear = currentYear - 1;
+        Integer previousYear = latestCycle.getYear() - 1;
         Integer previousCycleId = competencyCycleRepository.findByYear(previousYear).getId();
         float avgPreviousEvalScore = getAvgEvalScore(previousCycleId);
 
         float diffPercentage = ((avgCurrentEvalScore - avgPreviousEvalScore) / avgPreviousEvalScore) * 100;
 
-        return new CompanyCompetencyDiffPercentDTO(avgCurrentEvalScore, diffPercentage, diffPercentage > 0);
+        //Get the highest score of proficiency level
+        float highestScore = proficiencyLevelRepository.findFirstByOrderByScoreDesc().getScore();
+        //String format avgPreviousEvalScore/highestScore
+        String data = String.format("%.1f/%.1f", avgPreviousEvalScore, highestScore);
+
+        return new DiffPercentDTO(data, diffPercentage, diffPercentage > 0);
     }
 
     private float getAvgEvalScore(Integer cycleId) {
         //Get all evaluation overall of all employees have final status is agreed and get the latest cycle
         Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("finalStatus"), "Agreed"),
+                criteriaBuilder.equal(root.get("finalStatus"), "Completed"),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId)
         );
         List<Float> evalScores = evaluationOverallRepository.findAll(spec)
@@ -518,21 +513,21 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<CompetencyChartDTO> getCompetencyChart() {
+    public BarChartDTO getCompetencyChart() {
         int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
                 ? latestCycle.getYear()
                 : latestCycle.getYear() - 1;
         Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<CompetencyChartDTO> criteriaQuery = criteriaBuilder.createQuery(CompetencyChartDTO.class);
+        CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
 
         Root<CompetencyEvaluation> plRoot = criteriaQuery.from(CompetencyEvaluation.class);
         Join<CompetencyEvaluation, Competency> cJoin = plRoot.join("competency");
 
         criteriaQuery.multiselect(
-                cJoin.get("competencyName"),
-                criteriaBuilder.avg(plRoot.get("finalEvaluation"))
+                cJoin.get("competencyName").alias("label"),
+                criteriaBuilder.avg(plRoot.get("finalEvaluation")).alias("value")
         );
 
         criteriaQuery.where(
@@ -541,8 +536,10 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         criteriaQuery.groupBy(plRoot.get("competency").get("id"));
 
-        TypedQuery<CompetencyChartDTO> query = entityManager.createQuery(criteriaQuery);
-        return query.getResultList();
+        TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
+        List<DataItemDTO> results = query.getResultList();
+
+        return new BarChartDTO("Competency", results);
     }
 
     @Override
@@ -683,7 +680,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                 item.getSkillSet().getSkillSetName(),
                 (double) ssTarget.getTargetProficiencyLevel().getScore(),
                 (double) ssEva.getFinalProficiencyLevel().getScore(),
-                (double) ssEva.getSelfEvaluation().getScore(),
+                (double) ssEva.getEmployeeProficiencyLevel().getScore(),
                 (double) ssEva.getEvaluatorProficiencyLevel().getScore(),
                 ((double) ssEva.getFinalProficiencyLevel().getScore() / (double) ssTarget.getTargetProficiencyLevel().getScore()) * 100)
                 : null;
@@ -800,7 +797,9 @@ public class CompetencyServiceImpl implements CompetencyService {
         perfCycles.forEach(item -> evaluationCycleInfoDTOS.add(new EvaluationCycleInfoDTO(
                 item.getPerformanceCycleName(),
                 item.getStatus(),
-                String.format("%s - %s", item.getPerformanceCycleStartDate().toString(), item.getPerformanceCycleEndDate().toString()),
+                String.format("%s - %s",
+                        item.getPerformanceCycleStartDate().toString(),
+                        item.getPerformanceCycleEndDate().toString()),
                 "Performance Evaluation",
                 new CycleEvaluationProgressDTO()
         )));
@@ -878,6 +877,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     /**
      * Employee Dashboard - At Glance Component
+     *
      * @param employeeId
      * @param cycleId
      * @return BarChartDTO
@@ -888,10 +888,10 @@ public class CompetencyServiceImpl implements CompetencyService {
         var jobLevelId = getLevel(employeeId).getId();
 
         var currentAvgSkillSet = getAvgSkillSetScore(employeeId, cycleId);
-        BarChartItemDTO currentBar = new BarChartItemDTO("Current", currentAvgSkillSet);
+        DataItemDTO currentBar = new DataItemDTO("Current", currentAvgSkillSet);
 
         var baselineAvgSkillSet = getAvgBaselineSkillSet(positionLevelId, jobLevelId);
-        BarChartItemDTO baselineBar = new BarChartItemDTO("Baseline", baselineAvgSkillSet);
+        DataItemDTO baselineBar = new DataItemDTO("Baseline", baselineAvgSkillSet);
 
         return new BarChartDTO("Skill Gap Statistic", List.of(currentBar, baselineBar));
     }
@@ -904,7 +904,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public EmployeeRatingPagination getCompetencyRating(Integer cycleId, PageRequest pageable) {
         Specification<CompetencyEvaluationOverall> hasCycleSpec = competencySpecification.hasCycleId(cycleId);
-        var evaluations = competencyEvaluationOverallRepository.findAll(hasCycleSpec, pageable);
+        var evaluations = evaluationOverallRepository.findAll(hasCycleSpec, pageable);
 
         var pagination = setupPaging(evaluations.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
 

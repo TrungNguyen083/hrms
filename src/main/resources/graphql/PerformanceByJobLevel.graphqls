@@ -1,5 +1,0 @@
-type PerformanceByJobLevel {
-    labels: [JobLevel]
-    categories: [String]
-    datasetDTOS: [[Float]]
-}

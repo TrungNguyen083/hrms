@@ -1,9 +1,11 @@
 package com.hrms.employeemanagement.controllers;
 
+import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.dto.EmployeePagingDTO;
+import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.paging.PagingInfo;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
@@ -61,12 +63,12 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "currentHeadcounts")
-    public HeadcountDTO getHeadcounts() {
+    public DiffPercentDTO getHeadcounts() {
         return employeeManagementService.getHeadcountsStatistic();
     }
 
     @QueryMapping(name = "headcountChart")
-    public List<HeadcountChartDataDTO> getHeadcountChart() {
+    public BarChartDTO getHeadcountChart() {
         return employeeManagementService.getHeadcountChartData();
     }
 

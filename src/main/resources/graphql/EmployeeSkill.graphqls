@@ -1,6 +1,0 @@
-type EmployeeSkill {
-    id: Int!
-    employeeDocument: Employee
-    skill: Skill
-    proficiencyLevel: ProficiencyLevel
-}

@@ -1,4 +1,0 @@
-type PerformanceByJobLevelChartDTO {
-    labels: [JobLevel!]!
-    dataset: [DatasetDTO]
-}

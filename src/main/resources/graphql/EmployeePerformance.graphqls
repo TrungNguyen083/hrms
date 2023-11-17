@@ -1,8 +1,0 @@
-type EmployeePerformance {
-    employeePerformanceId: Int!
-    employeeDocument: Employee!
-    selfAssessment: Int!
-    supervisorAssessment: Int!
-    finalAssessment: Int!
-    performanceCycle: PerformanceCycle!
-}

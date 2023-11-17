@@ -1,4 +1,0 @@
-type EmployeeRatingPagination {
-    data: [EmployeeRatingDTO]
-    pagination: Pagination
-}

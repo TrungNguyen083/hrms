@@ -1,4 +1,0 @@
-type JobLevel {
-    id: Int!
-    jobLevelName: String
-}

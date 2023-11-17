@@ -1,4 +1,0 @@
-type Token {
-    owner: User
-    token: String
-}

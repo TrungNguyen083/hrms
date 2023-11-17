@@ -1,0 +1,100 @@
+type Department {
+    id: Int!
+    departmentName: String
+    sum: Employee
+}
+
+type CompetencyCycle {
+    id: Int!
+    competencyCycleName: String
+    startDate: String
+    dueDate: String
+    year: String
+}
+
+type CompetencyTimeLine {
+    id: Int!
+    competencyTimeLineName: String
+    startDate: String
+    dueDate: String
+    competencyCycle: CompetencyCycle
+    isDone: Boolean
+}
+
+type EvaluationCycleInfo{
+    cycleName: String
+    cycleStatus: String
+    cyclePeriod: String
+    cycleType: String
+    cycleProgress: CycleEvaluationProgress
+}
+
+type CycleEvaluationProgress{
+    completedPercentage: Float
+    selfEvalPercentage: Float
+    managerEvalPercentage: Float
+}
+
+type JobLevel {
+    id: Int!
+    jobLevelName: String
+}
+
+type PerformanceCycle {
+    performanceCycleId: Int!
+    performanceCycleName: String
+    performanceCycleStartDate: String
+    performanceCycleEndDate: String
+    isDone: Boolean
+}
+
+type PerformanceRange {
+    performanceRangeId: Int!
+    minValue: Int!
+    maxValue: Int!
+    order: Int!
+    text: String!
+}
+
+type Position {
+    id: Int!
+    positionName: String
+    hasLevel: Boolean
+    hasDepartment: Boolean
+}
+
+type PositionLevel {
+    id: Int!
+    position: Position
+    jobLevel: JobLevel
+}
+
+type PositionLevelNodeDTO {
+    id: Int!
+    title: String!
+    matchPercentage: Float!
+    nextPositionLevels: [PositionLevelNodeDTO]
+}
+
+type ProficiencyLevel {
+    id: Int!
+    proficiencyLevelName: String
+    score: Int
+}
+
+type Skill {
+    id: Int!
+    skillName: String
+    skillSet: SkillSet
+}
+
+type SkillSet {
+    id: Int!
+    skillSetName: String
+    competency: Competency
+}
+
+type SkillSetSummarization {
+    currentRating: Float
+    targetRating: Float
+}

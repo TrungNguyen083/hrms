@@ -1,4 +1,0 @@
-type SkillSetSummarization {
-    currentRating: Float
-    targetRating: Float
-}

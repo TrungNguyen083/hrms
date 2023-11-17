@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class BarChartDTO {
     String title;
-    List<BarChartItemDTO> items;
+    List<DataItemDTO> items;
 }

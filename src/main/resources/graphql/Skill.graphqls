@@ -1,5 +1,0 @@
-type Skill {
-    id: Int!
-    skillName: String
-    skillSet: SkillSet
-}

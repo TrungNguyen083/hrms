@@ -102,17 +102,11 @@ public class SearchService {
 
     public List<ResultItemDTO> searchGlobal(String searchText) {
         List<ResultItemDTO> employees = searchEmployee(searchText);
-
         List<ResultItemDTO> skillSets = searchSkillSet(searchText);
-
         List<ResultItemDTO> competencies = searchCompetency(searchText);
-
         List<ResultItemDTO> positions = searchPosition(searchText);
-
         List<ResultItemDTO> competencyCycles = searchCompetencyCycle(searchText);
-
         List<ResultItemDTO> performanceCycles = searchPerformanceCycle(searchText);
-
         return Stream.of(employees, skillSets, competencies, positions, competencyCycles, performanceCycles)
                 .flatMap(List::stream).toList()
                 .stream().sorted((o1, o2) -> o2.getRankingScore().compareTo(o1.getRankingScore())).toList();
