@@ -106,21 +106,17 @@ public class EmployeeManagementController {
                                              @RequestParam("file") MultipartFile file,
                                              @RequestParam("type") String type) {
         try {
-            employeeManagementService.uploadFile(file, employeeId, type);
+            employeeManagementService.uploadPersonalFile(file, employeeId, type);
             return ResponseEntity.ok("Upload successful.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Upload failed.");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/dam/retrieve/{employeeId}")
     public ResponseEntity<String> getEmployeeProfilePictureUrl(@PathVariable Integer employeeId) {
-        try {
-            String url = employeeManagementService.getProfilePicture(employeeId);
-            return ResponseEntity.ok(url);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        String url = employeeManagementService.getProfilePicture(employeeId);
+        return ResponseEntity.ok(url);
     }
 
     @GetMapping("/qualifications/{employeeId}/{type}")

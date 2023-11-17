@@ -2,9 +2,11 @@ package com.hrms.search.controller;
 
 import com.hrms.search.dto.ResultItemDTO;
 import com.hrms.search.service.SearchService;
+import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -48,5 +50,10 @@ public class SearchController {
     @GetMapping("/global")
     public List<ResultItemDTO> searchGlobal(@RequestParam String searchText) {
         return searchService.searchGlobal(searchText);
+    }
+
+    @GetMapping("/categories")
+    public List<Object> getCategories() throws FileNotFoundException, ParseException {
+        return searchService.getIndicesConfig();
     }
 }

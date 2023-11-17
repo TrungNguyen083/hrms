@@ -95,7 +95,7 @@ type EmployeeRatingDTO {
 }
 
 type EmployeeRatingPagination {
-    data: [EmployeeRatingDTO]
+    data: [EmployeeRatingDTO!]
     pagination: Pagination
 }
 

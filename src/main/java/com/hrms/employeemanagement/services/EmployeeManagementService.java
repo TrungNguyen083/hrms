@@ -26,7 +26,7 @@ public interface EmployeeManagementService {
 									  PagingInfo pagingInfo);
 	DiffPercentDTO getHeadcountsStatistic();
 	BarChartDTO getHeadcountChartData();
-	void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException;
+	void uploadPersonalFile(MultipartFile file, Integer employeeId, String type) throws IOException;
 	String getProfilePicture(Integer employeeId);
 
 	List<EmployeeDamInfoDTO> getQualifications(Integer employeeId);

@@ -35,8 +35,6 @@ type Query {
     departmentInComplete(competencyCycleId: Int!): MultiChartDTO
     companyInComplete(competencyCycleId: Int!): PieChartDTO
     topCompetencyRating(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
-    topEmployeeCompetencies(competencyCycleId: Int!, limit: Int): [EmployeeRatingDTO]
-    employeesCompetency(pageNo: Int, pageSize: Int): EmployeeRatingPagination
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [HeatmapItemDTO]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
     topHighestSkillSet(employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO

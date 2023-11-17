@@ -1,5 +1,7 @@
 package com.hrms.careerpathmanagement.specification;
 
+import com.hrms.careerpathmanagement.models.CompetencyEvaluation;
+import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -13,5 +15,9 @@ public class CompetencySpecification {
 
     public <T> Specification<T> hasCycleIds(List<Integer> cycleIds) {
         return (root, query, cb) -> root.get("competencyCycle").get("id").in(cycleIds);
+    }
+
+    public <T> Specification<T> hasFinalStatus(String agreed) {
+        return null;
     }
 }
