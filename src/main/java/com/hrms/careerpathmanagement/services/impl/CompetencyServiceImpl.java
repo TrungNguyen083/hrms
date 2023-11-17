@@ -75,9 +75,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final PerformanceCycleRepository performanceCycleRepository;
     private final PerformanceEvaluationRepository performanceEvaluationRepository;
     private final PerformanceSpecification performanceSpecification;
+    private final CareerManagementService careerManagementService;
     private CompetencyCycle latestCompCycle;
     private PerformanceCycle latestPerformCycle;
-    private final CareerManagementService careerManagementService;
 
     @Autowired
     public CompetencyServiceImpl(CompetencyEvaluationRepository competencyEvaluationRepository,
@@ -100,7 +100,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  CompetencySpecification competencySpecification,
                                  PerformanceCycleRepository performanceCycleRepository,
                                  PerformanceEvaluationRepository performanceEvaluationRepository,
-                                 PerformanceSpecification performanceSpecification) {
+                                 PerformanceSpecification performanceSpecification,
                                  CareerManagementService careerManagementService) {
         this.competencyEvaluationRepository = competencyEvaluationRepository;
         this.employeeRepository = employeeRepository;
