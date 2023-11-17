@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.repositories.*;
+import com.hrms.careerpathmanagement.services.CareerManagementService;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.careerpathmanagement.specification.CompetencySpecification;
@@ -26,10 +27,7 @@ import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -50,6 +48,8 @@ public class CompetencyServiceImpl implements CompetencyService {
     static String FINAL_EVAL_LABEL_NAME = "Final Score";
     static String COMPLETED_LABEL_NAME = "Completed";
     static String IN_COMPLETED_LABEL_NAME = "InCompleted";
+    private static final String COMPETENCY_COMPLETED_STATUS = "Agreed";
+
 
     private final CompetencyEvaluationRepository competencyEvaluationRepository;
     private final EmployeeRepository employeeRepository;
@@ -70,6 +70,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final EmployeeSpecification employeeSpecification;
     private final CompetencySpecification competencySpecification;
     private final PerformanceCycleRepository performanceCycleRepository;
+    private final CareerManagementService careerManagementService;
     private CompetencyCycle latestCycle;
 
     @Autowired
@@ -91,7 +92,8 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  CareerSpecification careerSpecification,
                                  EmployeeSpecification employeeSpecification,
                                  CompetencySpecification competencySpecification,
-                                 PerformanceCycleRepository performanceCycleRepository) {
+                                 PerformanceCycleRepository performanceCycleRepository,
+                                 CareerManagementService careerManagementService) {
         this.competencyEvaluationRepository = competencyEvaluationRepository;
         this.employeeRepository = employeeRepository;
         this.competencyTimeLineRepository = competencyTimeLineRepository;
@@ -111,6 +113,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.employeeSpecification = employeeSpecification;
         this.competencySpecification = competencySpecification;
         this.performanceCycleRepository = performanceCycleRepository;
+        this.careerManagementService = careerManagementService;
     }
 
     @PostConstruct
@@ -161,16 +164,18 @@ public class CompetencyServiceImpl implements CompetencyService {
      *
      * @return SkillSummarization (DTO)
      */
-    public SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId) {
+    public BarChartDTO getSkillSetGap(Integer employeeId, Integer cycleId) {
         //1. Skill Set Average Score
         var skillSetAvgScore = getAverageSkillSet(employeeId, cycleId);
 
         //2. Skill Set Target Score
         var position = getPosition(employeeId);
         var level = getLevel(employeeId);
-        var skillSetBaselineScore = getBaselineSkillSetScore(position.getId(), level.getId());
+        var skillSetBaselineScore = careerManagementService.getBaselineSkillSetAvgScore(position.getId(), level.getId());
 
-        return new SkillSetSummarizationDTO(skillSetAvgScore, skillSetBaselineScore);
+        DataItemDTO current = new DataItemDTO("Current", skillSetAvgScore.orElse(null));
+        DataItemDTO target = new DataItemDTO("Target", skillSetBaselineScore.orElse(null));
+        return new BarChartDTO("Skill Gap Chart", List.of(current, target));
     }
 
     public Optional<Double> getAverageSkillSet(Integer empId, Integer cycleId) {
@@ -182,19 +187,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         query.select(cb.avg(proficencyJoin.get("score")));
         query.where(cb.equal(root.get("employee").get("id"), empId),
                 cb.equal(root.get("competencyCycle").get("id"), cycleId));
-
-        return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
-    }
-
-    public Optional<Double> getBaselineSkillSetScore(Integer positionId, Integer levelId) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Double> query = cb.createQuery(Double.class);
-        Root<PositionJobLevelSkillSet> root = query.from(PositionJobLevelSkillSet.class);
-        Join<PositionJobLevelSkillSet, ProficiencyLevel> proficencyJoin = root.join("proficiencyLevel");
-
-        query.select(cb.avg(proficencyJoin.get("score")));
-        query.where(cb.equal(root.get("position").get("id"), positionId),
-                cb.equal(root.get("jobLevel").get("id"), levelId));
 
         return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
     }
@@ -744,25 +736,6 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .status(Objects.requireNonNull(eval).getFinalStatus()).build();
     }
 
-    //HAVE NOT DONE YET
-//    @Override
-//    public List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId) {
-//        Specification<EmployeeCareerPath> hasEmpId = employeeSpecification.hasEmployeeId(employeeId);
-//        var targets = employeeCareerPathRepository.findAll(hasEmpId)
-//                .stream()
-//                .sorted(Comparator.comparing(EmployeeCareerPath::getOrdered))
-//                .toList();
-//
-//        List<TargetPositionLevelDTO> targetsDTO = new ArrayList<>();
-//
-//        targets.forEach(item -> targetsDTO.add(new TargetPositionLevelDTO(
-//                item.getPositionLevel().getId(),
-//                item.getPositionLevel().getTitle(),
-//                item.getMatchPercentage())));
-//
-//        return targetsDTO;
-//    }
-
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
         return null;
@@ -890,19 +863,20 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public EmployeeRatingPagination getCompetencyRating(Integer cycleId, PageRequest pageable) {
         Specification<CompetencyEvaluationOverall> hasCycleSpec = competencySpecification.hasCycleId(cycleId);
-        var evaluations = evaluationOverallRepository.findAll(hasCycleSpec, pageable);
+        Sort sort = Sort.by(Sort.Direction.DESC, "score");
 
-        var pagination = setupPaging(evaluations.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-
-        var ratings = evaluations.stream()
-                .map(item -> new EmployeeRatingDTO(item.getEmployee().getId(),
-                        item.getEmployee().getFullName(),
-                        item.getFinalStatus(),
+        var empRatings = evaluationOverallRepository.findAll(hasCycleSpec, sort)
+                .stream().map(item -> new EmployeeRatingDTO(
+                        item.getEmployee().getId(),
+                        item.getEmployee().getFirstName(),
+                        item.getEmployee().getLastName(),
                         employeeManagementService.getProfilePicture(item.getEmployee().getId()),
-                        item.getScore()))
-                .toList();
+                        item.getScore()
+                )).toList();
 
-        return new EmployeeRatingPagination(ratings, pagination);
+        var pagination = setupPaging(empRatings.size(), pageable.getPageNumber(), pageable.getPageSize());
+
+        return new EmployeeRatingPagination(empRatings, pagination);
     }
 
 }

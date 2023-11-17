@@ -1,0 +1,32 @@
+[
+  {
+    "displayName": "Employee",
+    "iconUrl": "https://cdn1.iconfinder.com/data/icons/office-1/128/employee-512.png",
+    "tag": "employee"
+  },
+  {
+    "displayName": "Competency",
+    "iconUrl": "https://cdn1.iconfinder.com/data/icons/office-1/128/employee-512.png",
+    "tag": "competency"
+  },
+  {
+    "displayName": "Competency Cycle",
+    "iconUrl": "https://cdn1.iconfinder.com/data/icons/office-1/128/employee-512.png",
+    "tag": "competency-cycle"
+  },
+  {
+    "displayName": "Performance Cycle",
+    "iconUrl": "https://cdn1.iconfinder.com/data/icons/office-1/128/employee-512.png",
+    "tag": "performance-cycle"
+  },
+  {
+    "displayName": "Position",
+    "iconUrl": "https://cdn1.iconfinder.com/data/icons/office-1/128/employee-512.png",
+    "tag": "position"
+  },
+  {
+    "displayName": "Skill Set",
+    "iconUrl": "https://cdn1.iconfinder.com/data/icons/office-1/128/employee-512.png",
+    "tag": "skill-set"
+  }
+]

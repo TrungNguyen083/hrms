@@ -3,7 +3,6 @@ package com.hrms.employeemanagement.services;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.EmployeeDamInfo;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.paging.PagingInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +26,7 @@ public interface EmployeeManagementService {
 									  PagingInfo pagingInfo);
 	DiffPercentDTO getHeadcountsStatistic();
 	BarChartDTO getHeadcountChartData();
-	void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException;
+	void uploadPersonalFile(MultipartFile file, Integer employeeId, String type) throws IOException;
 	String getProfilePicture(Integer employeeId);
 
 	List<EmployeeDamInfoDTO> getQualifications(Integer employeeId);

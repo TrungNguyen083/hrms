@@ -293,7 +293,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException {
+    public void uploadPersonalFile(MultipartFile file, Integer employeeId, String type) throws IOException {
         // Upload the image using the DamService with the original file name
         Map uploadResult = damService.uploadFile(file);
         // Get the file's extension like jpg, png, docx, ...
@@ -336,8 +336,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Override
     public EmployeeOverviewDTO getProfileOverview(Integer employeeId) {
         Specification<Employee> spec = (root, query, builder) -> builder.equal(root.get("id"), employeeId);
-        Employee employee = employeeRepository.findOne(spec).orElseThrow(
-                () -> new RuntimeException("Employee not found with id: " + employeeId));
+        Employee employee = employeeRepository.findOne(spec).orElseThrow(() ->
+                new RuntimeException("Employee not found with id: " + employeeId));
 
         Specification<SkillSetEvaluation> hasEmp = employeeSpecification.hasEmployeeId(employeeId);
         List<SkillSet> skillSets = skillSetEvaluationRepository
