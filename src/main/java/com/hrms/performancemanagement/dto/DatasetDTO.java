@@ -10,4 +10,8 @@ import java.util.List;
 public class DatasetDTO {
     private String tag;
     private List<Float> data;
+
+    public void addData(Float data) {
+        this.data.add(data);
+    }
 }

@@ -1,11 +1,16 @@
 package com.hrms.employeemanagement.specification;
 
 
+import com.hrms.employeemanagement.models.Employee;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EmployeeSpecification {
+    static public Specification<Employee> hasJobLevel(Integer jobLevelId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("jobLevel").get("id"), jobLevelId);
+    }
+
     public <T> Specification<T> hasEmployeeId(Integer employeeId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), employeeId);
     }

@@ -88,9 +88,9 @@ public class CareerManagementService {
 
         var intersectSkillsSet = currentSkillSetIds.stream()
                 .filter(baselineSkillSetIds::contains)
-                .collect(Collectors.toList());
+                .toList();
 
-        return Math.min( (float) 100 * intersectSkillsSet.size() / baselineSkillSetIds.size(), 100);
+        return (float) 100 * intersectSkillsSet.size() / baselineSkillSetIds.size();
     }
 
     private List<Integer> getBaselineSkillSetIds(Integer positionId, Integer levelId) {

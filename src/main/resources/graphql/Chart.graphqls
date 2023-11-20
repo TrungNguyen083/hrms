@@ -45,7 +45,7 @@ type RadarDatasetDTO {
 }
 
 type DatasetDTO {
-    columnName: String!
+    tag: String!
     data: [Float!]!
 }
 
@@ -66,4 +66,10 @@ type SkillMatrixData {
 type SkillMatrixOverall{
     managerName: String
     status: String
+}
+
+
+type StackedBarChart {
+    labels: [JobLevel!]!
+    datasets: [DatasetDTO!]!
 }

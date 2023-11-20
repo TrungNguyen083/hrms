@@ -51,6 +51,11 @@ public class EmployeeManagementController {
         return employeeManagementService.filterEmployees(departmentIds, currentContracts, status, name, pagingInfo);
     }
 
+    @QueryMapping(name = "employeeOverview")
+    public EmployeeOverviewDTO getEmployeeOverview(@Argument Integer employeeId) {
+        return employeeManagementService.getProfileOverview(employeeId);
+    }
+
     @QueryMapping(name = "employee")
     public EmployeeDetailDTO findEmployeeById(@Argument int id) {
         return employeeManagementService.getEmployeeDetail(id);

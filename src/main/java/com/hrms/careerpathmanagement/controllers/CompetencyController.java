@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -148,6 +149,11 @@ public class CompetencyController {
         return competencyService.getSkillSetGap(employeeId, cycleId);
     }
 
+    @QueryMapping(name = "competencyLevelPieChart")
+    public PieChartDTO getCompetencyLevelPieChart(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getCompetencyLevelPieChart(employeeId, cycleId);
+    }
+
     @QueryMapping(name = "companyCompetencyDiffPercent")
     public DiffPercentDTO getCompanyCompetencyDiffPercent() {
         return competencyService.getCompanyCompetencyDiffPercent();
@@ -161,10 +167,7 @@ public class CompetencyController {
 
     /**
      * HR Dashboard - Top Competencies Component
-     * @param cycleId
-     * @param pageNo
-     * @param pageSize
-     * @return
+     * @return List Employees (name, profileImg) with their competency rating
      */
     @QueryMapping(name = "topCompetencyRating")
     public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument Integer cycleId,
@@ -175,6 +178,7 @@ public class CompetencyController {
         return competencyService.getCompetencyRating(cycleId, PageRequest.of(pageNo, pageSize));
     }
 
+    /*** Employee Dashboard - Component: Overall competency score ***/
     @QueryMapping(name = "overallCompetencyRadarChart")
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
