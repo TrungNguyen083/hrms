@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PerformanceByJobLevalChartDTO { //DTO
+public class PerformanceByJobLevalChartDTO {
     private List<JobLevel> labels;
     private List<DatasetDTO> datasets;
 }
