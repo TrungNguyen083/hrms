@@ -32,9 +32,9 @@ public interface CompetencyService {
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
     List<EvaluationCycleInfoDTO> getEvaluationCycles();
 
-    BarChartDTO getSkillGapBarChart(Integer employeeId, Integer cycleId);
-
     List<CompetencyCycle> getCompetencyCycles();
 
     EmployeeRatingPagination getCompetencyRating(Integer cycleId, PageRequest pageable);
+
+    PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId);
 }

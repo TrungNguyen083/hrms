@@ -6,7 +6,9 @@ import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepositor
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
+import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
+import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
@@ -26,6 +28,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import kotlinx.coroutines.Job;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,6 +53,8 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final EmployeeSpecification employeeSpecification;
     private final PerformanceSpecification performanceSpecification;
 
+    private final EmployeeRepository employeeRepository;
+
     @Autowired
     public PerformanceServiceImpl(EmployeeManagementService employeeService,
                                   PerformanceEvaluationRepository performanceEvaluationRepository,
@@ -57,7 +62,8 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   JobLevelRepository jobLevelRepository,
                                   PerformanceRangeRepository performanceRangeRepository,
                                   EmployeeSpecification employeeSpecification,
-                                  PerformanceSpecification performanceSpecification)
+                                  PerformanceSpecification performanceSpecification,
+                                  EmployeeRepository employeeRepository)
     {
         this.employeeService = employeeService;
         this.performanceEvaluationRepository = performanceEvaluationRepository;
@@ -66,6 +72,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.performanceRangeRepository = performanceRangeRepository;
         this.employeeSpecification = employeeSpecification;
         this.performanceSpecification = performanceSpecification;
+        this.employeeRepository = employeeRepository;
     }
 
     private Integer getLatestCycleId() {
@@ -120,6 +127,14 @@ public class PerformanceServiceImpl implements PerformanceService {
         var labels = jobLevelRepository.findAll();
 
         var datasets = createDatasets(evaluations, performanceRanges, labels);
+
+        DatasetDTO notEvaluated = new DatasetDTO("Not Evaluated", new ArrayList<>());
+        labels.forEach(label -> {
+            Float percentage = getPercentNotEvaluated(label, cycleId);
+            notEvaluated.addData(percentage);
+        });
+
+        datasets.add(notEvaluated);
 
         return new StackedBarChart(labels, datasets);
     }
@@ -181,10 +196,10 @@ public class PerformanceServiceImpl implements PerformanceService {
     {
         DatasetDTO datasetDTO = new DatasetDTO(range.getText(), new ArrayList<>());
         labels.forEach( label -> {
-            long countEvalsInPositionLevel = countEvals(label, evaluations);
+            long total = countEvals(label, evaluations);
             long count = countPerformancesInRange(label, range, evaluations);
-            float percentage = calculatePercentage(count, countEvalsInPositionLevel);
-            datasetDTO.getData().add(percentage);
+            Float percentage = calculatePercentage(count, total);
+            datasetDTO.addData(percentage);
         });
         return datasetDTO;
     }
@@ -203,7 +218,18 @@ public class PerformanceServiceImpl implements PerformanceService {
                 .count();
     }
 
-    private float calculatePercentage(long amount, long total) {
+    private Float getPercentNotEvaluated(JobLevel jobLevel, Integer cycleId) {
+        Specification< Employee> hasJobLevel = EmployeeSpecification.hasJobLevel(jobLevel.getId());
+        var countEmp = employeeRepository.count(hasJobLevel);
+
+        Specification<PerformanceEvaluation> hasCycle = performanceSpecification.hasPerformanceCycleId(cycleId);
+        Specification<PerformanceEvaluation> hasJobLevelEval = employeeSpecification.hasJobLevelId(jobLevel.getId());
+        var countEval = performanceEvaluationRepository.count(hasCycle.and(hasJobLevelEval));
+
+        return countEval == 0 ? 0 : (float) (countEmp - countEval) / countEmp * 100;
+    }
+
+    private Float calculatePercentage(long amount, long total) {
         return total == 0 ? 0 : (float) (amount * 100) / total;
     }
 
