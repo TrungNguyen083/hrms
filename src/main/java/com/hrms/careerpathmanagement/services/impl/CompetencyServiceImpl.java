@@ -53,7 +53,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     static String IN_COMPLETED_LABEL_NAME = "InCompleted";
     private static final String COMPETENCY_COMPLETED_STATUS = "Agreed";
 
-
     private final CompetencyEvaluationRepository competencyEvaluationRepository;
     private final EmployeeRepository employeeRepository;
     private final CompetencyTimeLineRepository competencyTimeLineRepository;
@@ -619,11 +618,6 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         return new RadarChartDTO(competencies.stream().map(Competency::getCompetencyName).toList(),
                 List.of(selfEvalData, supervisorEvalData, finalEvalData));
-    }
-
-    @Override
-    public List<TargetPositionLevelDTO> getTargetCareerPath(Integer employeeId) {
-        return null;
     }
 
     private Float getCompetenciesScore(List<CompetencyEvaluation> evaluations,

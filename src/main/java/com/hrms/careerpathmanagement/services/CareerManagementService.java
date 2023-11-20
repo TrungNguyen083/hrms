@@ -1,5 +1,7 @@
 package com.hrms.careerpathmanagement.services;
 
+import com.hrms.careerpathmanagement.PositionCareerPath;
+import com.hrms.careerpathmanagement.dto.CareerPathTreeDTO;
 import com.hrms.careerpathmanagement.dto.PositionLevelNodeDTO;
 import com.hrms.careerpathmanagement.models.PositionJobLevelSkillSet;
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
@@ -7,7 +9,6 @@ import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
 import com.hrms.careerpathmanagement.repositories.PositionJobLevelSkillSetRepository;
 import com.hrms.careerpathmanagement.repositories.PositionLevelPathRepository;
 import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
-import com.hrms.employeemanagement.models.PositionLevel;
 import com.hrms.employeemanagement.repositories.PositionLevelRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -32,6 +33,8 @@ public class CareerManagementService {
     private PositionJobLevelSkillSetRepository baselineSkillSetRepository;
     private SkillSetEvaluationRepository skillSetEvaluationRepository;
 
+
+
     @Autowired
     public CareerManagementService(PositionLevelPathRepository positionLevelPathRepository,
                                    PositionLevelRepository positionLevelRepository,
@@ -43,7 +46,18 @@ public class CareerManagementService {
         this.skillSetEvaluationRepository = skillSetEvaluationRepository;
     }
 
-    public PositionLevelNodeDTO getCareerPathFrom(Integer positionLevelId) {
+    public CareerPathTreeDTO getCareerPathTree(PositionCareerPath position) {
+        var root = getPositionLevelNode(position.rootPositionLevelId);
+        return new CareerPathTreeDTO(position.title, root);
+    }
+
+
+    /**
+     * A node has title and a list of next nodes
+     * @param positionLevelId
+     * @return
+     */
+    public PositionLevelNodeDTO getPositionLevelNode(Integer positionLevelId) {
         var title = positionLevelRepository.findById(positionLevelId).get().getTitle();
 
         if (!positionLevelPathRepository.existsByCurrentId(positionLevelId))
@@ -55,7 +69,7 @@ public class CareerManagementService {
                 .stream().map(i -> i.getNext())
                 .toList();
 
-        nextPositionLevels.forEach(i -> node.getNextPositionLevels().add(getCareerPathFrom(i.getId())));
+        nextPositionLevels.forEach(i -> node.getNextPositionLevels().add(getPositionLevelNode(i.getId())));
 
         return node;
     }
@@ -72,9 +86,11 @@ public class CareerManagementService {
         var baselineSkillSetIds = getBaselineSkillSetIds(positionId, levelId);
         var currentSkillSetIds = getCurrentSkillSetIds(employeeId);
 
-        var intersectionItems = currentSkillSetIds.stream().filter(baselineSkillSetIds::contains).collect(Collectors.toList());
+        var intersectSkillsSet = currentSkillSetIds.stream()
+                .filter(baselineSkillSetIds::contains)
+                .collect(Collectors.toList());
 
-        return Math.min( (float) 100 * intersectionItems.size() / baselineSkillSetIds.size(), 100);
+        return Math.min( (float) 100 * intersectSkillsSet.size() / baselineSkillSetIds.size(), 100);
     }
 
     private List<Integer> getBaselineSkillSetIds(Integer positionId, Integer levelId) {

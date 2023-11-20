@@ -15,12 +15,17 @@ import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
-import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
+import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
 import com.hrms.performancemanagement.specification.PerformanceSpecification;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,6 +40,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class PerformanceServiceImpl implements PerformanceService {
+    @PersistenceContext
+    private EntityManager em;
     private final EmployeeManagementService employeeService;
     private final PerformanceEvaluationRepository performanceEvaluationRepository;
     private final PerformanceCycleRepository performanceCycleRepository;
@@ -70,18 +77,23 @@ public class PerformanceServiceImpl implements PerformanceService {
         return performanceCycleRepository.findAll();
     }
 
+    public Float getAveragePerformanceScore(Integer cycleId) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Double> query = cb.createQuery(Double.class);
+        Root<PerformanceEvaluation> root = query.from(PerformanceEvaluation.class);
+
+        query.select(cb.avg(root.get("finalAssessment")))
+                .where(cb.equal(root.get("performanceCycle").get("performanceCycleId"), cycleId));
+
+        return em.createQuery(query).getSingleResult().floatValue();
+    }
+
     @Override
     public Page<PerformanceEvaluation> getPerformanceEvaluations(Integer empId, Pageable pageable) {
         Specification<PerformanceEvaluation> spec = employeeSpecification.hasEmployeeId(empId);
         return performanceEvaluationRepository.findAll(spec, pageable);
     }
 
-    public List<PerformanceEvaluation> getLatestEvaluations(Integer departmentId) {
-        Specification<PerformanceEvaluation> departmentSpec = employeeSpecification.hasDepartmentId(departmentId);
-        Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasPerformanceCycleId(getLatestCycleId());
-
-        return performanceEvaluationRepository.findAll(departmentSpec.and(cycleSpec));
-    }
 
     public List<PerformanceEvaluation> getEvaluations(Integer positionId, Integer performanceCycleId) {
         Specification<PerformanceEvaluation> positionFilter = employeeSpecification.hasPositionId(positionId);
@@ -90,14 +102,26 @@ public class PerformanceServiceImpl implements PerformanceService {
         return performanceEvaluationRepository.findAll(positionFilter.and(cycleFilter));
     }
 
+    /**
+     * Performance Ranges : Unsatisfactory, Needs Improvement, Meets Expectations, Exceeds Expectations, Outstanding...
+     * A score belong to a range if it is greater than or equal to the min value and less than or equal to the max value
+     * Ex: Meets Expectation range has min value = 3 and max value = 4
+     * Label is a column in the chart. In this case, it is job level
+     * @param positionId
+     * @param cycleId
+     * @return
+     */
     @Override
-    public PerformanceByJobLevalChartDTO getPerformanceByJobLevel(Integer positionId, Integer cycleId) {
+    public StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId) {
         var evaluations = performanceEvaluationRepository.findByCycleIdAndPositionId(positionId, cycleId);
+
         var performanceRanges = performanceRangeRepository.findAll();
+
         var labels = jobLevelRepository.findAll();
+
         var datasets = createDatasets(evaluations, performanceRanges, labels);
 
-        return new PerformanceByJobLevalChartDTO(labels, datasets);
+        return new StackedBarChart(labels, datasets);
     }
 
     @Override
@@ -106,16 +130,15 @@ public class PerformanceServiceImpl implements PerformanceService {
         Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasPerformanceCycleId(cycleId);
 
         var evaluations = performanceEvaluationRepository.findAll(empSpec.and(cycleSpec));
-        evaluations.forEach(e -> log.info(e.getEmployee().getFullName()));
 
         List<EmployeePotentialPerformanceDTO> results = new ArrayList<>();
 
         evaluations.forEach(item -> results.add(new EmployeePotentialPerformanceDTO(
-                item.getEmployee().getFullName(),
-                item.getEmployee().getProfileBio(),
-                item.getPotentialScore(),
-                item.getFinalAssessment()
-        )));
+                                                        item.getEmployee().getFullName(),
+                                                        employeeService.getProfilePicture(item.getEmployee().getId()),
+                                                        item.getPotentialScore(),
+                                                        item.getFinalAssessment())
+        ));
         return results;
     }
 
@@ -142,14 +165,14 @@ public class PerformanceServiceImpl implements PerformanceService {
                                             List<PerformanceRange> performanceRanges,
                                             List<JobLevel> labels)
     {
-        List<DatasetDTO> datasetDTOS = new ArrayList<>();
+        List<DatasetDTO> datasets = new ArrayList<>();
 
         performanceRanges.forEach(range -> {
             var dataset = createDatasetForRange(evaluations, range, labels);
-            datasetDTOS.add(dataset);
+            datasets.add(dataset);
         });
 
-        return datasetDTOS;
+        return datasets;
     }
 
     private DatasetDTO createDatasetForRange(List<PerformanceEvaluation> evaluations,
