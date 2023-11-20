@@ -143,7 +143,7 @@ public class CompetencyController {
         return competencyService.getHistoryEvaluations(employeeId);
     }
 
-    @QueryMapping
+    @QueryMapping(name = "skillGapBarChart")
     public BarChartDTO getSkillSetGap(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getSkillSetGap(employeeId, cycleId);
     }
@@ -175,7 +175,7 @@ public class CompetencyController {
         return competencyService.getCompetencyRating(cycleId, PageRequest.of(pageNo, pageSize));
     }
 
-    @QueryMapping
+    @QueryMapping(name = "overallCompetencyRadarChart")
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }

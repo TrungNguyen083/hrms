@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CareerPathTree {
+public class CareerPathTreeDTO {
     String title;
     PositionLevelNodeDTO root;
 }

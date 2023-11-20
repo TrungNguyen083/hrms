@@ -3,7 +3,7 @@ package com.hrms.performancemanagement.controllers;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.global.dto.DataItemPagingDTO;
-import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
+import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,15 @@ public class PerformanceController {
         this.performanceService = performanceService;
     }
 
+    @QueryMapping(name = "averagePerformanceScore")
+    public Float getAveragePerformanceScore(@Argument Integer cycleId)
+    {
+        return performanceService.getAveragePerformanceScore(cycleId);
+    }
+
     @QueryMapping(name = "performanceByJobLevel")
-    public PerformanceByJobLevalChartDTO getPerformanceByJobLevel(@Argument Integer positionId,
-                                                                  @Argument Integer cycleId)
+    public StackedBarChart getPerformanceByJobLevel(@Argument Integer positionId,
+                                                    @Argument Integer cycleId)
     {
         return performanceService.getPerformanceByJobLevel(positionId, cycleId);
     }

@@ -54,6 +54,7 @@ type Query {
 
 
     #PerformanceEvaluation:
+    averagePerformanceScore(cycleId: Int!): Float
     topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
     topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
