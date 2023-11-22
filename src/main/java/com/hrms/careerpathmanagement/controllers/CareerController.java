@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/careers")
 @Slf4j
 public class CareerController {
+    private final CareerManagementService careerManagementService;
+
     @Autowired
-    private CareerManagementService careerManagementService;
+    public CareerController(CareerManagementService careerManagementService) {
+        this.careerManagementService = careerManagementService;
+    }
 
     @GetMapping("/path")
     public ResponseEntity<CareerPathTreeDTO> getCareerPathTree(@RequestParam PositionCareerPath position) {

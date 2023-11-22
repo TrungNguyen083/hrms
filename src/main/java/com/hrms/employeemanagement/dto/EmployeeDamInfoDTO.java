@@ -14,5 +14,5 @@ public class EmployeeDamInfoDTO {
     String extension;
     String fileUri;
     String logoUri;
-    Date created_at;
+    Date createdAt;
 }

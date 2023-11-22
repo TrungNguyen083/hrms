@@ -3,7 +3,6 @@ package com.hrms.careerpathmanagement.dto;
 import lombok.*;
 
 import java.util.LinkedList;
-import java.util.List;
 
 @Data
 @Getter

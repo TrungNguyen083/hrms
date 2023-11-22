@@ -1,6 +1,5 @@
 package com.hrms.careerpathmanagement.specification;
 
-import com.hrms.employeemanagement.models.Employee;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 

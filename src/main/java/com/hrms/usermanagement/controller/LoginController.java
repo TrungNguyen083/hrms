@@ -9,8 +9,12 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class LoginController {
+    private final AuthenticationService authenticationService;
+
     @Autowired
-    private AuthenticationService authenticationService;
+    public LoginController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
 
     @QueryMapping
     public Token login(@Argument String username, @Argument String password)

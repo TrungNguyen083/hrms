@@ -14,6 +14,7 @@ import com.hrms.employeemanagement.projection.NameAndStatusOnly;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.employeemanagement.models.*;
+import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.*;
@@ -271,8 +272,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         var result = nameAndStatusList.stream()
                 .map(item -> new EmployeeStatusDTO(item.id(), item.firstName(), item.lastName(), item.status(),
                         profileImages.stream()
-                                .filter(profile -> profile.employeeId().equals(item.id()))
-                                .map(p -> p.url())
+                                .filter(profile -> profile.getEmployeeId().equals(item.id()))
+                                .map(ProfileImageOnly::getUrl)
                                 .findFirst()
                                 .orElse(null)))
                 .toList();
