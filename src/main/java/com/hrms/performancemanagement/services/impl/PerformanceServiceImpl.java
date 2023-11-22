@@ -7,7 +7,6 @@ import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepositor
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
-import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;

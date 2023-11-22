@@ -186,6 +186,7 @@ public class CompetencyController {
     @QueryMapping(name = "skillSets")
     public List<String> getSkillSetNamesByPosition(@Argument Integer positionId) {
         return competencyService.getSkillSetNamesByPosition(positionId);
+    }
 
 
     /***

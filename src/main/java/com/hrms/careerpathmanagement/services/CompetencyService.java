@@ -2,8 +2,6 @@ package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
-import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
