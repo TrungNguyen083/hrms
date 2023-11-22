@@ -34,7 +34,7 @@ public interface EmployeeManagementService {
 
     EmployeeOverviewDTO getProfileOverview(Integer employeeId);
 
-	List<EmployeeItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId);
+	List<SimpleItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId);
 
     List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> ids);
 }
