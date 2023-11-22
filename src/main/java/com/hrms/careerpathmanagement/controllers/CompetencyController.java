@@ -12,7 +12,6 @@ import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,7 +31,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyTimeLine")
-    public List<CompetencyTimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
+    public List<TimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
         try {
             return competencyService.getCompetencyTimeline(competencyCycleId);
         } catch (Exception e) {
@@ -41,20 +40,20 @@ public class CompetencyController {
         }
     }
 
-    @QueryMapping(name = "departmentInComplete")
-    public MultiBarChartDTO getAllDepartmentInComplete(@Argument Integer competencyCycleId) {
+    @QueryMapping(name = "departmentInCompleteComp")
+    public MultiBarChartDTO getDepartmentInCompleteComp(@Argument Integer competencyCycleId) {
         try {
-            return competencyService.getDepartmentIncompletePercent(competencyCycleId);
+            return competencyService.getDepartmentInCompleteComp(competencyCycleId);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
         }
     }
 
-    @QueryMapping(name = "companyInComplete")
-    public PieChartDTO getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
+    @QueryMapping(name = "competencyEvalProgress")
+    public PieChartDTO getCompetencyEvalProgress(@Argument Integer competencyCycleId) {
         try {
-            return competencyService.getCompanyIncompletePercent(competencyCycleId);
+            return competencyService.getCompetencyEvalProgress(competencyCycleId);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -178,10 +177,5 @@ public class CompetencyController {
     @QueryMapping(name = "overallCompetencyRadarChart")
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
-    }
-
-    @QueryMapping(name = "evaluationCycles")
-    public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
-        return competencyService.getEvaluationCycles();
     }
 }

@@ -7,12 +7,20 @@ import java.util.List;
 
 @Component
 public class PerformanceSpecification {
-    public <T> Specification<T> hasPerformanceCycleId(Integer performanceCycleId) {
+    public <T> Specification<T> hasCycleId(Integer performanceCycleId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("performanceCycle").get("performanceCycleId"), performanceCycleId);
     }
 
     public <T> Specification<T> hasEmployeeId(Integer employeeId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), employeeId);
+    }
+
+    public <T> Specification<T> hasEmployeeIds(List<Integer> employeeIds) {
+        return (root, query, criteriaBuilder) -> root.get("employee").get("id").in(employeeIds);
+    }
+
+    public <T> Specification<T> hasPerformanceCycleId(Integer performCycleId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("performanceCycle").get("performanceCycleId"), performCycleId);
     }
 
     public <T> Specification<T> hasPerformanceCycleIds(List<Integer> performCycleIds) {
