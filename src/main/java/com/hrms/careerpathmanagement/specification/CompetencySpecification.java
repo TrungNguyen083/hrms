@@ -1,7 +1,5 @@
 package com.hrms.careerpathmanagement.specification;
 
-import com.hrms.careerpathmanagement.models.CompetencyEvaluation;
-import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 

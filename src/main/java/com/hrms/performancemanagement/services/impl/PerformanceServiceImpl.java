@@ -15,6 +15,7 @@ import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
@@ -252,7 +253,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                                                                      Integer pageNo, Integer pageSize) {
         performanceCycleRepository.findAll();
 
-        Specification<PerformanceEvaluation> spec = employeeSpecification.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> spec = GlobalSpec.hasEmployeeId(employeeId);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<PerformanceEvaluation> page = performanceEvaluationRepository.findAll(spec, pageable);
         List<DataItemDTO> data = page.map(item -> new DataItemDTO(
@@ -311,11 +312,12 @@ public class PerformanceServiceImpl implements PerformanceService {
         //Get all performance evaluations
         //have employeeId in empIdSet and roleField is not null and performanceCycleId = cycleId
         Specification<PerformanceEvaluation> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.and(root.get("employee").get("id").in(empIdSet),
-                        criteriaBuilder.isNotNull(root.get(assessmentType)),
-                        criteriaBuilder.equal(root.get("performanceCycle").get("id"), cycleId));
+                criteriaBuilder.isNotNull(root.get(assessmentType));
 
-        var completedCount = performanceEvaluationRepository.count(spec);
+        Specification<PerformanceEvaluation> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasPerformCycleId(cycleId);
+
+        var completedCount = performanceEvaluationRepository.count(spec.and(hasEmployees).and(hasCycle));
         return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
     }
 
@@ -328,13 +330,14 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         //get all employees who have completed evaluation
         Specification<PerformanceEvaluation> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.and(root.get("employee").get("id").in(empIdSet),
-                        criteriaBuilder.equal(root.get("status"), "Completed"),
-                        criteriaBuilder.equal(root.get("performanceCycle").get("id"), performanceCycleId)
-                );
+                criteriaBuilder.equal(root.get("status"), "Completed");
+
+        Specification<PerformanceEvaluation> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasPerformCycleId(performanceCycleId);
 
         List<Float> datasets = new ArrayList<>();
-        var completedPercent = (float) performanceEvaluationRepository.count(spec) / empIdSet.size() * 100;
+        var completedPercent = (float) performanceEvaluationRepository
+                .count(spec.and(hasEmployees).and(hasCycle)) / empIdSet.size() * 100;
         datasets.add(completedPercent);
         datasets.add(100 - completedPercent);
 
@@ -343,8 +346,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     @Override
     public List<TimeLine> getPerformanceTimeLine(Integer cycleId) {
-        Specification<PerformanceTimeLine> spec =
-                (root, query, cb) -> cb.equal(root.get("performanceCycle").get("id"), cycleId);
+        Specification<PerformanceTimeLine> spec = GlobalSpec.hasPerformCycleId(cycleId);
         return performanceTimeLineRepository.findAll(spec)
                 .stream()
                 .map(item -> new TimeLine(

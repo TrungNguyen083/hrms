@@ -16,13 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @Slf4j
 public class CompetencyController {
     private final CompetencyService competencyService;
@@ -207,8 +205,8 @@ public class CompetencyController {
 
 
     @QueryMapping(name = "skillSets")
-    public List<SimpleItemDTO> getSkillSetNamesByPosition(@Argument Integer positionId) {
-        return competencyService.getSkillSetNamesByPosition(positionId);
+    public List<SimpleItemDTO> getSkillSetByPosition(@Argument Integer positionId) {
+        return competencyService.getSkillSetByPosition(positionId);
     }
 
     @QueryMapping(name = "departmentSkillSetHeatMap")

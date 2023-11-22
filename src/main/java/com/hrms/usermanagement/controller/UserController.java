@@ -1,7 +1,6 @@
 package com.hrms.usermanagement.controller;
 
 import com.hrms.global.mapper.HrmsMapper;
-import com.hrms.global.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.dto.UserDtoPagination;
