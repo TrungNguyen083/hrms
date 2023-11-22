@@ -1,8 +1,11 @@
 package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.global.dto.DataItemPagingDTO;
+import com.hrms.global.dto.MultiBarChartDTO;
+import com.hrms.global.dto.PieChartDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -28,6 +31,18 @@ public class PerformanceController {
     @Autowired
     public PerformanceController(PerformanceService performanceService) {
         this.performanceService = performanceService;
+    }
+
+    @QueryMapping(name = "departmentInCompletePerform")
+    public MultiBarChartDTO getDepartmentInCompletePerform(@Argument Integer performanceCycleId)
+    {
+        return performanceService.getDepartmentInCompletePerform(performanceCycleId);
+    }
+
+    @QueryMapping(name = "performanceEvalProgress")
+    public PieChartDTO getPerformanceEvalProgress(@Argument Integer performanceCycleId)
+    {
+        return performanceService.getPerformanceEvalProgress(performanceCycleId);
     }
 
     @QueryMapping(name = "averagePerformanceScore")
@@ -93,6 +108,12 @@ public class PerformanceController {
                                                                      @Argument int pageSize)
     {
         return performanceService.getEmployeePerformanceRatingScore(employeeId, pageNo, pageSize);
+    }
+
+    @QueryMapping(name = "performanceTimeLine")
+    public List<TimeLine> getPerformanceTimeLine(@Argument Integer performanceCycleId)
+    {
+        return performanceService.getPerformanceTimeLine(performanceCycleId);
     }
 
 }
