@@ -16,9 +16,9 @@ import java.util.List;
 public interface CompetencyService {
     @Scheduled(cron = "0 0 0 * * *")
     void updateIsDoneForOverdueItems();
-    List<CompetencyTimeLine> getCompetencyTimeline(Integer competencyCycleId);
-    MultiBarChartDTO getDepartmentIncompletePercent(Integer competencyCycleId);
-    PieChartDTO getCompanyIncompletePercent(Integer competencyCycleId);
+    List<TimeLine> getCompetencyTimeline(Integer competencyCycleId);
+    MultiBarChartDTO getDepartmentInCompleteComp(Integer competencyCycleId);
+    PieChartDTO getCompetencyEvalProgress(Integer competencyCycleId);
     List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer competencyCycleId);
     DataItemPagingDTO getHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
@@ -32,7 +32,6 @@ public interface CompetencyService {
     BarChartDTO getCompetencyChart();
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
-    List<EvaluationCycleInfoDTO> getEvaluationCycles();
 
     List<CompetencyCycle> getCompetencyCycles();
 

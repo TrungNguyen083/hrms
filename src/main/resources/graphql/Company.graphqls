@@ -12,21 +12,11 @@ type CompetencyCycle {
     year: String
 }
 
-type CompetencyTimeLine {
-    id: Int!
-    competencyTimeLineName: String
+type TimeLine {
+    timeLineName: String
     startDate: String
     dueDate: String
-    competencyCycle: CompetencyCycle
     isDone: Boolean
-}
-
-type EvaluationCycleInfo{
-    cycleName: String
-    cycleStatus: String
-    cyclePeriod: String
-    cycleType: String
-    cycleProgress: CycleEvaluationProgress
 }
 
 type CycleEvaluationProgress{

@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface EmployeeManagementService {
 	List<Employee> getAllEmployees();
+	List<Employee> getAllEmployeesHaveDepartment();
 	Employee createEmployee(EmployeeInputDTO input) throws Exception;
 	Employee findEmployee(Integer id);
 	Employee updateEmployee(EmployeeInputDTO input);

@@ -95,6 +95,16 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
+    public List<Employee> getAllEmployeesHaveDepartment() {
+        //Find all employee have status not equal 0 and department not null
+        Specification<Employee> spec = (root, query, builder) -> builder.and(
+                builder.notEqual(root.get("status"), 0),
+                builder.isNotNull(root.get("department"))
+        );
+        return employeeRepository.findAll(spec);
+    }
+
+    @Override
     public Employee findEmployee(Integer id) {
         Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
         return employeeRepository

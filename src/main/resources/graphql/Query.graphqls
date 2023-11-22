@@ -27,13 +27,14 @@ type Query {
     competencies: [Competency]
     proficiencyLevels: [ProficiencyLevel]
     competencyCycles: [CompetencyCycle]
-    competencyTimeLine(competencyCycleId: Int!): [CompetencyTimeLine]
+    competencyTimeLine(competencyCycleId: Int!): [TimeLine]
+    performanceTimeLine(performanceCycleId: Int!): [TimeLine]
 
 
 
     #CompetencyEvaluation:
-    departmentInComplete(competencyCycleId: Int!): MultiChartDTO
-    companyInComplete(competencyCycleId: Int!): PieChartDTO
+    departmentInCompleteComp(competencyCycleId: Int!): MultiBarChartDTO
+    competencyEvalProgress(competencyCycleId: Int!): PieChartDTO
     topCompetencyRating(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [HeatmapItemDTO]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
@@ -47,13 +48,15 @@ type Query {
     getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
     companyCompetencyDiffPercent: DiffPercentDTO
-    competencyChart: [CompetencyChart]evaluationCycles: [EvaluationCycleInfo]
+    competencyChart: BarChartDTO
     overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
     competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
 
 
     #PerformanceEvaluation:
+    departmentInCompletePerform(performanceCycleId: Int!): MultiBarChartDTO
+    performanceEvalProgress(performanceCycleId: Int!): PieChartDTO
     averagePerformanceScore(cycleId: Int!): Float
     topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
     topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination

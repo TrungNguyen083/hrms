@@ -13,7 +13,7 @@ type DataItemPagingDTO{
     pagination: Pagination!
 }
 
-type MultiChartDTO {
+type MultiBarChartDTO {
     labels: [String]
     datasets: [MultiBarChartDataDTO]
 }
