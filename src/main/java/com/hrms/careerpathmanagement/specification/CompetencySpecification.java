@@ -18,8 +18,4 @@ public class CompetencySpecification {
     public <T> Specification<T> hasIds(List<Integer> ids) {
         return (root, query, cb) -> root.get("id").in(ids);
     }
-
-    public <T> Specification<T> hasFinalStatus(String agreed) {
-        return null;
-    }
 }

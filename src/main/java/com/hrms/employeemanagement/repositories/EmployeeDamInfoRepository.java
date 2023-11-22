@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.repositories;
 
-import com.hrms.employeemanagement.dto.NameImageDTO;
 import com.hrms.employeemanagement.models.EmployeeDamInfo;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import org.springframework.data.jpa.repository.JpaRepository;

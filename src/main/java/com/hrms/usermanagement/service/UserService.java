@@ -22,9 +22,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,32 +30,32 @@ import java.util.List;
 @Slf4j
 public class UserService {
 
-    @PersistenceContext
-    EntityManager entityManager;
-
     @jakarta.persistence.PersistenceContext
     jakarta.persistence.EntityManager em;
-
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
     private UserRoleRepository userRoleRepository;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private UserSpecification userSpecification;
+    private HrmsMapper modelMapper;
 
     @Autowired
-    private HrmsMapper modelMapper;
+    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository,
+                       PasswordEncoder passwordEncoder, UserSpecification userSpecification,
+                       HrmsMapper modelMapper) {
+        this.userRepository = userRepository;
+        this.userRoleRepository = userRoleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userSpecification = userSpecification;
+        this.modelMapper = modelMapper;
+    }
 
     public UserService() {
     }
 
-    private Boolean checkUserExist(String username) throws Exception {
-        if (userRepository.existsByUsername(username)) {
+    private void checkUserExist(String username) throws Exception {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(username))) {
             throw new Exception("User already exists");
         }
-        return true;
     }
 
     public UserDtoPagination searchUsers(@Nullable String search,
