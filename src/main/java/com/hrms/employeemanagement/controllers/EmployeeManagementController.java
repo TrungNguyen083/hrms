@@ -4,7 +4,8 @@ import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
-import com.hrms.employeemanagement.dto.EmployeePagingDTO;
+import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
+import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.paging.PagingInfo;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
@@ -133,5 +134,10 @@ public class EmployeeManagementController {
     @QueryMapping(name = "departmentEmployees")
     public List<EmployeeItemDTO> getDepartmentEmployees(@Argument Integer departmentId, @Argument Integer positionId) {
         return employeeManagementService.getDepartmentEmployees(departmentId, positionId);
+    }
+      
+    @GetMapping("/dam/profile-images")
+    public ResponseEntity<List<ProfileImageOnly>> getEmployeeProfileImg(@RequestParam List<Integer> employeeIds) {
+        return ResponseEntity.ok(employeeManagementService.getEmployeesNameAndAvatar(employeeIds));
     }
 }

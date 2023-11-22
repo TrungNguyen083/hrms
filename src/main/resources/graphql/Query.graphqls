@@ -54,7 +54,7 @@ type Query {
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
     departmentEmployees(departmentId: Int!, positionId: Int!): [EmployeeItemDTO]
     departmentSkillSetHeatMap(departmentId: Int!, cycleId: Int!, ): [HeatmapItemDTO]
-
+    competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
 
 
     #PerformanceEvaluation:
