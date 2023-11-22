@@ -13,6 +13,7 @@ import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemDTO;
 import com.hrms.global.paging.Pagination;
@@ -107,7 +108,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public Employee findEmployee(Integer id) {
-        Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
+        Specification<Employee> spec = GlobalSpec.hasId(id);
         return employeeRepository
                 .findOne(spec)
                 .orElseThrow(() -> new RuntimeException("EmployeeDocument not found with id: " + id));
@@ -115,12 +116,11 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public EmployeeDetailDTO getEmployeeDetail(Integer id) {
-        Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
+        Specification<Employee> spec = GlobalSpec.hasId(id);
         Employee employee = employeeRepository
                 .findOne(spec)
                 .orElseThrow(() -> new RuntimeException("EmployeeDocument not found with id: " + id));
-        Specification<EmergencyContact> contactSpec = (root, query, builder)
-                -> builder.equal(root.get("employee").get("id"), id);
+        Specification<EmergencyContact> contactSpec = GlobalSpec.hasEmployeeId(id);
         List<EmergencyContact> emergencyContacts = emergencyContactRepository.findAll(contactSpec);
         //Get employeeDamInfo have employeeId = id and type = "Profile Picture" and has the latest uploadedAt
         String imageUrl = employeeDamInfoRepository
@@ -200,11 +200,9 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         List<Department> department = departmentRepository.findAll();
         List<Integer> departmentIds = department.stream().map(Department::getId).toList();
         //Find all employees in departmentIds and have status not equal to 0
-        Specification<Employee> spec = (root, query, builder) -> builder.and(
-                builder.in(root.get("department").get("id")).value(departmentIds),
-                builder.notEqual(root.get("status"), 0)
-        );
-        List<Employee> employees = employeeRepository.findAll(spec);
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
+        Specification<Employee> hasDepartmentIds = GlobalSpec.hasDepartmentIds(departmentIds);
+        List<Employee> employees = employeeRepository.findAll(spec.and(hasDepartmentIds));
 
         List<DataItemDTO> items = department.stream().map(item -> {
             Float countEmployee = (float) employees
@@ -259,7 +257,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     private void deleteEmerContactNotInNewList(List<EmergencyContactInputDTO> emergencyContacts, Integer employeeId) {
         // Get all emergency contacts of the employee
-        Specification<EmergencyContact> spec = (root, query, builder) -> builder.equal(root.get("employee").get("id"), employeeId);
+        Specification<EmergencyContact> spec = GlobalSpec.hasEmployeeId(employeeId);
         List<EmergencyContact> ecs = emergencyContactRepository.findAll(spec);
 
         // Collect emergency contacts to be deleted
@@ -276,7 +274,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         List<Integer> ecIds = emergencyContacts.stream()
                 .map(EmergencyContactInputDTO::getId)
                 .toList();
-        Specification<EmergencyContact> spec = (root, query, builder) -> root.get("id").in(ecIds);
+        Specification<EmergencyContact> spec = GlobalSpec.hasIds(ecIds);
         List<EmergencyContact> ecs = emergencyContactRepository.findAll(spec);
 
         List<EmergencyContact> emergencyContactList = emergencyContacts.stream()
@@ -338,7 +336,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public EmployeeOverviewDTO getProfileOverview(Integer employeeId) {
-        Specification<Employee> spec = (root, query, builder) -> builder.equal(root.get("id"), employeeId);
+        Specification<Employee> spec = GlobalSpec.hasId(employeeId);
         Employee employee = employeeRepository.findOne(spec).orElseThrow(() ->
                 new RuntimeException("Employee not found with id: " + employeeId));
 

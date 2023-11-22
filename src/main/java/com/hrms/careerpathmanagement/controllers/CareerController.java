@@ -2,12 +2,10 @@ package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.PositionCareerPath;
 import com.hrms.careerpathmanagement.dto.CareerPathTreeDTO;
-import com.hrms.careerpathmanagement.dto.PositionLevelNodeDTO;
 import com.hrms.careerpathmanagement.services.CareerManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

@@ -39,7 +39,7 @@ public interface CompetencyService {
 
     PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId);
 
-    List<SimpleItemDTO> getSkillSetNamesByPosition(Integer positionId);
+    List<SimpleItemDTO> getSkillSetByPosition(Integer positionId);
   
     MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId);
 

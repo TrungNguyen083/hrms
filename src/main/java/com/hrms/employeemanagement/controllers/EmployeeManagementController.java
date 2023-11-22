@@ -24,8 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@CrossOrigin
-//Controller
 public class EmployeeManagementController {
     EmployeeManagementService employeeManagementService;
     DamService damService;

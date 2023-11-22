@@ -9,14 +9,13 @@ import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.careerpathmanagement.specification.CompetencySpecification;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
-import com.hrms.employeemanagement.dto.NameImageDTO;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.projection.NameAndStatusOnly;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.employeemanagement.models.*;
-import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,12 +154,8 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     public List<SkillSetEvaluation> getSkillEvaluations(Integer employeeId, Integer cycleId) {
         Specification<SkillSetEvaluation> empSpec = employeeSpecification.hasEmployeeId(employeeId);
-        return skillSetEvaluationRepository.findAll(empSpec.and(getCycleSpec(cycleId)));
-    }
-
-    @NotNull
-    private static <T> Specification<T> getCycleSpec(Integer cycleId) {
-        return (root, query, builder) -> builder.equal(root.get("competencyCycle").get("id"), cycleId);
+        Specification<SkillSetEvaluation> cycSpec = GlobalSpec.hasCompCycleId(cycleId);
+        return skillSetEvaluationRepository.findAll(empSpec.and(cycSpec));
     }
 
     public List<SkillSet> getBaselineSkillsSet(Integer positionId, Integer levelId) {
@@ -219,12 +213,10 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId) {
-        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId),
-                criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId)
-        );
+        Specification<CompetencyEvaluationOverall> hasCompCycle = GlobalSpec.hasCompCycleId(cycleId);
+        Specification<CompetencyEvaluationOverall> hasEmployeeDepartment = GlobalSpec.hasEmployeeDepartmentId(departmentId);
 
-        var evaluations = evaluationOverallRepository.findAll(spec);
+        var evaluations = evaluationOverallRepository.findAll(hasCompCycle.and(hasEmployeeDepartment));
 
         // Position in the department
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -323,8 +315,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public List<TimeLine> getCompetencyTimeline(Integer competencyCycleId) {
-        Specification<CompetencyTimeLine> spec =
-                (root, query, cb) -> cb.equal(root.get("competencyCycle").get("id"), competencyCycleId);
+        Specification<CompetencyTimeLine> spec = GlobalSpec.hasCompCycleId(competencyCycleId);
         return competencyTimeLineRepository.findAll(spec)
                 .stream()
                 .map(item -> new TimeLine(
@@ -377,12 +368,12 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private Float calculatePercentage(Integer competencyCycleId, List<Integer> empIdSet, String evalType) {
         if (empIdSet.isEmpty()) return null;
-        Specification<CompetencyEvaluationOverall> specification = (root, query, criteriaBuilder) ->
-                criteriaBuilder.and(root.get("employee").get("id").in(empIdSet),
-                        criteriaBuilder.equal(root.get(evalType), "Completed"),
-                        criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
+        Specification<CompetencyEvaluationOverall> hasTypeCompleted = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get(evalType), "Completed");
+        Specification<CompetencyEvaluationOverall> hasEmployeeIds = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<CompetencyEvaluationOverall> hasCycleId = GlobalSpec.hasCompCycleId(competencyCycleId);
 
-        var completedCount = evaluationOverallRepository.count(specification);
+        var completedCount = evaluationOverallRepository.count(hasTypeCompleted.and(hasEmployeeIds).and(hasCycleId));
         return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
     }
 
@@ -395,14 +386,14 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .toList();
 
         //get all employees who have completed evaluation
-        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.and(root.get("employee").get("id").in(empIdSet),
-                        criteriaBuilder.equal(root.get("finalStatus"), "Completed"),
-                        criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId)
-                );
+        Specification<CompetencyEvaluationOverall> hasStatusComplete = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("finalStatus"), "Completed");
+        Specification<CompetencyEvaluationOverall> hasEmployeeIds = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<CompetencyEvaluationOverall> hasCycleId = GlobalSpec.hasCompCycleId(competencyCycleId);
 
         List<Float> datasets = new ArrayList<>();
-        var completedPercent = (float) evaluationOverallRepository.count(spec) / empIdSet.size() * 100;
+        var completedPercent = (float) evaluationOverallRepository
+                .count(hasStatusComplete.and(hasEmployeeIds).and(hasCycleId)) / empIdSet.size() * 100;
         datasets.add(completedPercent);
         datasets.add(100 - completedPercent);
 
@@ -662,11 +653,10 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private float getAvgEvalScore(Integer cycleId) {
         //Get all evaluation overall of all employees have final status is agreed and get the latest cycle
-        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("finalStatus"), "Completed"),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId)
-        );
-        List<Float> evalScores = evaluationOverallRepository.findAll(spec)
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("finalStatus"), "Completed");
+        Specification<CompetencyEvaluationOverall> hasCompCycle = GlobalSpec.hasCompCycleId(cycleId);
+        List<Float> evalScores = evaluationOverallRepository.findAll(spec.and(hasCompCycle))
                 .stream()
                 .map(CompetencyEvaluationOverall::getScore)
                 .toList();
@@ -742,28 +732,23 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private List<SkillSetTarget> getSkillSetTargets(Integer employeeId, Integer latestCompId) {
-        Specification<SkillSetTarget> ssTSpec = (root, query, builder) -> builder.and(
-                builder.equal(root.get("employee").get("id"), employeeId),
-                builder.equal(root.get("competencyCycle").get("id"), latestCompId)
-        );
-        return skillSetTargetRepository.findAll(ssTSpec);
+        Specification<SkillSetTarget> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<SkillSetTarget> hasCompCycleId = GlobalSpec.hasCompCycleId(latestCompId);
+        return skillSetTargetRepository.findAll(hasEmployeeId.and(hasCompCycleId));
     }
 
     private List<PositionSkillSet> getPositionSkillSets(Integer positionId, List<Integer> competencyId) {
         //Find PositionSkillSet has positionId = positionId and competencyId in competencyIds
-        Specification<PositionSkillSet> posSpec = (root, query, builder) -> builder.and(
-                builder.equal(root.get("position").get("id"), positionId),
-                root.get("skillSet").get("competency").get("id").in(competencyId)
-        );
-        return positionSkillSetRepository.findAll(posSpec);
+        Specification<PositionSkillSet> posSpec = (root, query, builder) ->
+                root.get("skillSet").get("competency").get("id").in(competencyId);
+        Specification<PositionSkillSet> hasPositionId = GlobalSpec.hasPositionId(positionId);
+        return positionSkillSetRepository.findAll(posSpec.and(hasPositionId));
     }
 
     private List<SkillSetEvaluation> getSkillSetEvaluations(Integer employeeId, Integer cycleId) {
-        Specification<SkillSetEvaluation> ssEvaSpec = (root, query, builder) -> builder.and(
-                builder.equal(root.get("employee").get("id"), employeeId),
-                builder.equal(root.get("competencyCycle").get("id"), cycleId)
-        );
-        return skillSetEvaluationRepository.findAll(ssEvaSpec);
+        Specification<SkillSetEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<SkillSetEvaluation> hasCycleId = GlobalSpec.hasCompCycleId(cycleId);
+        return skillSetEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
     }
 
 
@@ -892,12 +877,10 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public SkillMatrixOverallDTO getSkillMatrixOverall(Integer empId) {
         CompetencyCycle latestCompEva = evaluationOverallRepository.latestEvalCompetencyCycle(empId);
-        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("employee").get("id"), empId),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCompEva)
-        );
+        Specification<CompetencyEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(empId);
+        Specification<CompetencyEvaluationOverall> hasCompCycleId = GlobalSpec.hasCompCycleId(latestCompEva.getId());
 
-        CompetencyEvaluationOverall eval = evaluationOverallRepository.findOne(spec).orElse(null);
+        CompetencyEvaluationOverall eval = evaluationOverallRepository.findOne(hasEmployeeId.and(hasCompCycleId)).orElse(null);
         Employee employee = employeeManagementService.findEmployee(empId);
         return SkillMatrixOverallDTO.builder()
                 .managerName(employee.getDepartment().getSum().getFullName())
@@ -922,11 +905,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCyclesId, Integer departmentId) {
-        Specification<CompetencyEvaluation> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                root.get("competencyCycle").get("id").in(competencyCyclesId),
-                criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId)
-        );
-        return competencyEvaluationRepository.findAll(spec);
+        Specification<CompetencyEvaluation> hasCompetencyCycles = GlobalSpec.hasCompCycleIds(competencyCyclesId);
+        Specification<CompetencyEvaluation> hasEmployeeDepartment = GlobalSpec.hasEmployeeDepartmentId(departmentId);
+        return competencyEvaluationRepository.findAll(hasCompetencyCycles.and(hasEmployeeDepartment));
     }
 
     private List<Pair<Integer, Integer>> createPairItems(List<Integer> competencyCyclesId, List<Competency> competencies) {
@@ -1033,7 +1014,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<SimpleItemDTO> getSkillSetNamesByPosition(Integer positionId) {
+    public List<SimpleItemDTO> getSkillSetByPosition(Integer positionId) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<SimpleItemDTO> criteriaQuery = criteriaBuilder.createQuery(SimpleItemDTO.class);
 
@@ -1068,7 +1049,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @NotNull
     private List<SimpleItemDTO> getEmployeeSimpleItemDTOS(List<Integer> employeeIds) {
-        Specification<Employee> hasIds = competencySpecification.hasIds(employeeIds);
+        Specification<Employee> hasIds = GlobalSpec.hasIds(employeeIds);
         return employeeRepository.findAll(hasIds)
                 .stream()
                 .map(employee -> new SimpleItemDTO(employee.getId(), employee.getFullName()))
@@ -1077,7 +1058,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @NotNull
     private List<SimpleItemDTO> getSkillSetSimpleItemDTOS(List<Integer> skillSetIds) {
-        Specification<SkillSet> hasSkillSetIds = competencySpecification.hasIds(skillSetIds);
+        Specification<SkillSet> hasSkillSetIds = GlobalSpec.hasIds(skillSetIds);
         return skillSetRepository.findAll(hasSkillSetIds)
                 .stream()
                 .map(skillSet -> new SimpleItemDTO(skillSet.getId(), skillSet.getSkillSetName()))
@@ -1086,8 +1067,8 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @NotNull
     private List<SkillSetEvaluation> getSSEvalByEmployeeAndCycle(Integer cycleId, List<Integer> employeeIds) {
-        Specification<SkillSetEvaluation> hasCycleId = competencySpecification.hasCycleId(cycleId);
-        Specification<SkillSetEvaluation> hasEmployeeIds = employeeSpecification.hasEmployeeIds(employeeIds);
+        Specification<SkillSetEvaluation> hasCycleId = GlobalSpec.hasCompCycleId(cycleId);
+        Specification<SkillSetEvaluation> hasEmployeeIds = GlobalSpec.hasEmployeeIds(employeeIds);
 
         return skillSetEvaluationRepository.findAll(hasCycleId.and(hasEmployeeIds));
     }
