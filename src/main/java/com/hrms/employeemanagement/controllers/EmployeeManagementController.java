@@ -129,4 +129,9 @@ public class EmployeeManagementController {
                                                                               @PathVariable String type) {
         return ResponseEntity.ok(employeeManagementService.getQualifications(employeeId));
     }
+
+    @QueryMapping(name = "departmentEmployees")
+    public List<EmployeeItemDTO> getDepartmentEmployees(@Argument Integer departmentId, @Argument Integer positionId) {
+        return employeeManagementService.getDepartmentEmployees(departmentId, positionId);
+    }
 }

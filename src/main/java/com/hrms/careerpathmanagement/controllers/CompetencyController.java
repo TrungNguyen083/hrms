@@ -183,4 +183,9 @@ public class CompetencyController {
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }
+
+    @QueryMapping(name = "skillSets")
+    public List<String> getSkillSetNamesByPosition(@Argument Integer positionId) {
+        return competencyService.getSkillSetNamesByPosition(positionId);
+    }
 }

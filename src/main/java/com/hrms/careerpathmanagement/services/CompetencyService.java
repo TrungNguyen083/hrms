@@ -2,7 +2,6 @@ package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.global.dto.*;
 import jakarta.annotation.Nullable;
@@ -36,4 +35,6 @@ public interface CompetencyService {
     EmployeeRatingPagination getCompetencyRating(Integer cycleId, PageRequest pageable);
 
     PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId);
+
+    List<String> getSkillSetNamesByPosition(Integer positionId);
 }

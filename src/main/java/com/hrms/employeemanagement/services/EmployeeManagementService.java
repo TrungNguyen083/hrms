@@ -17,8 +17,6 @@ public interface EmployeeManagementService {
 	Employee findEmployee(Integer id);
 	Employee updateEmployee(EmployeeInputDTO input);
 	EmployeeDetailDTO getEmployeeDetail(Integer id);
-	List<Employee> findEmployees(List<Integer> departmentIds);
-	List<Employee> findEmployees(Integer departmentId);
 	List<Employee> getNewEmployees();
 	EmployeePagingDTO filterEmployees(List<Integer> departmentIds,
 									  List<Integer> currentContracts,
@@ -33,4 +31,6 @@ public interface EmployeeManagementService {
 	List<EmployeeDamInfoDTO> getQualifications(Integer employeeId);
 
     EmployeeOverviewDTO getProfileOverview(Integer employeeId);
+
+	List<EmployeeItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId);
 }

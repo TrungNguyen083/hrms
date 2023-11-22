@@ -816,8 +816,76 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
-        return null;
+        List<Competency> competencies = competencyRepository.findAll();
+        List<CompetencyCycle> competencyCycles = competencyCycleRepository.findAll();
+        List<CompetencyEvaluation> competencyEvaluates = findByCyclesAndDepartment(competencyCyclesId, departmentId);
+        proficiencyLevelRepository.findAll();
+
+        List<Pair<Integer, Integer>> pairItems = createPairItems(competencyCyclesId, competencies);
+
+        List<RadarValueDTO> avgCompetencies = calculateAverageCompetencies(pairItems, competencyEvaluates);
+
+        List<RadarDatasetDTO> listDataset = createRadarDataset(competencyCyclesId, competencies, avgCompetencies, competencyCycles);
+
+        List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
+        return new RadarChartDTO(labels, listDataset);
     }
+    private List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCyclesId, Integer departmentId) {
+        Specification<CompetencyEvaluation> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                root.get("competencyCycle").get("id").in(competencyCyclesId),
+                criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId)
+        );
+        return competencyEvaluationRepository.findAll(spec);
+    }
+
+    private List<Pair<Integer, Integer>> createPairItems(List<Integer> competencyCyclesId, List<Competency> competencies) {
+        return competencyCyclesId.stream()
+                .flatMap(cycle -> competencies.stream().map(competency -> new Pair<>(cycle, competency.getId())))
+                .toList();
+    }
+
+    private List<RadarValueDTO> calculateAverageCompetencies(List<Pair<Integer, Integer>> pairItems,
+                                                             List<CompetencyEvaluation> competencyEvaluates) {
+        return pairItems.stream().map(pair -> {
+            var cycle = pair.getFirst();
+            var competencyId = pair.getSecond();
+            List<CompetencyEvaluation> compEvaluate = competencyEvaluates.stream()
+                    .filter(compEva -> compEva.getCompetencyCycle().getId() == cycle
+                            && compEva.getCompetency().getId().equals(competencyId))
+                    .toList();
+            float avgScore = compEvaluate.isEmpty() ? 0
+                    : (float) compEvaluate.stream()
+                    .map(CompetencyEvaluation::getFinalEvaluation)
+                    .mapToDouble(Float::doubleValue)
+                    .average()
+                    .orElse(0);
+            return new RadarValueDTO(cycle, competencyId, avgScore);
+        }).toList();
+    }
+
+    private List<RadarDatasetDTO> createRadarDataset(List<Integer> competencyCyclesId,
+                                                     List<Competency> competencies,
+                                                     List<RadarValueDTO> avgCompetencies,
+                                                     List<CompetencyCycle> competencyCycles) {
+        return competencyCyclesId.stream().map(cycle -> {
+            List<Float> listScore = competencies.stream()
+                    .map(competency -> avgCompetencies.stream()
+                            .filter(avgCompetency -> avgCompetency.getCompetencyId().equals(competency.getId()) &&
+                                    avgCompetency.getCompetencyCycleId().equals(cycle))
+                            .findFirst()
+                            .map(RadarValueDTO::getAverage)
+                            .orElse(null))
+                    .toList();
+            return new RadarDatasetDTO(
+                    competencyCycles.stream()
+                            .filter(competencyCycle -> competencyCycle.getId() == cycle)
+                            .findFirst()
+                            .orElseThrow()
+                            .getCompetencyCycleName(),
+                    listScore);
+        }).toList();
+    }
+
 
     private Float getAvgSkillSetScore(Integer employeeId, Integer cycleId) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -871,6 +939,22 @@ public class CompetencyServiceImpl implements CompetencyService {
         var pagination = setupPaging(empRatings.size(), pageable.getPageNumber(), pageable.getPageSize());
 
         return new EmployeeRatingPagination(empRatings, pagination);
+    }
+
+    @Override
+    public List<String> getSkillSetNamesByPosition(Integer positionId) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
+
+        Root<PositionSkillSet> positionSkillSetRoot = criteriaQuery.from(PositionSkillSet.class);
+        Join<PositionSkillSet, SkillSet> skillSetJoin = positionSkillSetRoot.join("skillSet");
+
+        criteriaQuery.select(skillSetJoin.get("skillSetName"));
+
+        Predicate predicate = criteriaBuilder.equal(positionSkillSetRoot.get("position").get("id"), positionId);
+        criteriaQuery.where(predicate);
+
+        return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
 }
