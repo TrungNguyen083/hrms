@@ -4,6 +4,7 @@ import com.hrms.careerpathmanagement.PositionCareerPath;
 import com.hrms.careerpathmanagement.dto.CareerPathTreeDTO;
 import com.hrms.careerpathmanagement.dto.PositionLevelNodeDTO;
 import com.hrms.careerpathmanagement.models.PositionJobLevelSkillSet;
+import com.hrms.careerpathmanagement.models.PositionLevelPath;
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
 import com.hrms.careerpathmanagement.repositories.PositionJobLevelSkillSetRepository;
@@ -28,11 +29,8 @@ import java.util.stream.Collectors;
 public class CareerManagementService {
     @PersistenceContext
     EntityManager em;
-    private PositionLevelPathRepository positionLevelPathRepository;
-    private PositionLevelRepository positionLevelRepository;
-    private PositionJobLevelSkillSetRepository baselineSkillSetRepository;
-    private SkillSetEvaluationRepository skillSetEvaluationRepository;
-
+    private final PositionLevelPathRepository positionLevelPathRepository;
+    private final PositionLevelRepository positionLevelRepository;
 
 
     @Autowired
@@ -42,8 +40,6 @@ public class CareerManagementService {
                                    SkillSetEvaluationRepository skillSetEvaluationRepository) {
         this.positionLevelPathRepository = positionLevelPathRepository;
         this.positionLevelRepository = positionLevelRepository;
-        this.baselineSkillSetRepository = baselineSkillSetRepository;
-        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
     }
 
     public CareerPathTreeDTO getCareerPathTree(PositionCareerPath position) {
@@ -66,7 +62,7 @@ public class CareerManagementService {
         var node = new PositionLevelNodeDTO(positionLevelId, title, new LinkedList<>());
 
         var nextPositionLevels = positionLevelPathRepository.findAllByCurrentId(positionLevelId)
-                .stream().map(i -> i.getNext())
+                .stream().map(PositionLevelPath::getNext)
                 .toList();
 
         nextPositionLevels.forEach(i -> node.getNextPositionLevels().add(getPositionLevelNode(i.getId())));

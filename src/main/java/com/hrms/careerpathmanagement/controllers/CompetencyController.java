@@ -3,7 +3,8 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
-import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
+import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
+import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
 import jakarta.annotation.Nullable;
 
@@ -12,8 +13,6 @@ import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -182,5 +181,31 @@ public class CompetencyController {
     @QueryMapping(name = "overallCompetencyRadarChart")
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
+    }
+
+
+    @QueryMapping(name = "evaluationCycles")
+    public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
+        return competencyService.getEvaluationCycles();
+    }
+
+    /***
+     ********************************************** SUM Dashboard ****************************************
+     * Global filter: CycleId
+     */
+    @QueryMapping
+    public MultiBarChartDTO getSumDepartmentInCompleted(@Argument Integer cycleId, @Argument Integer departmentId) {
+        return competencyService.getSumDepartmentIncompletePercent(cycleId, departmentId);
+    }
+
+
+    //COMPONENT: Competency Evaluation Cycle
+    @QueryMapping(name = "competencyEvaluationStatus")
+    public EmployeeStatusPagination getCompetencyEvaluationsStatus(@Argument Integer cycleId,
+                                                                   @Argument Integer departmentId,
+                                                                   @Argument Integer pageNo,
+                                                                   @Argument Integer pageSize)
+    {
+        return competencyService.getCompetencyEvaluationsStatus(cycleId, departmentId, PageRequest.of(pageNo - 1, pageSize));
     }
 }

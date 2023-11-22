@@ -8,8 +8,13 @@ import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.careerpathmanagement.specification.CompetencySpecification;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
-import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
+import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
+import com.hrms.employeemanagement.dto.NameImageDTO;
+import com.hrms.employeemanagement.projection.NameAndStatusOnly;
+import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
+import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.employeemanagement.models.*;
+import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
@@ -46,11 +51,15 @@ import static com.hrms.global.paging.PaginationSetup.setupPaging;
 public class CompetencyServiceImpl implements CompetencyService {
     @PersistenceContext
     EntityManager entityManager;
-    static String SELF_EVAL_LABEL_NAME = "Self Evaluation";
-    static String SUPERVISOR_EVAL_LABEL_NAME = "Supervisor Evaluation";
-    static String FINAL_EVAL_LABEL_NAME = "Final Score";
-    static String COMPLETED_LABEL_NAME = "Completed";
-    static String IN_COMPLETED_LABEL_NAME = "InCompleted";
+
+    static final String SELF_EVAL_LABEL_NAME = "Self Evaluation";
+    static final String SUPERVISOR_EVAL_LABEL_NAME = "Supervisor";
+    static final String FINAL_EVAL_LABEL_NAME = "Final Score";
+    static final String COMPLETED_LABEL_NAME = "Completed";
+    static final String IN_COMPLETED_LABEL_NAME = "InCompleted";
+    static final String COMPETENCY_COMPLETED_STATUS = "Agreed";
+    static final String PROFILE_IMAGE = "PROFILE_IMAGE";
+
 
     private final CompetencyEvaluationRepository competencyEvaluationRepository;
     private final EmployeeRepository employeeRepository;
@@ -67,11 +76,13 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final EmployeeManagementService employeeManagementService;
     private final JobLevelRepository jobLevelRepository;
     private final PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
+    private final PerformanceEvaluationRepository performanceEvaluationRepository;
+    private final PositionDepartmentRepository positionDepartmentRepository;
+    private final EmployeeDamInfoRepository employeeDamInfoRepository;
     private final CareerSpecification careerSpecification;
     private final EmployeeSpecification employeeSpecification;
     private final CompetencySpecification competencySpecification;
     private final PerformanceCycleRepository performanceCycleRepository;
-    private final PerformanceEvaluationRepository performanceEvaluationRepository;
     private final PerformanceSpecification performanceSpecification;
     private final CareerManagementService careerManagementService;
     private CompetencyCycle latestCompCycle;
@@ -93,6 +104,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  EmployeeManagementService employeeManagementService,
                                  JobLevelRepository jobLevelRepository,
                                  PositionJobLevelSkillSetRepository positionLevelSkillSetRepository,
+                                 PositionDepartmentRepository positionDepartmentRepository, EmployeeDamInfoRepository employeeDamInfoRepository,
                                  CareerSpecification careerSpecification,
                                  EmployeeSpecification employeeSpecification,
                                  CompetencySpecification competencySpecification,
@@ -115,6 +127,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.employeeManagementService = employeeManagementService;
         this.jobLevelRepository = jobLevelRepository;
         this.positionLevelSkillSetRepository = positionLevelSkillSetRepository;
+        this.positionDepartmentRepository = positionDepartmentRepository;
+        this.employeeDamInfoRepository = employeeDamInfoRepository;
         this.careerSpecification = careerSpecification;
         this.employeeSpecification = employeeSpecification;
         this.competencySpecification = competencySpecification;
@@ -199,6 +213,80 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         return new PieChartDTO(List.of("Current Score", "Target Score"),
                 List.of(currentScore.orElse(null).floatValue(), targetScore.orElse(null).floatValue()));
+    }
+
+    @Override
+    public MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId) {
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId),
+                criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId)
+        );
+
+        var evaluations = evaluationOverallRepository.findAll(spec);
+
+        // Position in the department
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Position> query = cb.createQuery(Position.class);
+        Root<PositionDepartment> root = query.from(PositionDepartment.class);
+
+        query.select(root.get("position"))
+                .where(cb.equal(root.get("department").get("id"), departmentId));
+
+        var result = new MultiBarChartDTO(List.of("Self", "Manager"), List.of());
+        var positions = entityManager.createQuery(query).getResultList();
+
+        for (var pos : positions) {
+            var completedCount = evaluations.stream()
+                    .filter(evaluation -> evaluation.getEmployee().getPosition().getId() == pos.getId())
+                    .filter(evaluation -> evaluation.getFinalStatus().equals(COMPETENCY_COMPLETED_STATUS))
+                    .count();
+
+            var incompleteCount = evaluations.stream()
+                    .filter(evaluation -> evaluation.getEmployee().getPosition().getId() == pos.getId())
+                    .filter(evaluation -> !evaluation.getFinalStatus().equals(COMPETENCY_COMPLETED_STATUS))
+                    .count();
+
+            var data = List.of((float) incompleteCount, (float) completedCount);
+
+            result.getDatasets().add(new MultiBarChartDataDTO(pos.getPositionName(), data));
+        }
+
+        return result;
+    }
+
+    @Override
+    public EmployeeStatusPagination getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId, Pageable page) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<NameAndStatusOnly> query = cb.createQuery(NameAndStatusOnly.class);
+        Root<CompetencyEvaluationOverall> root = query.from(CompetencyEvaluationOverall.class);
+        Join<CompetencyEvaluationOverall, Employee> empJoin = root.join("employee");
+
+        query.multiselect(root.get("employee").get("id"), root.get("employee").get("firstName"), root.get("employee").get("lastName"), root.get("finalStatus"))
+                .where(cb.equal(root.get("competencyCycle").get("id"), cycleId),
+                        cb.equal(empJoin.get("department").get("id"), departmentId));
+
+        var nameAndStatusList = entityManager.createQuery(query)
+                .setFirstResult((int) page.getOffset())
+                .setMaxResults(page.getPageSize())
+                .getResultList();
+
+        var empIdsSet = nameAndStatusList.stream().map(NameAndStatusOnly::id).toList();
+
+        var profileImages = employeeDamInfoRepository.findByIdSetAndType(empIdsSet, PROFILE_IMAGE);
+
+        var result = nameAndStatusList.stream()
+                .map(item -> new EmployeeStatusDTO(item.id(), item.firstName(), item.lastName(), item.status(),
+                        profileImages.stream()
+                                .filter(profile -> profile.employeeId().equals(item.id()))
+                                .map(p -> p.url())
+                                .findFirst()
+                                .orElse(null)))
+                .toList();
+
+        var total = entityManager.createQuery(query).getResultList().size();
+        var pagination = setupPaging(total, page.getPageNumber() + 1, page.getPageSize());
+
+        return new EmployeeStatusPagination(result, pagination);
     }
 
     public Optional<Double> getAverageSkillSet(Integer empId, Integer cycleId) {

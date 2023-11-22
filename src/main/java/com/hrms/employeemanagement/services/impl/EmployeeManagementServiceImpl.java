@@ -7,7 +7,9 @@ import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.SkillSetTargetRepository;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
+import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
 import com.hrms.employeemanagement.models.*;
+import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.dto.BarChartDTO;
@@ -19,6 +21,11 @@ import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +43,12 @@ import java.time.LocalDate;
 import java.util.*;
 
 
-
 @Service
 @Transactional
 public class EmployeeManagementServiceImpl implements EmployeeManagementService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final EmergencyContactRepository emergencyContactRepository;
@@ -371,4 +379,10 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 interests.stream().map(SkillSet::getSkillSetName).toList(),
                 null);
     }
+
+    @Override
+    public List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> idsSet) {
+        return employeeDamInfoRepository.findByIdSetAndType(idsSet, PROFILE_IMAGE);
+    }
+
 }

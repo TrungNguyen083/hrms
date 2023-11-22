@@ -1,6 +1,7 @@
 package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.employeemanagement.dto.EmployeeRatingPagination;
 import com.hrms.global.dto.DataItemPagingDTO;

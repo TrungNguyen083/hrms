@@ -99,3 +99,15 @@ type EmployeeRatingPagination {
     pagination: Pagination
 }
 
+type EmployeeStatusDTO {
+    id: Int
+    firstName: String
+    lastName: String
+    status: String
+    profileImg: String
+}
+
+type EmployeeStatusPagination {
+    data: [EmployeeStatusDTO!]
+    pagination: Pagination
+}
