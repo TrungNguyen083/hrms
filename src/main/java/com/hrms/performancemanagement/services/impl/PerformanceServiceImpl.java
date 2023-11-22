@@ -2,8 +2,6 @@ package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
-import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import com.hrms.careerpathmanagement.models.PerformanceRange;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
@@ -78,7 +76,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   PerformanceSpecification performanceSpecification,
                                   DepartmentRepository departmentRepository,
                                   EmployeeManagementService employeeManagementService,
-                                  PerformanceTimeLineRepository performanceTimeLineRepository)
+                                  PerformanceTimeLineRepository performanceTimeLineRepository,
                                   EmployeeRepository employeeRepository)
     {
         this.employeeService = employeeService;

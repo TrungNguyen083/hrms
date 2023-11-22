@@ -183,11 +183,10 @@ public class CompetencyController {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }
 
+    @QueryMapping(name = "skillSets")
+    public List<String> getSkillSetNamesByPosition(@Argument Integer positionId) {
+        return competencyService.getSkillSetNamesByPosition(positionId);
 
-    @QueryMapping(name = "evaluationCycles")
-    public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
-        return competencyService.getEvaluationCycles();
-    }
 
     /***
      ********************************************** SUM Dashboard ****************************************

@@ -5,6 +5,7 @@ import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
 import com.hrms.careerpathmanagement.models.SkillSetTarget;
 import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.SkillSetTargetRepository;
+import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
@@ -57,6 +58,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final SkillSetTargetRepository skillSetTargetRepository;
     private final EmployeeSpecification employeeSpecification;
     private final DamService damService;
+    private final CareerSpecification careerSpecification;
 
     @Autowired
     public EmployeeManagementServiceImpl(EmployeeRepository employeeRepository,
@@ -66,7 +68,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                          SkillSetEvaluationRepository skillSetEvaluationRepository,
                                          SkillSetTargetRepository skillSetTargetRepository,
                                          EmployeeSpecification employeeSpecification,
-                                         DamService damService) {
+                                         DamService damService,
+                                         CareerSpecification careerSpecification) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.emergencyContactRepository = emergencyContactRepository;
@@ -75,6 +78,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         this.skillSetTargetRepository = skillSetTargetRepository;
         this.employeeSpecification = employeeSpecification;
         this.damService = damService;
+        this.careerSpecification = careerSpecification;
     }
 
     private ModelMapper modelMapper;
@@ -128,22 +132,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
                 .orElse(null);
         return new EmployeeDetailDTO(employee, emergencyContacts, imageUrl);
-    }
-
-    @Override
-    public List<Employee> findEmployees(List<Integer> departmentIds) {
-        Specification<Employee> spec = (root, query, criteriaBuilder) -> root.get("department").get("id").in(departmentIds);
-        return employeeRepository.findAll(spec);
-    }
-
-    @Override
-    public List<Employee> findEmployees(Integer departmentId) {
-        //have departmentId = departmentId and status not equal to 0
-        Specification<Employee> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("department").get("id"), departmentId),
-                criteriaBuilder.notEqual(root.get("status"), 0)
-        );
-        return employeeRepository.findAll(spec);
     }
 
     @Override
@@ -381,6 +369,15 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
+    public List<EmployeeItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId) {
+        Specification<Employee> hasDepartment = careerSpecification.hasDepartmentId(departmentId);
+        Specification<Employee> hasPosition = careerSpecification.hasPositionId(positionId);
+        return employeeRepository.findAll(hasDepartment.and(hasPosition))
+                .stream()
+                .map(e -> new EmployeeItemDTO(e.getId(), e.getFirstName() + " " + e.getLastName()))
+                .toList();
+    }
+  
     public List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> idsSet) {
         return employeeDamInfoRepository.findByIdSetAndType(idsSet, PROFILE_IMAGE);
     }

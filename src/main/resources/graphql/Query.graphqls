@@ -29,6 +29,7 @@ type Query {
     competencyCycles: [CompetencyCycle]
     competencyTimeLine(competencyCycleId: Int!): [TimeLine]
     performanceTimeLine(performanceCycleId: Int!): [TimeLine]
+    skillSets(positionId: Int!): [String]
 
 
 
@@ -51,6 +52,8 @@ type Query {
     competencyChart: BarChartDTO
     overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
+    departmentEmployees(departmentId: Int!, positionId: Int!): [EmployeeItemDTO]
+    departmentSkillSetHeatMap(departmentId: Int!, cycleId: Int!, ): [HeatmapItemDTO]
     competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
 
 
