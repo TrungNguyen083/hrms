@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
+import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
@@ -183,11 +184,6 @@ public class CompetencyController {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }
 
-    @QueryMapping(name = "skillSets")
-    public List<String> getSkillSetNamesByPosition(@Argument Integer positionId) {
-        return competencyService.getSkillSetNamesByPosition(positionId);
-    }
-
 
     /***
      ********************************************** SUM Dashboard ****************************************
@@ -207,5 +203,17 @@ public class CompetencyController {
                                                                    @Argument Integer pageSize)
     {
         return competencyService.getCompetencyEvaluationsStatus(cycleId, departmentId, PageRequest.of(pageNo - 1, pageSize));
+    }
+
+
+    @QueryMapping(name = "skillSets")
+    public List<SimpleItemDTO> getSkillSetNamesByPosition(@Argument Integer positionId) {
+        return competencyService.getSkillSetNamesByPosition(positionId);
+    }
+
+    @QueryMapping(name = "departmentSkillSetHeatMap")
+    public List<HeatmapItemDTO> getDepartmentSkillSetHeatMap(@Argument Integer departmentId, @Argument Integer cycleId,
+                                                             @Argument List<Integer> employeeIds, @Argument List<Integer> skillSetIds) {
+        return competencyService.getDepartmentSkillSetHeatmap(departmentId, cycleId, employeeIds, skillSetIds);
     }
 }

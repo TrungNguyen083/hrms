@@ -17,6 +17,10 @@ public class CompetencySpecification {
         return (root, query, cb) -> root.get("competencyCycle").get("id").in(cycleIds);
     }
 
+    public <T> Specification<T> hasIds(List<Integer> ids) {
+        return (root, query, cb) -> root.get("id").in(ids);
+    }
+
     public <T> Specification<T> hasFinalStatus(String agreed) {
         return null;
     }

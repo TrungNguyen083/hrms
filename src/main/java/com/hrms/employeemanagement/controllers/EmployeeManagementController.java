@@ -132,7 +132,7 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "departmentEmployees")
-    public List<EmployeeItemDTO> getDepartmentEmployees(@Argument Integer departmentId, @Argument Integer positionId) {
+    public List<SimpleItemDTO> getDepartmentEmployees(@Argument Integer departmentId, @Argument Integer positionId) {
         return employeeManagementService.getDepartmentEmployees(departmentId, positionId);
     }
       

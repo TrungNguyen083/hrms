@@ -91,10 +91,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.employeeRepository = employeeRepository;
     }
 
-    private Integer getLatestCycleId() {
-        return performanceCycleRepository.findTopByOrderByPerformanceCycleIdDesc().orElse(0);
-    }
-
     @Override
     public List<PerformanceCycle> getAllPerformanceCycles() {
         return performanceCycleRepository.findAll();

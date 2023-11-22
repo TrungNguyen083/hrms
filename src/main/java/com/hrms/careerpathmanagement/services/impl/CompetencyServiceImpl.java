@@ -10,6 +10,7 @@ import com.hrms.careerpathmanagement.specification.CompetencySpecification;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
 import com.hrms.employeemanagement.dto.NameImageDTO;
+import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.projection.NameAndStatusOnly;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -411,11 +413,11 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer competencyCycleId) {
         List<CompetencyEvaluation> compEvaluates = fetchCompetencyEvaluations(positionId, competencyCycleId);
-        List<JobLevel> jobLevelIds = jobLevelRepository.findAll();
-        List<Competency> competencyIds = competencyRepository.findAll();
+        List<JobLevel> jobLevels = jobLevelRepository.findAll();
+        List<Competency> competencies = competencyRepository.findAll();
 
-        return jobLevelIds.stream()
-                .flatMap(jobLevel -> competencyIds.stream()
+        return jobLevels.stream()
+                .flatMap(jobLevel -> competencies.stream()
                         .map(competency -> new Pair<>(jobLevel, competency)))
                 .map(pair -> calculateAvgCompetency(compEvaluates, pair))
                 .toList();
@@ -918,6 +920,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
         return new RadarChartDTO(labels, listDataset);
     }
+
     private List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCyclesId, Integer departmentId) {
         Specification<CompetencyEvaluation> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 root.get("competencyCycle").get("id").in(competencyCyclesId),
@@ -1030,19 +1033,78 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<String> getSkillSetNamesByPosition(Integer positionId) {
+    public List<SimpleItemDTO> getSkillSetNamesByPosition(Integer positionId) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
+        CriteriaQuery<SimpleItemDTO> criteriaQuery = criteriaBuilder.createQuery(SimpleItemDTO.class);
 
         Root<PositionSkillSet> positionSkillSetRoot = criteriaQuery.from(PositionSkillSet.class);
         Join<PositionSkillSet, SkillSet> skillSetJoin = positionSkillSetRoot.join("skillSet");
 
-        criteriaQuery.select(skillSetJoin.get("skillSetName"));
+        criteriaQuery.multiselect(skillSetJoin.get("id"), skillSetJoin.get("skillSetName").alias("name"));
 
         Predicate predicate = criteriaBuilder.equal(positionSkillSetRoot.get("position").get("id"), positionId);
         criteriaQuery.where(predicate);
 
         return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
+    @Override
+    public List<HeatmapItemDTO> getDepartmentSkillSetHeatmap(Integer departmentId, Integer cycleId,
+                                                             List<Integer> employeeIds, List<Integer> skillSetIds) {
+        proficiencyLevelRepository.findAll();
+
+        List<SimpleItemDTO> employees = getEmployeeSimpleItemDTOS(employeeIds);
+
+        List<SimpleItemDTO> skillSets = getSkillSetSimpleItemDTOS(skillSetIds);
+
+        List<SkillSetEvaluation> ssEvaluates = getSSEvalByEmployeeAndCycle(cycleId, employeeIds);
+
+        return employees.stream()
+                .flatMap(employee -> skillSets.stream()
+                        .map(skillSet -> new Pair<>(employee, skillSet)))
+                .map(pair -> getSkillSetScore(ssEvaluates, pair))
+                .toList();
+    }
+
+    @NotNull
+    private List<SimpleItemDTO> getEmployeeSimpleItemDTOS(List<Integer> employeeIds) {
+        Specification<Employee> hasIds = competencySpecification.hasIds(employeeIds);
+        return employeeRepository.findAll(hasIds)
+                .stream()
+                .map(employee -> new SimpleItemDTO(employee.getId(), employee.getFullName()))
+                .toList();
+    }
+
+    @NotNull
+    private List<SimpleItemDTO> getSkillSetSimpleItemDTOS(List<Integer> skillSetIds) {
+        Specification<SkillSet> hasSkillSetIds = competencySpecification.hasIds(skillSetIds);
+        return skillSetRepository.findAll(hasSkillSetIds)
+                .stream()
+                .map(skillSet -> new SimpleItemDTO(skillSet.getId(), skillSet.getSkillSetName()))
+                .toList();
+    }
+
+    @NotNull
+    private List<SkillSetEvaluation> getSSEvalByEmployeeAndCycle(Integer cycleId, List<Integer> employeeIds) {
+        Specification<SkillSetEvaluation> hasCycleId = competencySpecification.hasCycleId(cycleId);
+        Specification<SkillSetEvaluation> hasEmployeeIds = employeeSpecification.hasEmployeeIds(employeeIds);
+
+        return skillSetEvaluationRepository.findAll(hasCycleId.and(hasEmployeeIds));
+    }
+
+    private HeatmapItemDTO getSkillSetScore(List<SkillSetEvaluation> ssEvaluates,
+                                                  Pair<SimpleItemDTO, SimpleItemDTO> pair) {
+        SimpleItemDTO employee = pair.getFirst();
+        SimpleItemDTO skillSet = pair.getSecond();
+
+        SkillSetEvaluation evaluationsHasEmployeeAndSkillSet = ssEvaluates.stream()
+                .filter(ssEva -> ssEva.getEmployee().getId() == employee.getId()
+                        && Objects.equals(ssEva.getSkillSet().getId(), skillSet.getId())).findFirst().orElse(null);
+
+        float score = evaluationsHasEmployeeAndSkillSet == null ? 0 :
+                evaluationsHasEmployeeAndSkillSet.getFinalProficiencyLevel().getScore();
+
+        return new HeatmapItemDTO(employee.getName(), skillSet.getName(), score);
     }
 
 }

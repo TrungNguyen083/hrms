@@ -24,9 +24,6 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -369,12 +366,12 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public List<EmployeeItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId) {
+    public List<SimpleItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId) {
         Specification<Employee> hasDepartment = careerSpecification.hasDepartmentId(departmentId);
         Specification<Employee> hasPosition = careerSpecification.hasPositionId(positionId);
         return employeeRepository.findAll(hasDepartment.and(hasPosition))
                 .stream()
-                .map(e -> new EmployeeItemDTO(e.getId(), e.getFirstName() + " " + e.getLastName()))
+                .map(e -> new SimpleItemDTO(e.getId(), e.getFirstName() + " " + e.getLastName()))
                 .toList();
     }
   
