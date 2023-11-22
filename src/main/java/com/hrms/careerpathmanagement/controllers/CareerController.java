@@ -10,7 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/careers")
+@RestController
+@RequestMapping("/careers")
 @Slf4j
 public class CareerController {
     @Autowired
@@ -21,10 +22,10 @@ public class CareerController {
         return ResponseEntity.ok(careerManagementService.getCareerPathTree(position));
     }
 
-    @GetMapping("/match/{employeeId}/{positionId}/{levelId}")
-    public ResponseEntity<Float> getMatchPercent(@PathVariable Integer employeeId,
-                                 @PathVariable Integer positionId,
-                                 @PathVariable Integer levelId) {
+    @GetMapping("/match")
+    public ResponseEntity<Float> getMatchPercent(@RequestParam Integer employeeId,
+                                 @RequestParam Integer positionId,
+                                 @RequestParam Integer levelId) {
         return ResponseEntity.ok(careerManagementService.getMatchPercent(employeeId, positionId, levelId));
     }
 }

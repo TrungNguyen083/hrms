@@ -29,8 +29,7 @@ public class PerformanceController {
     private final PerformanceService performanceService;
 
     @Autowired
-    public PerformanceController(PerformanceService performanceService)
-    {
+    public PerformanceController(PerformanceService performanceService) {
         this.performanceService = performanceService;
     }
 
@@ -47,10 +46,14 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "averagePerformanceScore")
-    public Float getAveragePerformanceScore(@Argument Integer cycleId)
-    {
+    public Float getAveragePerformanceScore(@Argument Integer cycleId) {
         return performanceService.getAveragePerformanceScore(cycleId);
     }
+
+    /**
+     * HR Dashboard - Component: Performance by Job Level
+     * @return a StackedBarChart, including 5 bars: Unsatisfactory, Needs Improvement, Meets Expectations, Exceeds Expectations, Outstanding
+     */
 
     @QueryMapping(name = "performanceByJobLevel")
     public StackedBarChart getPerformanceByJobLevel(@Argument Integer positionId,
@@ -59,6 +62,10 @@ public class PerformanceController {
         return performanceService.getPerformanceByJobLevel(positionId, cycleId);
     }
 
+    /**
+     * HR Dashboard - Component: Employee Performance & Potential
+     * @return Descartes coordinate, x-axis: performance, y-axis: potential
+     */
     @QueryMapping(name = "employeesPotentialPerformance")
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(@Argument Integer departmentId,
                                                                             @Argument Integer cycleId)
@@ -66,6 +73,11 @@ public class PerformanceController {
         return performanceService.getPotentialAndPerformance(departmentId, cycleId);
     }
 
+
+    /**
+     * HR Dashboard - Component: Top Performers
+     * @return List Employees (name, profileImg) with their performance rating
+     */
 
     @QueryMapping(name = "topPerformers")
     public EmployeeRatingPagination getPerformanceRating(@Argument Integer cycleId,
@@ -86,6 +98,10 @@ public class PerformanceController {
         return performanceService.getPerformanceEvaluations(cycleId, pageable);
     }
 
+    /***
+     * Employee Dashboard - Component: Performance Rating Scores
+     * @return BarChart
+     */
     @QueryMapping(name = "employeePerformanceRatingScore")
     public DataItemPagingDTO getEmployeePerformanceRatingScore(@Argument Integer employeeId,
                                                                      @Argument int pageNo,

@@ -62,7 +62,7 @@ type Query {
     topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
     employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
-    performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
+    performanceByJobLevel(positionId: Int!, cycleId: Int!) : StackedBarChart
     employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
 
 

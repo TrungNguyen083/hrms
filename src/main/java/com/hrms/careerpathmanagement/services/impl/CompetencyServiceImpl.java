@@ -192,6 +192,15 @@ public class CompetencyServiceImpl implements CompetencyService {
         return new BarChartDTO("Skill Gap Chart", List.of(current, target));
     }
 
+    public PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId) {
+        var currentScore = getAverageSkillSet(employeeId, cycleId);
+        var targetScore = careerManagementService.getBaselineSkillSetAvgScore(getPosition(employeeId).getId(),
+                getLevel(employeeId).getId());
+
+        return new PieChartDTO(List.of("Current Score", "Target Score"),
+                List.of(currentScore.orElse(null).floatValue(), targetScore.orElse(null).floatValue()));
+    }
+
     public Optional<Double> getAverageSkillSet(Integer empId, Integer cycleId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Double> query = cb.createQuery(Double.class);
@@ -606,9 +615,10 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId) {
+    public RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId) throws RuntimeException {
         Specification<CompetencyEvaluation> hasEmpId = employeeSpecification.hasEmployeeId(employeeId);
         Specification<CompetencyEvaluation> hasCycId = competencySpecification.hasCycleId(cycleId);
+
         var evaluations = competencyEvaluationRepository.findAll(hasEmpId.and(hasCycId));
         var competencies = competencyRepository.findAll()
                 .stream().sorted(Comparator.comparing(Competency::getOrdered)).toList();
@@ -628,7 +638,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private Float getCompetenciesScore(List<CompetencyEvaluation> evaluations,
-                                       Integer competencyId, String evaluationType) {
+                                       Integer competencyId, String evaluationType) throws RuntimeException {
         return evaluations.stream()
                 .filter(eva -> eva.getCompetency().getId().equals(competencyId))
                 .map(eva -> switch (evaluationType) {
@@ -837,20 +847,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         query.multiselect(criteriaBuilder.avg(proficencyJoin.get("score"))).where(predicates.toArray(new Predicate[]{}));
 
         return entityManager.createQuery(query).getSingleResult();
-    }
-
-    @Override
-    public BarChartDTO getSkillGapBarChart(Integer employeeId, Integer cycleId) {
-        var positionLevelId = getPosition(employeeId).getId();
-        var jobLevelId = getLevel(employeeId).getId();
-
-        var currentAvgSkillSet = getAvgSkillSetScore(employeeId, cycleId);
-        DataItemDTO currentBar = new DataItemDTO("Current", currentAvgSkillSet);
-
-        var baselineAvgSkillSet = getAvgBaselineSkillSet(positionLevelId, jobLevelId);
-        DataItemDTO baselineBar = new DataItemDTO("Baseline", baselineAvgSkillSet);
-
-        return new BarChartDTO("Skill Gap Statistic", List.of(currentBar, baselineBar));
     }
 
     @Override

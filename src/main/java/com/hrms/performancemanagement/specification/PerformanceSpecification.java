@@ -1,5 +1,6 @@
 package com.hrms.performancemanagement.specification;
 
+import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -25,5 +26,9 @@ public class PerformanceSpecification {
 
     public <T> Specification<T> hasPerformanceCycleIds(List<Integer> performCycleIds) {
         return (root, query, criteriaBuilder) -> root.get("performanceCycle").get("performanceCycleId").in(performCycleIds);
+    }
+
+    public Specification<PerformanceEvaluation> hasJobLevelId(int id) {
+        return (root, query, cb) -> cb.equal(root.get("employee").get("position").get("jobLevel").get("id"), id);
     }
 }
