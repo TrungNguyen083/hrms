@@ -50,7 +50,7 @@ type Query {
     competencyChart: [CompetencyChart]evaluationCycles: [EvaluationCycleInfo]
     overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
-
+    competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
 
 
     #PerformanceEvaluation:

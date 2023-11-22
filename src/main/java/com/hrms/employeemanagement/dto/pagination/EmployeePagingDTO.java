@@ -1,6 +1,7 @@
-package com.hrms.employeemanagement.dto;
+package com.hrms.employeemanagement.dto.pagination;
 
 
+import com.hrms.employeemanagement.dto.EmployeeDTO;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.paging.Pagination;
 
