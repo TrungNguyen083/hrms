@@ -71,9 +71,9 @@ public class GoalService {
             var emp = employees.stream().filter(e -> e.id() == goal.getEmployee().getId()).findFirst().orElse(null);
 
             var profileImage = profileImages.stream()
-                    .filter(i -> i.employeeId() == emp.id())
+                    .filter(i -> i.getEmployeeId() == emp.id())
                     .findFirst().orElse(new ProfileImageOnly(null, "default"))
-                    .url();
+                    .getUrl();
 
             return new EmployeeGoalDTO(goal.getId(), emp.id(), emp.firstName(), emp.lastName(), profileImage,
                     goal.getTitle(), goal.getDescription(), goal.getProgress());
