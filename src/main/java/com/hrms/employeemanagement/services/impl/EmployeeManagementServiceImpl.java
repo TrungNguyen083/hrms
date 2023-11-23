@@ -1,6 +1,7 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
+import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
 import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
 import com.hrms.careerpathmanagement.models.SkillSetTarget;
 import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
@@ -107,7 +108,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
 
-
     @Override
     public List<Employee> getEmployeesInDepartment(Integer departmentId) {
         Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
@@ -188,7 +188,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public DiffPercentDTO getHeadcountsStatistic() {
+    public PercentageChangeDTO getHeadcountsStatistic() {
         //Get all new employees have joinedDate between 2 years ago and 1 year ago
         LocalDate datePrevious = LocalDate.now().minusYears(1);
         var countPreviousYearEmployees = countEmployeesByYear(datePrevious);
@@ -197,11 +197,11 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         LocalDate dateCurrent = LocalDate.now();
         var countCurrentYearEmployees = countEmployeesByYear(dateCurrent);
 
-        var countAllEmployee = String.valueOf(getAllEmployees().size());
+        Integer countAllEmployee = getAllEmployees().size();
 
         float diffPercent = ((float) (countCurrentYearEmployees - countPreviousYearEmployees) / countPreviousYearEmployees) * 100;
 
-        return new DiffPercentDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
+        return new PercentageChangeDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
     }
 
     @Override
@@ -332,6 +332,16 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
+    public List<String> getProfilePictures(List<Integer> employeeIds) {
+        Specification<EmployeeDamInfo> spec = (root, query, builder) -> builder.and(
+                builder.in(root.get("employee").get("id")).value(employeeIds),
+                builder.equal(root.get("type"), PROFILE_IMAGE)
+        );
+        List<EmployeeDamInfo> employeeDamInfos = employeeDamInfoRepository.findAll(spec);
+        return employeeDamInfos.stream().map(e -> damService.getFileUrl(e.getUrl())).toList();
+    }
+
+    @Override
     public List<EmployeeDamInfoDTO> getQualifications(Integer employeeId) {
         var spec = EmployeeDamInfoSpec.hasEmployeeAndType(employeeId, QUALIFICATION);
         return employeeDamInfoRepository.findAll(spec)
@@ -381,9 +391,24 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 .map(e -> new SimpleItemDTO(e.getId(), e.getFirstName() + " " + e.getLastName()))
                 .toList();
     }
-  
+
     public List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> idsSet) {
         return employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(idsSet, PROFILE_IMAGE);
     }
 
+    @Override
+    public List<NameImageDTO> getNameImagesInDepartment(Integer departmentId) {
+        List<Employee> departmentEmployees = getEmployeesInDepartment(departmentId);
+        List<Integer> employeeIds = departmentEmployees.stream().map(Employee::getId).toList();
+        List<ProfileImageOnly> urls = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(employeeIds, PROFILE_IMAGE);
+        return departmentEmployees.stream().map(e -> {
+            ProfileImageOnly profile = urls
+                    .stream()
+                    .filter(u -> u.getEmployeeId().equals(e.getId()))
+                    .findFirst()
+                    .orElse(null);
+            String url = profile != null ? damService.getFileUrl(profile.getUrl()) : null;
+            return new NameImageDTO(e.getId(), e.getFirstName(), e.getLastName(), url);
+        }).toList();
+    }
 }

@@ -1,6 +1,7 @@
 package com.hrms.employeemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
+import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
@@ -66,7 +67,7 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "currentHeadcounts")
-    public DiffPercentDTO getHeadcounts() {
+    public PercentageChangeDTO getHeadcounts() {
         return employeeManagementService.getHeadcountsStatistic();
     }
 
@@ -137,5 +138,10 @@ public class EmployeeManagementController {
     @GetMapping("/dam/profile-images")
     public ResponseEntity<List<ProfileImageOnly>> getEmployeeProfileImg(@RequestParam List<Integer> employeeIds) {
         return ResponseEntity.ok(employeeManagementService.getEmployeesNameAndAvatar(employeeIds));
+    }
+
+    @QueryMapping(name = "employeesInDepartment")
+    public List<NameImageDTO> getEmployeesInDepartment(@Argument Integer departmentId) {
+        return employeeManagementService.getNameImagesInDepartment(departmentId);
     }
 }

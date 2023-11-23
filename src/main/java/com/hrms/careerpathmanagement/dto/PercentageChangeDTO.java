@@ -9,9 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DiffPercentDTO {
-    private Float first;
-    private Float second;
+public class PercentageChangeDTO {
+    private Integer data;
     private Float diffPercent;
     private Boolean isIncreased;
 }

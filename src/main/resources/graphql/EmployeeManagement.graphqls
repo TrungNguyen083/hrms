@@ -91,6 +91,13 @@ type EmployeeOverviewDTO {
     certifications: [String]
 }
 
+type NameImageDTO {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    profileImgUrl: String
+}
+
 type EmployeeRatingDTO {
     id: Int
     firstName: String
