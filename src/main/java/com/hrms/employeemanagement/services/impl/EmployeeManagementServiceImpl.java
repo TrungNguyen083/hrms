@@ -23,9 +23,6 @@ import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -382,7 +379,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> idsSet) {
-        return employeeDamInfoRepository.findByIdSetAndType(idsSet, PROFILE_IMAGE);
+        return employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(idsSet, PROFILE_IMAGE);
     }
 
 }

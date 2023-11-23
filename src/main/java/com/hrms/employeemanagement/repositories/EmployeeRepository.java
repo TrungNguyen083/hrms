@@ -14,4 +14,5 @@ import java.util.List;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer>, JpaSpecificationExecutor<Employee>{
+    <T> Collection<T> findAllByIdIn(List<Integer> ids, Class<T> type);
 }

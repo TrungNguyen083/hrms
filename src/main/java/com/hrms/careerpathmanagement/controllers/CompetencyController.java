@@ -183,12 +183,6 @@ public class CompetencyController {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }
 
-
-    @QueryMapping(name = "evaluationCycles")
-    public List<EvaluationCycleInfoDTO> getEvaluationCycles() {
-        return competencyService.getEvaluationCycles();
-    }
-
     /***
      ********************************************** SUM Dashboard ****************************************
      * Global filter: CycleId
