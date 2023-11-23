@@ -1,6 +1,6 @@
 package com.hrms.careerpathmanagement.controllers;
 
-import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
+import com.hrms.careerpathmanagement.dto.CountAndPercentDTO;
 import com.hrms.careerpathmanagement.dto.pagination.EmployeeGoalPagination;
 import com.hrms.careerpathmanagement.services.GoalService;
 import com.hrms.global.dto.PieChartDTO;
@@ -14,6 +14,7 @@ public class GoalController {
     @Autowired
     GoalService goalService;
 
+    //SUM Dashboard - Component: Competency Evaluation Status &
     @QueryMapping("goalsByDepartmentAndCycle")
     public EmployeeGoalPagination getGoals(@Argument Integer departmentId,
                                            @Argument Integer cycleId,
@@ -23,14 +24,15 @@ public class GoalController {
         return goalService.getEmployeesGoals(departmentId, cycleId, pageNo, pageSize);
     }
 
-    public DiffPercentDTO getGoalsStatistic(@Argument Integer departmentId,
-                                            @Argument Integer cycleId,
-                                            @Argument Integer pageNo,
-                                            @Argument Integer pageSize)
+    // SUM Dashboard - Component: Goal Achievement
+    @QueryMapping(name = "goalsCountingStatistic")
+    public CountAndPercentDTO getGoalsStatistic(@Argument Integer departmentId,
+                                                @Argument Integer cycleId)
     {
-        return goalService.countGoals(departmentId, cycleId, pageNo, pageSize);
+        return goalService.countGoalsCompleted(departmentId, cycleId);
     }
 
+    // SUM Dashboard - Component: Goal Achievement
     @QueryMapping(name = "goalsStatusPieChart")
     public PieChartDTO getPieChartGoalsStatus(@Argument Integer departmentId, @Argument Integer cycleId) {
         return goalService.getGoalsStatusStatistic(departmentId, cycleId);

@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeePotentialPerformanceDTO {
+    Integer employeeId;
     String fullName;
     String profileImgUri;
     Float potential;

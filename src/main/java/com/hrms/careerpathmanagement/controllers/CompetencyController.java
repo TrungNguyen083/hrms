@@ -188,12 +188,12 @@ public class CompetencyController {
      * Global filter: CycleId
      */
     @QueryMapping
-    public MultiBarChartDTO getSumDepartmentInCompleted(@Argument Integer cycleId, @Argument Integer departmentId) {
+    public MultiBarChartDTO getIncompletedEvaluationByPosition(@Argument Integer cycleId, @Argument Integer departmentId) {
         return competencyService.getSumDepartmentIncompletePercent(cycleId, departmentId);
     }
 
 
-    //COMPONENT: Competency Evaluation Cycle
+    //COMPONENT: Competency Evaluation Status
     @QueryMapping(name = "competencyEvaluationStatus")
     public EmployeeStatusPagination getCompetencyEvaluationsStatus(@Argument Integer cycleId,
                                                                    @Argument Integer departmentId,

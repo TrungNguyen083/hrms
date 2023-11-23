@@ -10,6 +10,8 @@ import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
+import com.hrms.employeemanagement.models.Position;
+import com.hrms.employeemanagement.projection.EmployeeIdOnly;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
@@ -30,9 +32,7 @@ import com.hrms.performancemanagement.services.PerformanceService;
 import com.hrms.performancemanagement.specification.PerformanceSpecification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -160,15 +160,27 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         var evaluations = performanceEvaluationRepository.findAll(empSpec.and(cycleSpec));
 
-        List<EmployeePotentialPerformanceDTO> results = new ArrayList<>();
+        var results = new ArrayList<EmployeePotentialPerformanceDTO>();
 
         evaluations.forEach(item -> results.add(new EmployeePotentialPerformanceDTO(
+                item.getEmployee().getId(),
                 item.getEmployee().getFullName(),
                 employeeService.getProfilePicture(item.getEmployee().getId()),
                 item.getPotentialScore(),
                 item.getFinalAssessment())
         ));
         return results;
+    }
+
+    public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId,
+                                                                                      Integer cycleId,
+                                                                                      Integer positionId)
+    {
+        var result = getPotentialAndPerformance(departmentId, cycleId);
+
+        var empIdSetHasPosition = employeeRepository.findAllByDepartmentId(departmentId, EmployeeIdOnly.class);
+
+        return result.stream().filter(i -> empIdSetHasPosition.contains(i.getEmployeeId())).toList();
     }
 
     @Override

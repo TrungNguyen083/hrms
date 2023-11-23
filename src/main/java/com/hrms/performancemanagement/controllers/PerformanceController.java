@@ -116,4 +116,14 @@ public class PerformanceController {
         return performanceService.getPerformanceTimeLine(performanceCycleId);
     }
 
+    /***
+     * SUM Dashboard - Component : Employees Potential Performance
+     */
+    public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(@Argument Integer departmentId,
+                                                                                      @Argument Integer cycleId,
+                                                                                      @Argument Integer positionId)
+    {
+        return performanceService.getPotentialAndPerformanceByPosition(departmentId, cycleId, positionId);
+    }
+
 }

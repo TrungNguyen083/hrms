@@ -57,7 +57,7 @@ type Query {
     competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
     employeesInDepartment(departmentId: Int!): [SimpleItemDTO]
     departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
-
+    incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
 
     #PerformanceEvaluation:
     departmentInCompletePerform(performanceCycleId: Int!): MultiBarChartDTO
@@ -77,4 +77,5 @@ type Query {
 
     goalsByDepartmentAndCycle(departmentId: Int!, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeGoalPagination
     goalsStatusPieChart(departmentId: Int!, cycleId: Int!) : PieChartDTO
+    goalsCountingStatistic(departmentId: Int!, cycleId: Int!): CountAndPercentDTO
 }
