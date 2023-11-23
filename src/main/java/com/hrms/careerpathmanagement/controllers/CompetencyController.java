@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
+import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
@@ -15,13 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @Slf4j
 public class CompetencyController {
     private final CompetencyService competencyService;
@@ -201,5 +200,17 @@ public class CompetencyController {
                                                                    @Argument Integer pageSize)
     {
         return competencyService.getCompetencyEvaluationsStatus(cycleId, departmentId, PageRequest.of(pageNo - 1, pageSize));
+    }
+
+
+    @QueryMapping(name = "skillSets")
+    public List<SimpleItemDTO> getSkillSetByPosition(@Argument Integer positionId) {
+        return competencyService.getSkillSetByPosition(positionId);
+    }
+
+    @QueryMapping(name = "departmentSkillSetHeatMap")
+    public List<HeatmapItemDTO> getDepartmentSkillSetHeatMap(@Argument Integer departmentId, @Argument Integer cycleId,
+                                                             @Argument List<Integer> employeeIds, @Argument List<Integer> skillSetIds) {
+        return competencyService.getDepartmentSkillSetHeatmap(departmentId, cycleId, employeeIds, skillSetIds);
     }
 }

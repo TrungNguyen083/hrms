@@ -1,7 +1,5 @@
 package com.hrms.usermanagement.controller;
 
-import com.hrms.usermanagement.exception.UserNotFoundException;
-import com.hrms.usermanagement.exception.WrongPasswordException;
 import com.hrms.usermanagement.dto.Token;
 import com.hrms.usermanagement.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +9,12 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class LoginController {
+    private final AuthenticationService authenticationService;
+
     @Autowired
-    private AuthenticationService authenticationService;
+    public LoginController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
 
     @QueryMapping
     public Token login(@Argument String username, @Argument String password)

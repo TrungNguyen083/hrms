@@ -1,7 +1,6 @@
 package com.hrms.usermanagement.controller;
 
 import com.hrms.global.mapper.HrmsMapper;
-import com.hrms.global.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.dto.UserDtoPagination;
@@ -20,11 +19,15 @@ import java.util.List;
 
 @Controller
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    private final HrmsMapper userMapper;
 
     @Autowired
-    private HrmsMapper userMapper;
+    public UserController(UserService userService, HrmsMapper userMapper) {
+        this.userService = userService;
+        this.userMapper = userMapper;
+    }
 
     @QueryMapping
     public UserDto user(@Argument Integer userId) throws Exception {
@@ -41,9 +44,7 @@ public class UserController {
     {
         var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
         var users = userService.searchUsers(search, roleIds, status, pageable);
-        users.data().stream().forEach(user -> {
-            user.setRoles(userService.getRoles(user.getUserId()));
-        });
+        users.data().stream().forEach(user -> user.setRoles(userService.getRoles(user.getUserId())));
         return users;
     }
 

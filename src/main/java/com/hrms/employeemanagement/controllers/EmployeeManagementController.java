@@ -24,8 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@CrossOrigin
-//Controller
 public class EmployeeManagementController {
     EmployeeManagementService employeeManagementService;
     DamService damService;
@@ -131,6 +129,11 @@ public class EmployeeManagementController {
         return ResponseEntity.ok(employeeManagementService.getQualifications(employeeId));
     }
 
+    @QueryMapping(name = "departmentEmployees")
+    public List<SimpleItemDTO> getDepartmentEmployees(@Argument Integer departmentId, @Argument Integer positionId) {
+        return employeeManagementService.getDepartmentEmployees(departmentId, positionId);
+    }
+      
     @GetMapping("/dam/profile-images")
     public ResponseEntity<List<ProfileImageOnly>> getEmployeeProfileImg(@RequestParam List<Integer> employeeIds) {
         return ResponseEntity.ok(employeeManagementService.getEmployeesNameAndAvatar(employeeIds));

@@ -2,7 +2,7 @@ package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
+import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
@@ -39,7 +39,12 @@ public interface CompetencyService {
 
     PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId);
 
+    List<SimpleItemDTO> getSkillSetByPosition(Integer positionId);
+  
     MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId);
 
     EmployeeStatusPagination getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId, Pageable page);
+
+    List<HeatmapItemDTO> getDepartmentSkillSetHeatmap(Integer departmentId, Integer cycleId,
+                                                      List<Integer> employeeIds, List<Integer> skillSetIds);
 }
