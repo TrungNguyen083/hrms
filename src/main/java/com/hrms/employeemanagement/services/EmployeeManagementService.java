@@ -10,6 +10,7 @@ import com.hrms.global.paging.PagingInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public interface EmployeeManagementService {
@@ -37,4 +38,6 @@ public interface EmployeeManagementService {
 	List<SimpleItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId);
 
     List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> ids);
+
+    List<Employee> getEmployeesInDepartment(Integer departmentId);
 }

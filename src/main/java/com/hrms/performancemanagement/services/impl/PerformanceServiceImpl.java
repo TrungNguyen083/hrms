@@ -42,6 +42,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -77,8 +78,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   DepartmentRepository departmentRepository,
                                   EmployeeManagementService employeeManagementService,
                                   PerformanceTimeLineRepository performanceTimeLineRepository,
-                                  EmployeeRepository employeeRepository)
-    {
+                                  EmployeeRepository employeeRepository) {
         this.employeeService = employeeService;
         this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.performanceCycleRepository = performanceCycleRepository;
@@ -127,6 +127,7 @@ public class PerformanceServiceImpl implements PerformanceService {
      * A score belong to a range if it is greater than or equal to the min value and less than or equal to the max value
      * Ex: Meets Expectation range has min value = 3 and max value = 4
      * Label is a column in the chart. In this case, it is job level
+     *
      * @param positionId
      * @param cycleId
      * @return
@@ -162,21 +163,32 @@ public class PerformanceServiceImpl implements PerformanceService {
         List<EmployeePotentialPerformanceDTO> results = new ArrayList<>();
 
         evaluations.forEach(item -> results.add(new EmployeePotentialPerformanceDTO(
-                                                        item.getEmployee().getFullName(),
-                                                        employeeService.getProfilePicture(item.getEmployee().getId()),
-                                                        item.getPotentialScore(),
-                                                        item.getFinalAssessment())
+                item.getEmployee().getFullName(),
+                employeeService.getProfilePicture(item.getEmployee().getId()),
+                item.getPotentialScore(),
+                item.getFinalAssessment())
         ));
         return results;
     }
 
     @Override
-    public EmployeeRatingPagination getPerformanceRating(Integer cycleId, PageRequest pageable) {
-        Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasCycleId(cycleId);
-        var evaluations = performanceEvaluationRepository.findAll(cycleSpec, pageable);
+    public EmployeeRatingPagination getPerformanceRating(Integer departmentId, Integer cycleId, PageRequest pageable) {
+        List<Integer> departmentEmployeeIds = (departmentId != null) ?
+                employeeManagementService.getEmployeesInDepartment(departmentId)
+                        .stream()
+                        .map(Employee::getId)
+                        .toList() :
+                Collections.emptyList();
+
+        Specification<PerformanceEvaluation> hasEmployeeIds = GlobalSpec.hasEmployeeIds(departmentEmployeeIds);
+        Specification<PerformanceEvaluation> cycleSpec = GlobalSpec.hasPerformCycleId(cycleId);
+        Specification<PerformanceEvaluation> spec = (departmentId != null) ?
+                hasEmployeeIds.and(cycleSpec) :
+                cycleSpec;
+
+        Page<PerformanceEvaluation> evaluations = performanceEvaluationRepository.findAll(spec, pageable);
 
         List<EmployeeRatingDTO> results = new ArrayList<>();
-
         evaluations.forEach(item -> results.add(new EmployeeRatingDTO(
                 item.getEmployee().getId(),
                 item.getEmployee().getFirstName(),
@@ -191,8 +203,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private List<DatasetDTO> createDatasets(List<PerformanceEvaluation> evaluations,
                                             List<PerformanceRange> performanceRanges,
-                                            List<JobLevel> labels)
-    {
+                                            List<JobLevel> labels) {
         List<DatasetDTO> datasets = new ArrayList<>();
 
         performanceRanges.forEach(range -> {
@@ -205,10 +216,9 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private DatasetDTO createDatasetForRange(List<PerformanceEvaluation> evaluations,
                                              PerformanceRange range,
-                                             List<JobLevel> labels)
-    {
+                                             List<JobLevel> labels) {
         DatasetDTO datasetDTO = new DatasetDTO(range.getText(), new ArrayList<>());
-        labels.forEach( label -> {
+        labels.forEach(label -> {
             long total = countEvals(label, evaluations);
             long count = countPerformancesInRange(label, range, evaluations);
             Float percentage = calculatePercentage(count, total);
@@ -232,7 +242,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     private Float getPercentNotEvaluated(JobLevel jobLevel, Integer cycleId) {
-        Specification< Employee> hasJobLevel = EmployeeSpecification.hasJobLevel(jobLevel.getId());
+        Specification<Employee> hasJobLevel = EmployeeSpecification.hasJobLevel(jobLevel.getId());
         var countEmp = employeeRepository.count(hasJobLevel);
 
         Specification<PerformanceEvaluation> hasCycle = performanceSpecification.hasPerformanceCycleId(cycleId);
@@ -247,10 +257,9 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
 
-
     @Override
     public DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId,
-                                                                     Integer pageNo, Integer pageSize) {
+                                                               Integer pageNo, Integer pageSize) {
         performanceCycleRepository.findAll();
 
         Specification<PerformanceEvaluation> spec = GlobalSpec.hasEmployeeId(employeeId);

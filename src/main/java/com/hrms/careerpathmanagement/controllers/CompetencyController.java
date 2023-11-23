@@ -92,12 +92,13 @@ public class CompetencyController {
         }
     }
 
-    @QueryMapping(name = "topHighestSkillSet")
-    public DataItemPagingDTO getTopHighestSkill(@Argument @Nullable Integer employeeId,
+    @QueryMapping(name = "topSkillSet")
+    public DataItemPagingDTO getTopSkillSet(@Argument @Nullable Integer departmentId,
+                                                @Argument @Nullable Integer employeeId,
                                                 @Argument @Nullable Integer competencyCycleId,
                                                 @Argument int pageNo, @Argument int pageSize) {
         try {
-            return competencyService.getHighestSkillSet(employeeId, competencyCycleId, pageNo, pageSize);
+            return competencyService.getTopSkillSet(departmentId, employeeId, competencyCycleId, pageNo, pageSize);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -114,7 +115,7 @@ public class CompetencyController {
     public DataItemPagingDTO getTopHighestSkillSetTargetEmployee(@Argument(name = "employeeId") Integer empId,
                                                                  @Argument Integer pageNo,
                                                                  @Argument Integer pageSize) {
-        return competencyService.getTopHighestSkillSetTargetEmployee(empId, pageNo, pageSize);
+        return competencyService.getTopSkillSetTargetEmployee(empId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "employeeSkillMatrix")
@@ -168,12 +169,12 @@ public class CompetencyController {
      * @return List Employees (name, profileImg) with their competency rating
      */
     @QueryMapping(name = "topCompetencyRating")
-    public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument Integer cycleId,
+    public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument @Nullable Integer departmentId,
+                                                               @Argument Integer cycleId,
                                                                @Argument Integer pageNo,
                                                                @Argument Integer pageSize)
     {
-
-        return competencyService.getCompetencyRating(cycleId, PageRequest.of(pageNo, pageSize));
+        return competencyService.getCompetencyRating(departmentId, cycleId, pageNo, pageSize);
     }
 
     /*** Employee Dashboard - Component: Overall competency score ***/
@@ -213,5 +214,10 @@ public class CompetencyController {
     public List<HeatmapItemDTO> getDepartmentSkillSetHeatMap(@Argument Integer departmentId, @Argument Integer cycleId,
                                                              @Argument List<Integer> employeeIds, @Argument List<Integer> skillSetIds) {
         return competencyService.getDepartmentSkillSetHeatmap(departmentId, cycleId, employeeIds, skillSetIds);
+    }
+
+    @QueryMapping(name = "departmentCompetencyGap")
+    public RadarChartDTO getDepartmentCompetencyGap(@Argument Integer cycleId, @Argument List<Integer> employeeIds) {
+        return competencyService.getDepartmentCompetencyGap(cycleId, employeeIds);
     }
 }

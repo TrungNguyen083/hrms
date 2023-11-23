@@ -9,6 +9,7 @@ import com.hrms.global.dto.PieChartDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -78,13 +79,14 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "topPerformers")
-    public EmployeeRatingPagination getPerformanceRating(@Argument Integer cycleId,
+    public EmployeeRatingPagination getPerformanceRating(@Argument @Nullable Integer departmentId,
+                                                         @Argument Integer cycleId,
                                                          @Argument Integer pageNo,
                                                          @Argument Integer pageSize)
     {
         Sort sort = Sort.by(Sort.Direction.DESC, "finalAssessment");
         PageRequest pageable = PageRequest.of(pageNo - 1, pageSize, sort);
-        return performanceService.getPerformanceRating(cycleId, pageable);
+        return performanceService.getPerformanceRating(departmentId, cycleId, pageable);
     }
 
     @QueryMapping

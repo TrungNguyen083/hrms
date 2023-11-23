@@ -36,10 +36,10 @@ type Query {
     #CompetencyEvaluation:
     departmentInCompleteComp(competencyCycleId: Int!): MultiBarChartDTO
     competencyEvalProgress(competencyCycleId: Int!): PieChartDTO
-    topCompetencyRating(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
+    topCompetencyRating(departmentId: Int, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [HeatmapItemDTO]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
-    topHighestSkillSet(employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topSkillSet(departmentId: Int, employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     employeeSkillMatrix(employeeId: Int!): [SkillMatrixTree]
@@ -55,6 +55,8 @@ type Query {
     departmentEmployees(departmentId: Int!, positionId: Int!): [SimpleItemDTO]
     departmentSkillSetHeatMap(departmentId: Int!, cycleId: Int!, employeeIds: [Int]!, skillSetIds: [Int]): [HeatmapItemDTO]
     competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
+    employeesInDepartment(departmentId: Int!): [SimpleItemDTO]
+    departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
 
 
     #PerformanceEvaluation:
@@ -62,7 +64,7 @@ type Query {
     performanceEvalProgress(performanceCycleId: Int!): PieChartDTO
     averagePerformanceScore(cycleId: Int!): Float
     topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
-    topPerformers(cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
+    topPerformers(departmentId: Int, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
     employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : StackedBarChart
