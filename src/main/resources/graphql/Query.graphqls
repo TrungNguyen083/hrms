@@ -75,4 +75,6 @@ type Query {
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
 
+    goalsByDepartmentAndCycle(departmentId: Int!, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeGoalPagination
+    goalsStatusPieChart(departmentId: Int!, cycleId: Int!) : PieChartDTO
 }

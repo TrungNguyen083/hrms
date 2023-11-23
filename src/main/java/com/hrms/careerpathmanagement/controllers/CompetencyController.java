@@ -183,7 +183,6 @@ public class CompetencyController {
         return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
     }
 
-
     /***
      ********************************************** SUM Dashboard ****************************************
      * Global filter: CycleId

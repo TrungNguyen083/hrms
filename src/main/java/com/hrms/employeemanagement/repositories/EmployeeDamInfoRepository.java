@@ -12,7 +12,7 @@ public interface EmployeeDamInfoRepository extends JpaRepository<EmployeeDamInfo
 
     /***
      * Get the latest profile image of employees
-     * @param profileType type of profile image, e.g: PROFILE_IMAGE, QUALIFICATION, DEGREE, ...
+     * @param fileType type of profile image, e.g: PROFILE_IMAGE, QUALIFICATION, DEGREE, ...
      * @return
      */
     @Query("SELECT new com.hrms.employeemanagement.projection.ProfileImageOnly(edi.employee.id, edi.url) " +
@@ -23,8 +23,8 @@ public interface EmployeeDamInfoRepository extends JpaRepository<EmployeeDamInfo
             "        FROM EmployeeDamInfo edi2 " +
             "        WHERE edi2.employee.id = edi.employee.id " +
             "    ) " +
-            "    AND edi.type = :profileType")
-    List<ProfileImageOnly> findByIdSetAndType(List<Integer> idsSet, String profileType);
+            "    AND edi.type = :fileType")
+    List<ProfileImageOnly> findByEmployeeIdsSetAndFileType(List<Integer> idsSet, String fileType);
 
     //<T> Collection<T> findByEmployee
 }

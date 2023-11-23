@@ -19,7 +19,7 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
 
@@ -51,6 +51,5 @@ public class Goal {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @Column(columnDefinition = "enum('pending', 'approved', 'rejected')")
     private String status;
 }

@@ -116,3 +116,21 @@ type EmployeeStatusPagination {
     data: [EmployeeStatusDTO!]
     pagination: Pagination
 }
+
+type EmployeeGoalDTO {
+    id: Int
+
+    employeeId: Int
+    firstName: String
+    lastName: String
+    profileImgUrl: String
+
+    title: String
+    description: String
+    progress: Float
+}
+
+type EmployeeGoalPagination {
+    data: [EmployeeGoalDTO!]
+    pagination: Pagination
+}

@@ -383,7 +383,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
   
     public List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> idsSet) {
-        return employeeDamInfoRepository.findByIdSetAndType(idsSet, PROFILE_IMAGE);
+        return employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(idsSet, PROFILE_IMAGE);
     }
 
 }
