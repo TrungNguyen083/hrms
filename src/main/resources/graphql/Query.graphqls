@@ -78,4 +78,5 @@ type Query {
     goalsByDepartmentAndCycle(departmentId: Int!, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeGoalPagination
     goalsStatusPieChart(departmentId: Int!, cycleId: Int!) : PieChartDTO
     goalsCountingStatistic(departmentId: Int!, cycleId: Int!): CountAndPercentDTO
+    goalsByEmployee(employeeId: Int!, pageNo: Int!, pageSize: Int = 10) : GoalPagination
 }

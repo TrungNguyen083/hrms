@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.services;
 import com.hrms.careerpathmanagement.dto.CountAndPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeeGoalDTO;
 import com.hrms.careerpathmanagement.dto.pagination.EmployeeGoalPagination;
+import com.hrms.careerpathmanagement.dto.pagination.GoalPagination;
 import com.hrms.careerpathmanagement.models.Goal;
 import com.hrms.careerpathmanagement.repositories.GoalRepository;
 import com.hrms.careerpathmanagement.specification.CompetencySpecification;
@@ -12,6 +13,7 @@ import com.hrms.employeemanagement.repositories.EmployeeDamInfoRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.dto.PieChartDTO;
+import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -20,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -130,4 +133,14 @@ public class GoalService {
     }
 
 
+    public GoalPagination getGoalsByEmployee(Integer employeeId, Integer pageNo, Integer pageSize) {
+        Sort sort = Sort.by("updatedAt").descending();
+        Pageable page = PageRequest.of(pageNo - 1, pageSize, sort);
+
+        var goals = goalRepository.findAllByEmployeeId(employeeId, page);
+
+        Pagination pagination = PaginationSetup.setupPaging(goals.getSize(), pageNo, pageSize);
+
+        return new GoalPagination(goals.toList(), pagination);
+    }
 }
