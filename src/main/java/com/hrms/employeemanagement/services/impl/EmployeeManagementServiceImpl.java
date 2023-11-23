@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
 import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
 import com.hrms.careerpathmanagement.models.SkillSetTarget;
@@ -58,6 +57,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final EmployeeSpecification employeeSpecification;
     private final DamService damService;
     private final CareerSpecification careerSpecification;
+    private final PositionDepartmentRepository positionDepartmentRepository;
 
     @Autowired
     public EmployeeManagementServiceImpl(EmployeeRepository employeeRepository,
@@ -68,7 +68,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                          SkillSetTargetRepository skillSetTargetRepository,
                                          EmployeeSpecification employeeSpecification,
                                          DamService damService,
-                                         CareerSpecification careerSpecification) {
+                                         CareerSpecification careerSpecification,
+                                         PositionDepartmentRepository positionDepartmentRepository) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.emergencyContactRepository = emergencyContactRepository;
@@ -78,6 +79,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         this.employeeSpecification = employeeSpecification;
         this.damService = damService;
         this.careerSpecification = careerSpecification;
+        this.positionDepartmentRepository = positionDepartmentRepository;
     }
 
     private ModelMapper modelMapper;
@@ -410,5 +412,58 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
             String url = profile != null ? damService.getFileUrl(profile.getUrl()) : null;
             return new NameImageDTO(e.getId(), e.getFirstName(), e.getLastName(), url);
         }).toList();
+    }
+
+    @Override
+    public PercentageChangeDTO getDepartmentHeadcount(Integer departmentId) {
+        //Get all new employees have joinedDate between 2 years ago and 1 year ago
+        LocalDate datePrevious = LocalDate.now().minusYears(1);
+        var countPreviousYearEmployees = countDepartmentEmployeesByYear(datePrevious, departmentId);
+
+        //Get all new employees have joinedDate between today and 1 year ago
+        LocalDate dateCurrent = LocalDate.now();
+        var countCurrentYearEmployees = countDepartmentEmployeesByYear(dateCurrent, departmentId);
+
+        Integer countAllEmployee = getEmployeesInDepartment(departmentId).size();
+
+        float diffPercent = countPreviousYearEmployees != 0
+                ? ((float) (countCurrentYearEmployees - countPreviousYearEmployees) / countPreviousYearEmployees) * 100
+                : 0;
+
+        return new PercentageChangeDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
+    }
+
+    private long countDepartmentEmployeesByYear(LocalDate date, Integer departmentId) {
+        //Get all new employees have joinedDate before date and have status not equal to 0
+        Specification<Employee> spec = (root, query, builder) -> builder.and(
+                builder.equal(root.get("department").get("id"), departmentId),
+                builder.lessThan(root.get("joinedDate"), date),
+                builder.notEqual(root.get("status"), 0)
+        );
+
+        return employeeRepository.count(spec);
+    }
+
+    @Override
+    public BarChartDTO getDepartmentHeadcountChart(Integer departmentId) {
+        Specification<PositionDepartment> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+        List<PositionDepartment> posDepartments = positionDepartmentRepository.findAll(hasDepartment);
+        List<Position> positions = posDepartments.stream().map(PositionDepartment::getPosition).toList();
+        List<Integer> posIds = positions.stream().map(Position::getId).toList();
+        //Find all employees in departmentIds and have status not equal to 0
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
+        Specification<Employee> eHasPositions = GlobalSpec.hasPositionIds(posIds);
+        Specification<Employee> eHasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+        List<Employee> employees = employeeRepository.findAll(spec.and(eHasPositions).and(eHasDepartment));
+
+        List<DataItemDTO> items = positions.stream().map(item -> {
+            Float countEmployee = (float) employees
+                    .stream()
+                    .filter(employee -> employee.getPosition().getId() == item.getId())
+                    .count();
+            return new DataItemDTO(item.getPositionName(), countEmployee);
+        }).toList();
+
+        return new BarChartDTO("Position's Employees", items);
     }
 }

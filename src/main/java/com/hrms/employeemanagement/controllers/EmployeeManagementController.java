@@ -144,4 +144,14 @@ public class EmployeeManagementController {
     public List<NameImageDTO> getEmployeesInDepartment(@Argument Integer departmentId) {
         return employeeManagementService.getNameImagesInDepartment(departmentId);
     }
+
+    @QueryMapping(name = "departmentHeadcount")
+    public PercentageChangeDTO getDepartmentHeadcount(@Argument Integer departmentId) {
+        return employeeManagementService.getDepartmentHeadcount(departmentId);
+    }
+
+    @QueryMapping(name = "departmentHeadcountChart")
+    public BarChartDTO getDepartmentHeadcountChart(@Argument Integer departmentId) {
+        return employeeManagementService.getDepartmentHeadcountChart(departmentId);
+    }
 }

@@ -18,6 +18,10 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("position").get("id"), positionId);
     }
 
+    public static <T> Specification<T> hasPositionIds(List<Integer> positionIds) {
+        return (root, query, cb) -> root.get("position").get("id").in(positionIds);
+    }
+
     public static <T> Specification<T> hasJobLevelId(Integer jobLevelId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("jobLevel").get("id"), jobLevelId);
     }

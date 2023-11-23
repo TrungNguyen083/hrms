@@ -7,6 +7,8 @@ type Query {
     currentHeadcounts: PercentageChangeDTO
     headcountChart: BarChartDTO
     employeeOverview(employeeId: Int!): EmployeeOverviewDTO
+    departmentHeadcount(departmentId: Int!): PercentageChangeDTO
+    departmentHeadcountChart(departmentId: Int!): BarChartDTO
 
 
 
