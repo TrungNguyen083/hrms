@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.services;
 
-import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
@@ -43,4 +42,8 @@ public interface EmployeeManagementService {
     List<Employee> getEmployeesInDepartment(Integer departmentId);
 
 	List<NameImageDTO> getNameImagesInDepartment(Integer departmentId);
+
+	PercentageChangeDTO getDepartmentHeadcount(Integer departmentId);
+
+	BarChartDTO getDepartmentHeadcountChart(Integer departmentId);
 }
