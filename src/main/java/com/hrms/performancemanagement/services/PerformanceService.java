@@ -21,6 +21,7 @@ public interface PerformanceService {
     Float getAveragePerformanceScore(Integer cycleId);
     StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId);
+    List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId, Integer cycleId, Integer positionId);
     EmployeeRatingPagination getPerformanceRating(Integer departmentId, Integer cycleId, PageRequest pageable);
     DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId, Integer pageNo, Integer pageSize);
     MultiBarChartDTO getDepartmentInCompletePerform(Integer cycleId);

@@ -256,9 +256,10 @@ public class CompetencyServiceImpl implements CompetencyService {
         Root<CompetencyEvaluationOverall> root = query.from(CompetencyEvaluationOverall.class);
         Join<CompetencyEvaluationOverall, Employee> empJoin = root.join("employee");
 
-        query.multiselect(root.get("employee").get("id"), root.get("employee").get("firstName"), root.get("employee").get("lastName"), root.get("finalStatus"))
+        query.multiselect(empJoin.get("id"), empJoin.get("firstName"), empJoin.get("lastName"), root.get("finalStatus"))
                 .where(cb.equal(root.get("competencyCycle").get("id"), cycleId),
-                        cb.equal(empJoin.get("department").get("id"), departmentId));
+                        cb.equal(empJoin.get("department").get("id"), departmentId))
+                .orderBy(cb.desc(root.get("finalStatus")));
 
         var nameAndStatusList = entityManager.createQuery(query)
                 .setFirstResult((int) page.getOffset())

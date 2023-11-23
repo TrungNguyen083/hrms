@@ -73,3 +73,8 @@ type StackedBarChart {
     labels: [JobLevel!]!
     datasets: [DatasetDTO!]!
 }
+
+type CountAndPercentDTO {
+    count: Int
+    percentage: Float
+}

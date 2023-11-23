@@ -1,6 +1,6 @@
 package com.hrms.careerpathmanagement.services;
 
-import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
+import com.hrms.careerpathmanagement.dto.CountAndPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeeGoalDTO;
 import com.hrms.careerpathmanagement.dto.pagination.EmployeeGoalPagination;
 import com.hrms.careerpathmanagement.models.Goal;
@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,8 @@ public class GoalService {
     public EmployeeGoalPagination getEmployeesGoals(Integer departmentId, Integer cycleId,
                                            Integer pageNo, Integer pageSize)
     {
-        var goals = getGoals(departmentId, cycleId, pageNo, pageSize);
+        var sort = Sort.by(Sort.Direction.DESC, "updatedAt");
+        var goals = getGoals(departmentId, cycleId, pageNo, pageSize, sort);
 
         var employeeIds = goals.stream().map(g -> g.getEmployee().getId()).toList();
         var employees = employeeRepository.findAllByIdIn(employeeIds, NameOnly.class);
@@ -84,12 +86,17 @@ public class GoalService {
         return new EmployeeGoalPagination(result, pagination);
     }
 
-    public DiffPercentDTO countGoals(Integer departmentId, Integer cycleId,
-                                     Integer pageNo, Integer pageSize)
+    public CountAndPercentDTO countGoalsCompleted(Integer departmentId, Integer cycleId)
     {
-        var goals = getGoals(departmentId, cycleId, pageNo, pageSize);
-        var achievedCount = goals.stream().filter(i -> i.getStatus() == "Completed").count();
-        return null;
+        Specification<Goal> hasDepSpec = employeeSpecification.hasDepartmentId(departmentId);
+        Specification<Goal> hasCycleSpec = competencySpecification.hasCycleId(cycleId);
+        var totalGoals = goalRepository.count(hasDepSpec.and(hasCycleSpec));
+
+        Specification<Goal> completedSpec = (root, query, cb) -> cb.equal(root.get("status"), STATUS_COMPLETED);
+        var completedCount = goalRepository.count(hasDepSpec.and(hasCycleSpec.and(completedSpec)));
+
+        var percentage = totalGoals == 0 ? null : (float) completedCount * 100 /totalGoals;
+        return new CountAndPercentDTO(completedCount,  percentage);
     }
 
     public PieChartDTO getGoalsStatusStatistic(Integer departmentId, Integer cycleId)
@@ -100,22 +107,23 @@ public class GoalService {
         Map<String, Long> statusMap = goals.stream()
                 .collect(Collectors.groupingBy(Goal::getStatus, Collectors.counting()));
 
-        statusMap.entrySet().forEach(item -> log.info(item.getKey()));
+        var pieChart = new PieChartDTO(List.of(), List.of());
 
-        var pieChart = new PieChartDTO(new LinkedList(), new LinkedList());
         statusMap.entrySet().forEach(i -> {
             var status = i.getKey();
             var count = i.getValue();
             pieChart.getLabels().add(status);
-            pieChart.getDatasets().add((float) (count / totalGoals));
+            pieChart.getDatasets().add((float) count * 100 / totalGoals);
         });
 
         return pieChart;
     }
 
     @NotNull
-    private Page<Goal> getGoals(Integer departmentId, Integer cycleId, Integer pageNo, Integer pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+    private Page<Goal> getGoals(Integer departmentId, Integer cycleId,
+                                Integer pageNo, Integer pageSize,
+                                Sort sort) {
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
         Specification<Goal> hasDepartmentSpec = employeeSpecification.hasDepartmentId(departmentId);
         Specification<Goal> hasCycleSpec = competencySpecification.hasCycleId(cycleId);
         return goalRepository.findAll(hasDepartmentSpec.and(hasCycleSpec), pageRequest);
