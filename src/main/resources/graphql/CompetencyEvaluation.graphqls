@@ -6,7 +6,14 @@ type Competency {
 }
 
 type DiffPercentDTO{
-    data: String
+    first: Float
+    second: Float
+    diffPercent: Float
+    isIncreased: Boolean
+}
+
+type PercentageChangeDTO{
+    data: Int
     diffPercent: Float
     isIncreased: Boolean
 }

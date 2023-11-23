@@ -28,8 +28,8 @@ public interface CompetencyService {
     List<CurrentEvaluationDTO> getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
     BarChartDTO getSkillSetGap(Integer employeeId, Integer cycleId);
-    DiffPercentDTO getCompanyCompetencyDiffPercent();
-    BarChartDTO getCompetencyChart();
+    DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
+    BarChartDTO getCompetencyChart(Integer departmentId);
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
 

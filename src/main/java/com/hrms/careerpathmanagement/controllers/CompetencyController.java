@@ -154,13 +154,13 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "companyCompetencyDiffPercent")
-    public DiffPercentDTO getCompanyCompetencyDiffPercent() {
-        return competencyService.getCompanyCompetencyDiffPercent();
+    public DiffPercentDTO getCompanyCompetencyDiffPercent(@Argument @Nullable Integer departmentId) {
+        return competencyService.getCompanyCompetencyDiffPercent(departmentId);
     }
 
     @QueryMapping(name = "competencyChart")
-    public BarChartDTO getCompetencyChart() {
-        return competencyService.getCompetencyChart();
+    public BarChartDTO getCompetencyChart(@Argument @Nullable Integer departmentId) {
+        return competencyService.getCompetencyChart(departmentId);
     }
 
 

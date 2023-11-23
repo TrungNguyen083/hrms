@@ -4,7 +4,7 @@ type Query {
     employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
     employee(id: Int!): EmployeeDetail
     newEmployees: [Employee]
-    currentHeadcounts: DiffPercentDTO
+    currentHeadcounts: PercentageChangeDTO
     headcountChart: BarChartDTO
     employeeOverview(employeeId: Int!): EmployeeOverviewDTO
 
@@ -48,14 +48,14 @@ type Query {
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
     getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
-    companyCompetencyDiffPercent: DiffPercentDTO
-    competencyChart: BarChartDTO
+    companyCompetencyDiffPercent(departmentId: Int): DiffPercentDTO
+    competencyChart(departmentId: Int): BarChartDTO
     overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
     departmentEmployees(departmentId: Int!, positionId: Int!): [SimpleItemDTO]
     departmentSkillSetHeatMap(departmentId: Int!, cycleId: Int!, employeeIds: [Int]!, skillSetIds: [Int]): [HeatmapItemDTO]
     competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
-    employeesInDepartment(departmentId: Int!): [SimpleItemDTO]
+    employeesInDepartment(departmentId: Int!): [NameImageDTO]
     departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
     incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
 
