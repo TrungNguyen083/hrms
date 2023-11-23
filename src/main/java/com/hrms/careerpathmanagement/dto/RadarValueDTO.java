@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RadarValueDTO {
-    private Integer competencyCycleId;
+    private Integer inputId;
     private Integer competencyId;
     private Float average;
 }

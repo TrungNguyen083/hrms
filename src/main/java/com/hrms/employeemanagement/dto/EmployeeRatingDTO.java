@@ -1,4 +1,19 @@
 package com.hrms.employeemanagement.dto;
 
-public record EmployeeRatingDTO(Integer id, String firstName, String lastName, String profileImgUrl, Float rating) {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class EmployeeRatingDTO {
+    private Integer id;
+    private String firstName;
+    private String lastName;
+    private String profileImgUrl;
+    private Float rating;
+
 }

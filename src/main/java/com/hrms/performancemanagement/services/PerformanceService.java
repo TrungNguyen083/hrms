@@ -21,10 +21,11 @@ public interface PerformanceService {
     Float getAveragePerformanceScore(Integer cycleId);
     StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId);
-    EmployeeRatingPagination getPerformanceRating(Integer cycleId, PageRequest pageable);
+    EmployeeRatingPagination getPerformanceRating(Integer departmentId, Integer cycleId, PageRequest pageable);
     DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId, Integer pageNo, Integer pageSize);
     MultiBarChartDTO getDepartmentInCompletePerform(Integer cycleId);
     PieChartDTO getPerformanceEvalProgress(Integer performanceCycleId);
 
     List<TimeLine> getPerformanceTimeLine(Integer cycleId);
+
 }
