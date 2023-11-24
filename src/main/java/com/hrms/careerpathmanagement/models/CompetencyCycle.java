@@ -41,6 +41,9 @@ public class CompetencyCycle {
     @Column(name = "evaluator_type")
     private String evaluatorType;
 
+    @Column(name = "initial_date")
+    private Date initialDate;
+
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)

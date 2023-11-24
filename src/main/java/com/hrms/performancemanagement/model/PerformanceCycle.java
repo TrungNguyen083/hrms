@@ -49,6 +49,9 @@ public class PerformanceCycle {
     @Column(name = "goal_weightage")
     private Float goalWeightage;
 
+    @Column(name = "initial_date")
+    private Date initialDate;
+
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)

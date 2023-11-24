@@ -15,3 +15,14 @@ input PerformanceCycleInput{
     performanceWeightage: Float!
     goalWeightage: Float!
 }
+
+input EvaluationProcessInput {
+    timeLines : [TimeLineInput]!
+    initialDate: String!
+}
+
+input TimeLineInput {
+    timeLineName: String!
+    startDate: String!
+    dueDate: String!
+}

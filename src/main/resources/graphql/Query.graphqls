@@ -60,6 +60,7 @@ type Query {
     employeesInDepartment(departmentId: Int!): [NameImageDTO]
     departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
     incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
+    competencyCyclePeriod(cycleId: Int!): String
 
     #PerformanceEvaluation:
     performanceEvaluationOverview(cycleId: Int!, departmentId: Int) : DiffPercentDTO
@@ -75,6 +76,8 @@ type Query {
     employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     potentialAndPerformanceByPosition(departmentId: Int, cycleId: Int, positionId: Int): [EmployeePotentialPerformanceDTO!]
     evaluationCycles: [EvaluationCycle]
+    performanceCyclePeriod(cycleId: Int!): String
+
 
     #CarreerManagement:
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]

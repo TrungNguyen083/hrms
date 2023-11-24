@@ -2,6 +2,7 @@ package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -55,4 +56,8 @@ public interface CompetencyService {
     List<EvaluationCycleDTO> getEvaluationCycles();
 
     CompetencyCycle createCompetencyCycle(CompetencyCycleInput input);
+
+    String competencyCyclePeriod(Integer cycleId);
+
+    List<TimeLine> createCompetencyProcess(EvaluationProcessInput input);
 }

@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.global.dto.BarChartDTO;
@@ -144,5 +145,15 @@ public class PerformanceController {
     @MutationMapping(name = "createPerformanceCycle")
     public PerformanceCycle createPerformanceCycle(@Argument PerformanceCycleInput input) {
         return performanceService.createPerformanceCycle(input);
+    }
+
+    @QueryMapping(name = "performanceCyclePeriod")
+    public String performanceCyclePeriod(@Argument Integer cycleId) {
+        return performanceService.performanceCyclePeriod(cycleId);
+    }
+
+    @MutationMapping(name = "createPerformanceProcess")
+    public List<TimeLine> createPerformanceProcess(@Argument EvaluationProcessInput input) {
+        return performanceService.createPerformanceProcess(input);
     }
 }

@@ -2,13 +2,13 @@ package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
-import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
@@ -36,4 +36,8 @@ public interface PerformanceService {
     List<TimeLine> getPerformanceTimeLine(Integer cycleId);
 
     PerformanceCycle createPerformanceCycle(PerformanceCycleInput input);
+
+    String performanceCyclePeriod(Integer cycleId);
+
+    List<TimeLine> createPerformanceProcess(EvaluationProcessInput input);
 }
