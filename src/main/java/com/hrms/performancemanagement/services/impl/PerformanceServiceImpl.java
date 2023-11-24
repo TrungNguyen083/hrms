@@ -1,5 +1,6 @@
 package com.hrms.performancemanagement.services.impl;
 
+import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.careerpathmanagement.models.PerformanceRange;
@@ -10,7 +11,6 @@ import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
-import com.hrms.employeemanagement.models.Position;
 import com.hrms.employeemanagement.projection.EmployeeIdOnly;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
@@ -41,9 +41,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -153,6 +151,50 @@ public class PerformanceServiceImpl implements PerformanceService {
         return new StackedBarChart(labels, datasets);
     }
 
+    public BarChartDTO getPerformanceRatingScheme(Integer cycleId, Integer departmentId) {
+        Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasCycleId(cycleId);
+        Specification<PerformanceEvaluation> depSpec = departmentId == null ? null : employeeSpecification.hasDepartmentId(departmentId);
+
+        var evaluations = performanceEvaluationRepository.findAll(cycleSpec.and(depSpec));
+
+        var ratingScheme = performanceRangeRepository.findAll();
+
+        var data = new ArrayList();
+
+        ratingScheme.forEach(item -> {
+            var count = evaluations.stream().filter(e -> e.getFinalAssessment() >= item.getMinValue())
+                    .filter(e -> e.getFinalAssessment() <= item.getMaxValue())
+                    .count();
+            data.add(new DataItemDTO(item.getText(), (float) count));
+        });
+
+        return new BarChartDTO("Performance Rating Scheme", data);
+    }
+
+    @Override
+    public DiffPercentDTO getPerformanceOverview(Integer cycleId, Integer departmentId) {
+        var averageScore = averagePerformanceScore(cycleId, departmentId);
+        var averageScoreLastCycle = averagePerformanceScore(cycleId - 1, departmentId);
+        var diffPercent = (averageScoreLastCycle == 0) ? 0 : (averageScore - averageScoreLastCycle) / averageScoreLastCycle * 100;
+        return new DiffPercentDTO(averageScore, 5.0f, diffPercent, averageScore > averageScoreLastCycle);
+    }
+
+    private Float averagePerformanceScore(Integer cycleId, Integer departmentId) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Float> query = cb.createQuery(Float.class);
+        Root<PerformanceEvaluation> root = query.from(PerformanceEvaluation.class);
+
+        Predicate cyclePredicate = cycleId == null ? null : cb.equal(root.get("performanceCycle").get("id"), cycleId);
+        Predicate departmentPredicate = departmentId == null ? null : cb.equal(root.get("employee").get("department").get("id"), departmentId);
+        Predicate[] predicates = Arrays.stream(new Predicate[]{cyclePredicate, departmentPredicate})
+                .filter(p -> p != null)
+                .toArray(Predicate[]::new);
+
+        query.select(cb.avg(root.get("finalAssessment")).as(Float.class))
+                .where(predicates);
+        return em.createQuery(query).getSingleResult();
+    }
+
     @Override
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId) {
         Specification<PerformanceEvaluation> empSpec = employeeSpecification.hasDepartmentId(departmentId);
@@ -172,15 +214,17 @@ public class PerformanceServiceImpl implements PerformanceService {
         return results;
     }
 
+    @Override
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId,
                                                                                       Integer cycleId,
                                                                                       Integer positionId)
     {
         var result = getPotentialAndPerformance(departmentId, cycleId);
 
-        var empIdSetHasPosition = employeeRepository.findAllByDepartmentId(departmentId, EmployeeIdOnly.class);
+        var empIdsSetHasPosition = new HashSet<>(employeeRepository.findAllByDepartmentId(departmentId, EmployeeIdOnly.class)
+            .stream().map(EmployeeIdOnly::id).toList());
 
-        return result.stream().filter(i -> empIdSetHasPosition.contains(i.getEmployeeId())).toList();
+        return result.stream().filter(i -> empIdsSetHasPosition.contains(i.getEmployeeId())).toList();
     }
 
     @Override
@@ -232,7 +276,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         DatasetDTO datasetDTO = new DatasetDTO(range.getText(), new ArrayList<>());
         labels.forEach(label -> {
             long total = countEvals(label, evaluations);
-            long count = countPerformancesInRange(label, range, evaluations);
+            long count = countRatingSchemeByJoblevel(label, range, evaluations);
             Float percentage = calculatePercentage(count, total);
             datasetDTO.addData(percentage);
         });
@@ -245,7 +289,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 .count();
     }
 
-    private long countPerformancesInRange(JobLevel jobLevel, PerformanceRange range, List<PerformanceEvaluation> evaluations) {
+    private long countRatingSchemeByJoblevel(JobLevel jobLevel, PerformanceRange range, List<PerformanceEvaluation> evaluations) {
         return evaluations.stream()
                 .filter(eval -> eval.getEmployee().getJobLevel().getId() == jobLevel.getId())
                 .filter(eval -> eval.getFinalAssessment() >= range.getMinValue())

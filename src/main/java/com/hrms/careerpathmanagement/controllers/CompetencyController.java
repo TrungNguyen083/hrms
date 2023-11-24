@@ -187,7 +187,7 @@ public class CompetencyController {
      ********************************************** SUM Dashboard ****************************************
      * Global filter: CycleId
      */
-    @QueryMapping
+    @QueryMapping(name = "incompletedEvaluationByPosition")
     public MultiBarChartDTO getIncompletedEvaluationByPosition(@Argument Integer cycleId, @Argument Integer departmentId) {
         return competencyService.getSumDepartmentIncompletePercent(cycleId, departmentId);
     }

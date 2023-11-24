@@ -1,8 +1,10 @@
 package com.hrms.performancemanagement.services;
 
+import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
@@ -19,7 +21,9 @@ public interface PerformanceService {
     List<PerformanceCycle> getAllPerformanceCycles();
     Page<PerformanceEvaluation> getPerformanceEvaluations(Integer cycleId, Pageable pageable);
     Float getAveragePerformanceScore(Integer cycleId);
+    BarChartDTO getPerformanceRatingScheme(Integer cycleId, Integer departmentId);
     StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId);
+    DiffPercentDTO getPerformanceOverview(Integer cycleId, Integer departmentId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId, Integer cycleId, Integer positionId);
     EmployeeRatingPagination getPerformanceRating(Integer departmentId, Integer cycleId, PageRequest pageable);

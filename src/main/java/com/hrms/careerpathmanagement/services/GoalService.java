@@ -110,7 +110,7 @@ public class GoalService {
         Map<String, Long> statusMap = goals.stream()
                 .collect(Collectors.groupingBy(Goal::getStatus, Collectors.counting()));
 
-        var pieChart = new PieChartDTO(List.of(), List.of());
+        var pieChart = new PieChartDTO(new ArrayList(), new ArrayList());
 
         statusMap.entrySet().forEach(i -> {
             var status = i.getKey();

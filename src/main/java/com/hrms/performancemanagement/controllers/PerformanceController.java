@@ -1,8 +1,10 @@
 package com.hrms.performancemanagement.controllers;
 
+import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
@@ -119,6 +121,7 @@ public class PerformanceController {
     /***
      * SUM Dashboard - Component : Employees Potential Performance
      */
+    @QueryMapping(name = "potentialAndPerformanceByPosition")
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(@Argument Integer departmentId,
                                                                                       @Argument Integer cycleId,
                                                                                       @Argument Integer positionId)
@@ -126,4 +129,17 @@ public class PerformanceController {
         return performanceService.getPotentialAndPerformanceByPosition(departmentId, cycleId, positionId);
     }
 
+    @QueryMapping(name = "performanceEvaluationOverview")
+    public DiffPercentDTO getPerformanceEvaOverview(@Argument Integer cycleId,
+                                                 @Argument Integer departmentId)
+    {
+        return performanceService.getPerformanceOverview(cycleId, departmentId);
+    }
+
+    @QueryMapping(name = "performanceRatingScheme")
+    public BarChartDTO getPerformanceRatingScheme(@Argument @Nullable Integer departmentId,
+                                                  @Argument Integer cycleId)
+    {
+        return performanceService.getPerformanceRatingScheme(cycleId, departmentId);
+    }
 }

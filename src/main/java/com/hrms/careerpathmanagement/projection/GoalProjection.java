@@ -5,7 +5,9 @@ public interface GoalProjection {
     String getTitle();
     Float getProgress();
     CompetencyCycleSummary getCompetencyCycle();
+
     interface CompetencyCycleSummary {
+        Integer getId();
         String getCompetencyCycleName();
     }
 }
