@@ -7,9 +7,12 @@ type Department {
 type CompetencyCycle {
     id: Int!
     competencyCycleName: String
+    description: String
     startDate: String
     dueDate: String
     year: String
+    status: String
+    evaluatorType: String
 }
 
 type TimeLine {
@@ -33,9 +36,14 @@ type JobLevel {
 type PerformanceCycle {
     performanceCycleId: Int!
     performanceCycleName: String
+    description: String
     performanceCycleStartDate: String
     performanceCycleEndDate: String
     isDone: Boolean
+    status: String
+    template: Template
+    performanceWeightage: Float
+    goalWeightage: Float
 }
 
 type PerformanceRange {
@@ -87,4 +95,12 @@ type SkillSet {
 type SkillSetSummarization {
     currentRating: Float
     targetRating: Float
+}
+
+type Template {
+    id: Int!
+    templateName: String
+    templateDescription: String
+    createdAt: String
+    createdBy: Employee
 }

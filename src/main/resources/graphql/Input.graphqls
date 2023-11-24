@@ -1,0 +1,17 @@
+input CompetencyCycleInput{
+    cycleName: String!
+    description: String!
+    startDate: String!
+    dueDate: String!
+    evaluatorType: String!
+}
+
+input PerformanceCycleInput{
+    cycleName: String!
+    description: String!
+    performanceCycleStartDate: String!
+    performanceCycleEndDate: String!
+    template: Int!
+    performanceWeightage: Float!
+    goalWeightage: Float!
+}

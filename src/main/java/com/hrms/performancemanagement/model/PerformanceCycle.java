@@ -1,12 +1,14 @@
 package com.hrms.performancemanagement.model;
 
+import com.hrms.careerpathmanagement.models.Template;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 @Entity
 @Getter
@@ -15,12 +17,15 @@ import java.sql.Date;
 @AllArgsConstructor
 public class PerformanceCycle {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "performance_cycle_id")
     private Integer performanceCycleId;
 
     @Column(name = "performance_cycle_name")
     private String performanceCycleName;
+
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "performance_cycle_start_date")
     private Date performanceCycleStartDate;
@@ -29,10 +34,20 @@ public class PerformanceCycle {
     private Date performanceCycleEndDate;
 
     @Column(name = "is_done")
-    private Boolean isDone;
+    private Boolean isDone = false;
 
     @Column(name = "status")
-    private String status;
+    private String status = "Not Start";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "template_id")
+    private Template template;
+
+    @Column(name = "performance_weightage")
+    private Float performanceWeightage;
+
+    @Column(name = "goal_weightage")
+    private Float goalWeightage;
 
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")

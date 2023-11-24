@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 @Entity
 @Getter
@@ -22,6 +23,9 @@ public class CompetencyCycle {
     @Column(name = "competency_cycle_name")
     private String competencyCycleName;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "start_date")
     private Date startDate;
 
@@ -32,7 +36,11 @@ public class CompetencyCycle {
     private Integer year;
 
     @Column(name = "status")
-    private String status;
+    private String status = "Not Start";
+
+    @Column(name = "evaluator_type")
+    private String evaluatorType;
+
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
