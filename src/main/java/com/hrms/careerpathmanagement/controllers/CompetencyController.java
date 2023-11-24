@@ -1,12 +1,14 @@
 package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
+import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import jakarta.annotation.Nullable;
 
 import java.util.Collections;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -218,5 +221,15 @@ public class CompetencyController {
     @QueryMapping(name = "departmentCompetencyGap")
     public RadarChartDTO getDepartmentCompetencyGap(@Argument Integer cycleId, @Argument List<Integer> employeeIds) {
         return competencyService.getDepartmentCompetencyGap(cycleId, employeeIds);
+    }
+
+    @QueryMapping(name = "evaluationCycles")
+    public List<EvaluationCycleDTO> getEvaluationCycles() {
+        return competencyService.getEvaluationCycles();
+    }
+
+    @MutationMapping(name = "createCompetencyCycle")
+    public CompetencyCycle createCompetencyCycle(@Argument CompetencyCycleInput input) {
+        return competencyService.createCompetencyCycle(input);
     }
 }

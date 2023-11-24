@@ -36,6 +36,14 @@ type HistoryEvaluation{
     score: Float
 }
 
+type EvaluationCycle{
+    cycleId: Int
+    cycleName: String
+    status: String
+    period: String
+    type: String
+}
+
 type CompetencyGroup {
     id: Int!
     competencyGroupName: String

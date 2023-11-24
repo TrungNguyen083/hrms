@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.careerpathmanagement.services.CareerManagementService;
@@ -21,6 +22,7 @@ import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
+import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
@@ -34,6 +36,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,6 +44,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -78,7 +82,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final JobLevelRepository jobLevelRepository;
     private final PositionJobLevelSkillSetRepository positionLevelSkillSetRepository;
     private final PerformanceEvaluationRepository performanceEvaluationRepository;
-    private final PositionDepartmentRepository positionDepartmentRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
     private final CareerSpecification careerSpecification;
     private final EmployeeSpecification employeeSpecification;
@@ -88,6 +91,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final CareerManagementService careerManagementService;
     private CompetencyCycle latestCompCycle;
     private PerformanceCycle latestPerformCycle;
+    private ModelMapper modelMapper;
 
     @Autowired
     public CompetencyServiceImpl(CompetencyEvaluationRepository competencyEvaluationRepository,
@@ -105,7 +109,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  EmployeeManagementService employeeManagementService,
                                  JobLevelRepository jobLevelRepository,
                                  PositionJobLevelSkillSetRepository positionLevelSkillSetRepository,
-                                 PositionDepartmentRepository positionDepartmentRepository, EmployeeDamInfoRepository employeeDamInfoRepository,
+                                 EmployeeDamInfoRepository employeeDamInfoRepository,
                                  CareerSpecification careerSpecification,
                                  EmployeeSpecification employeeSpecification,
                                  CompetencySpecification competencySpecification,
@@ -128,7 +132,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.employeeManagementService = employeeManagementService;
         this.jobLevelRepository = jobLevelRepository;
         this.positionLevelSkillSetRepository = positionLevelSkillSetRepository;
-        this.positionDepartmentRepository = positionDepartmentRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
         this.careerSpecification = careerSpecification;
         this.employeeSpecification = employeeSpecification;
@@ -137,6 +140,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.performanceSpecification = performanceSpecification;
         this.careerManagementService = careerManagementService;
+        modelMapper = new ModelMapper();
     }
 
     @PostConstruct
@@ -1195,6 +1199,56 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<CompetencyEvaluation> hasCompetencyCycles = GlobalSpec.hasCompCycleId(cycleId);
         Specification<CompetencyEvaluation> hasEmployeeDepartment = GlobalSpec.hasEmployeeIds(employeeIds);
         return competencyEvaluationRepository.findAll(hasCompetencyCycles.and(hasEmployeeDepartment));
+    }
+
+    @Override
+    public List<EvaluationCycleDTO> getEvaluationCycles() {
+        List<EvaluationCycleDTO> compEvaluates = getCompetencyEval();
+
+        List<EvaluationCycleDTO> performEvaluates = getPerformEval();
+
+        return Stream.of(compEvaluates, performEvaluates)
+                .flatMap(Collection::stream)
+                .toList();
+    }
+
+    @NotNull
+    private List<EvaluationCycleDTO> getPerformEval() {
+        return performanceCycleRepository.findAll()
+                .stream()
+                .map(cycle -> new EvaluationCycleDTO(cycle.getPerformanceCycleId(),
+                        cycle.getPerformanceCycleName(),
+                        cycle.getStatus(),
+                        String.format("%s - %s", cycle.getPerformanceCycleStartDate(),
+                                cycle.getPerformanceCycleEndDate()),
+                        "Performance evaluation"))
+                .toList();
+    }
+
+    @NotNull
+    private List<EvaluationCycleDTO> getCompetencyEval() {
+        return competencyCycleRepository.findAll()
+                .stream()
+                .map(cycle -> new EvaluationCycleDTO(cycle.getId(),
+                        cycle.getCompetencyCycleName(),
+                        cycle.getStatus(),
+                        String.format("%s - %s", cycle.getStartDate(),
+                                cycle.getDueDate()),
+                        "Competency evaluation"))
+                .toList();
+    }
+
+    @Override
+    public CompetencyCycle createCompetencyCycle(CompetencyCycleInput input) {
+        CompetencyCycle cycle = modelMapper.map(input, CompetencyCycle.class);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(cycle.getStartDate());
+        int year = calendar.get(Calendar.YEAR);
+        cycle.setYear(year);
+        cycle.setInsertionTime(new Date());
+        cycle.setModificationTime(new Date());
+        competencyCycleRepository.save(cycle);
+        return cycle;
     }
 
 }

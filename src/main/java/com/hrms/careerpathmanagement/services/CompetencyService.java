@@ -1,11 +1,13 @@
 package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
+import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,4 +51,8 @@ public interface CompetencyService {
                                                       List<Integer> employeeIds, List<Integer> skillSetIds);
 
     RadarChartDTO getDepartmentCompetencyGap(Integer cycleId, List<Integer> employeeIds);
+
+    List<EvaluationCycleDTO> getEvaluationCycles();
+
+    CompetencyCycle createCompetencyCycle(CompetencyCycleInput input);
 }
