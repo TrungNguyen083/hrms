@@ -62,7 +62,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     static final String FINAL_EVAL_LABEL_NAME = "Final Score";
     static final String COMPLETED_LABEL_NAME = "Completed";
     static final String IN_COMPLETED_LABEL_NAME = "InCompleted";
-    static final String COMPETENCY_COMPLETED_STATUS = "Agreed";
+    static final String COMPETENCY_COMPLETED_STATUS = "Completed";
     static final String PROFILE_IMAGE = "PROFILE_IMAGE";
 
 
@@ -218,12 +218,12 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId) {
-        Specification<CompetencyEvaluationOverall> hasCompCycle = GlobalSpec.hasCompCycleId(cycleId);
+        Specification<CompetencyEvaluationOverall> hasCycle = GlobalSpec.hasCompCycleId(cycleId);
         Specification<CompetencyEvaluationOverall> hasEmployeeDepartment = GlobalSpec.hasEmployeeDepartmentId(departmentId);
 
-        var evaluations = evaluationOverallRepository.findAll(hasCompCycle.and(hasEmployeeDepartment));
+        var evaluations = evaluationOverallRepository.findAll(hasCycle.and(hasEmployeeDepartment));
 
-        // Position in the department
+        // Positions in the department
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Position> query = cb.createQuery(Position.class);
         Root<PositionDepartment> root = query.from(PositionDepartment.class);
@@ -231,7 +231,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         query.select(root.get("position"))
                 .where(cb.equal(root.get("department").get("id"), departmentId));
 
-        var result = new MultiBarChartDTO(List.of("Self", "Manager"), List.of());
+        var resultChart = new MultiBarChartDTO(List.of("Self", "Manager"), new ArrayList<>());
         var positions = entityManager.createQuery(query).getResultList();
 
         for (var pos : positions) {
@@ -247,10 +247,10 @@ public class CompetencyServiceImpl implements CompetencyService {
 
             var data = List.of((float) incompleteCount, (float) completedCount);
 
-            result.getDatasets().add(new MultiBarChartDataDTO(pos.getPositionName(), data));
+            resultChart.getDatasets().add(new MultiBarChartDataDTO(pos.getPositionName(), data));
         }
 
-        return result;
+        return resultChart;
     }
 
     @Override

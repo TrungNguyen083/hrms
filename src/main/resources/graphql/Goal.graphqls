@@ -1,11 +1,12 @@
 type GoalProjection {
-    id: Int
+    id: Int!
     title: String
     progress: Float
     competencyCycle: CompetencyCycleSummary
 }
 
 type CompetencyCycleSummary {
+    id: Int!
     competencyCycleName: String
 }
 

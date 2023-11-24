@@ -39,7 +39,7 @@ enum Performance {
 type EmployeePotentialPerformanceDTO {
     employeeId: Int!
     fullName: String!
-    profileImgUri: String!
+    profileImgUri: String
     potential: Int!
     performance: Int!
 }
