@@ -3,6 +3,8 @@ package com.hrms.performancemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
+import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.careerpathmanagement.models.PerformanceRange;
 import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
@@ -445,6 +447,20 @@ public class PerformanceServiceImpl implements PerformanceService {
         performanceCycleRepository.save(cycle);
 
         return cycle;
+    }
+
+    @Override
+    public String performanceCyclePeriod(Integer cycleId) {
+        PerformanceCycle cycle = performanceCycleRepository.findAll(GlobalSpec.hasId(cycleId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+        return String.format("%s - %s", cycle.getPerformanceCycleStartDate(), cycle.getPerformanceCycleEndDate());
+    }
+
+    @Override
+    public List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) {
+        return null;
     }
 
 }

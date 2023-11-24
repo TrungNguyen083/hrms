@@ -2,6 +2,7 @@ package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
@@ -231,5 +232,15 @@ public class CompetencyController {
     @MutationMapping(name = "createCompetencyCycle")
     public CompetencyCycle createCompetencyCycle(@Argument CompetencyCycleInput input) {
         return competencyService.createCompetencyCycle(input);
+    }
+
+    @QueryMapping(name = "competencyCyclePeriod")
+    public String competencyCyclePeriod(@Argument Integer cycleId) {
+        return competencyService.competencyCyclePeriod(cycleId);
+    }
+
+    @MutationMapping(name = "createCompetencyProcess")
+    public List<TimeLine> createCompetencyProcess(@Argument EvaluationProcessInput input) {
+        return competencyService.createCompetencyProcess(input);
     }
 }

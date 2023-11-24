@@ -2,6 +2,7 @@ package com.hrms.careerpathmanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.careerpathmanagement.services.CareerManagementService;
@@ -1249,6 +1250,20 @@ public class CompetencyServiceImpl implements CompetencyService {
         cycle.setModificationTime(new Date());
         competencyCycleRepository.save(cycle);
         return cycle;
+    }
+
+    @Override
+    public String competencyCyclePeriod(Integer cycleId) {
+        CompetencyCycle cycle = competencyCycleRepository.findAll(GlobalSpec.hasId(cycleId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+        return String.format("%s - %s", cycle.getStartDate(), cycle.getDueDate());
+    }
+
+    @Override
+    public List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) {
+        return null;
     }
 
 }
