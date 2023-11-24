@@ -4,8 +4,10 @@ import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.careerpathmanagement.models.PerformanceRange;
+import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
+import com.hrms.careerpathmanagement.repositories.TemplateRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Department;
@@ -22,7 +24,9 @@ import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
+import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
+import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceTimeLine;
@@ -34,6 +38,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,8 +67,10 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeManagementService employeeManagementService;
     private final PerformanceTimeLineRepository performanceTimeLineRepository;
+    private final TemplateRepository templateRepository;
 
     private final EmployeeRepository employeeRepository;
+    ModelMapper modelMapper;
 
     @Autowired
     public PerformanceServiceImpl(EmployeeManagementService employeeService,
@@ -76,7 +83,8 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   DepartmentRepository departmentRepository,
                                   EmployeeManagementService employeeManagementService,
                                   PerformanceTimeLineRepository performanceTimeLineRepository,
-                                  EmployeeRepository employeeRepository) {
+                                  EmployeeRepository employeeRepository,
+                                  TemplateRepository templateRepository) {
         this.employeeService = employeeService;
         this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.performanceCycleRepository = performanceCycleRepository;
@@ -88,6 +96,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.employeeManagementService = employeeManagementService;
         this.performanceTimeLineRepository = performanceTimeLineRepository;
         this.employeeRepository = employeeRepository;
+        this.templateRepository = templateRepository;
+        this.modelMapper = new ModelMapper();
     }
 
     @Override
@@ -419,6 +429,22 @@ public class PerformanceServiceImpl implements PerformanceService {
                         item.getStartDate().toString(), item.getDueDate().toString(),
                         item.getIsDone()))
                 .toList();
+    }
+
+    @Override
+    public PerformanceCycle createPerformanceCycle(PerformanceCycleInput input) {
+        PerformanceCycle cycle = modelMapper.map(input, PerformanceCycle.class);
+        cycle.setInsertionTime(new Date());
+        cycle.setModificationTime(new Date());
+        Template template = templateRepository.findAll(GlobalSpec.hasId(input.getTemplate()))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Template not found"));
+        cycle.setTemplate(template);
+
+        performanceCycleRepository.save(cycle);
+
+        return cycle;
     }
 
 }

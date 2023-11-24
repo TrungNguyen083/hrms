@@ -74,6 +74,7 @@ type Query {
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : StackedBarChart
     employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     potentialAndPerformanceByPosition(departmentId: Int, cycleId: Int, positionId: Int): [EmployeePotentialPerformanceDTO!]
+    evaluationCycles: [EvaluationCycle]
 
     #CarreerManagement:
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]

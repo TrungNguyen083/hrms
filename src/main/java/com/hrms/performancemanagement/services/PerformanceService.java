@@ -8,7 +8,9 @@ import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
+import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
+import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import org.springframework.data.domain.Page;
@@ -33,4 +35,5 @@ public interface PerformanceService {
 
     List<TimeLine> getPerformanceTimeLine(Integer cycleId);
 
+    PerformanceCycle createPerformanceCycle(PerformanceCycleInput input);
 }

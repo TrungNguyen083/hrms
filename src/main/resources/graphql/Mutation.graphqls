@@ -1,7 +1,21 @@
 type Mutation {
+    #Employee Management
     createProfile(input: EmployeeInput!): Employee
     updateEmployee(input: EmployeeInput!): Employee
+
+
+    #User Management
     createUser(signupDto: SignupDto!): Boolean!
     updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
     updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
+
+
+    #Company Management
+
+
+    #Competency Management
+    createCompetencyCycle(input: CompetencyCycleInput!): CompetencyCycle
+
+    #Performance Management
+    createPerformanceCycle(input: PerformanceCycleInput!): PerformanceCycle
 }
