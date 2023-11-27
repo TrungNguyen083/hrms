@@ -2,7 +2,11 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+<<<<<<< HEAD
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
+=======
+import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
+>>>>>>> db1335d1e29b29ab86ec1ee05a6164e243302377
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.global.dto.BarChartDTO;
@@ -149,6 +153,7 @@ public class PerformanceController {
         return performanceService.createPerformanceCycle(input);
     }
 
+<<<<<<< HEAD
     @MutationMapping(name = "updateProficiencyLevel")
     public ProficiencyLevel updateProficiencyLevel(@Argument Integer id, @Argument ProficiencyLevelInput input)
     {
@@ -159,5 +164,15 @@ public class PerformanceController {
     public PerformanceRange updatePerformanceRage(@Argument Integer id, @Argument PerformanceRangeInput input)
     {
         return performanceService.updatePerformanceRange(id, input);
+=======
+    @QueryMapping(name = "performanceCyclePeriod")
+    public String performanceCyclePeriod(@Argument Integer cycleId) {
+        return performanceService.performanceCyclePeriod(cycleId);
+    }
+
+    @MutationMapping(name = "createPerformanceProcess")
+    public List<TimeLine> createPerformanceProcess(@Argument EvaluationProcessInput input) {
+        return performanceService.createPerformanceProcess(input);
+>>>>>>> db1335d1e29b29ab86ec1ee05a6164e243302377
     }
 }

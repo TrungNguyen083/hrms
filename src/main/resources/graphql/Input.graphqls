@@ -16,6 +16,7 @@ input PerformanceCycleInput{
     goalWeightage: Float!
 }
 
+<<<<<<< HEAD
 input ProficiencyLevelInput {
     name: String
     description: String
@@ -26,4 +27,15 @@ input PerformanceRangeInput {
     minValue: Int
     maxValue: Int
     text: String
+=======
+input EvaluationProcessInput {
+    timeLines : [TimeLineInput]!
+    initialDate: String!
+}
+
+input TimeLineInput {
+    timeLineName: String!
+    startDate: String!
+    dueDate: String!
+>>>>>>> db1335d1e29b29ab86ec1ee05a6164e243302377
 }
