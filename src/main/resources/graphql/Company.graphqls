@@ -48,10 +48,10 @@ type PerformanceCycle {
 
 type PerformanceRange {
     performanceRangeId: Int!
-    minValue: Int!
-    maxValue: Int!
-    order: Int!
-    text: String!
+    minValue: Int
+    maxValue: Int
+    order: Int
+    text: String
 }
 
 type Position {
@@ -76,6 +76,7 @@ type PositionLevelNodeDTO {
 
 type ProficiencyLevel {
     id: Int!
+    proficiencyLevelDescription: String
     proficiencyLevelName: String
     score: Int
 }

@@ -1,5 +1,8 @@
 package com.hrms.global.mapper;
 
+import com.hrms.careerpathmanagement.models.ProficiencyLevel;
+import com.hrms.performancemanagement.input.PerformanceRangeInput;
+import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.model.User;
 import org.modelmapper.ModelMapper;
@@ -18,5 +21,18 @@ public class HrmsMapper extends ModelMapper {
                     mapper.map(User::getCreatedAt, UserDto::setCreatedAt);
                 }
         );
+        this.typeMap(PerformanceRangeInput.class, PerformanceRangeInput.class).addMappings(
+                mapper -> {
+                    mapper.map(PerformanceRangeInput::getMinValue, PerformanceRangeInput::setMinValue);
+                    mapper.map(PerformanceRangeInput::getMaxValue, PerformanceRangeInput::setMaxValue);
+                    mapper.map(PerformanceRangeInput::getText, PerformanceRangeInput::setText);
+                }
+        );
+        this.typeMap(ProficiencyLevelInput.class, ProficiencyLevel.class).addMappings(mapper -> {
+            mapper.skip(ProficiencyLevel::setId);
+            mapper.map(ProficiencyLevelInput::getName, ProficiencyLevel::setProficiencyLevelName);
+            mapper.map(ProficiencyLevelInput::getDescription, ProficiencyLevel::setProficiencyLevelDescription);
+            mapper.map(ProficiencyLevelInput::getScore, ProficiencyLevel::setScore);
+        });
     }
 }
