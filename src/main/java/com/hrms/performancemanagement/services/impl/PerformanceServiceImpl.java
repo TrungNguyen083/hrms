@@ -3,16 +3,12 @@ package com.hrms.performancemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
-<<<<<<< HEAD
 import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
-=======
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.careerpathmanagement.models.PerformanceRange;
->>>>>>> db1335d1e29b29ab86ec1ee05a6164e243302377
 import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
@@ -461,7 +457,6 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-<<<<<<< HEAD
     public ProficiencyLevel updateProficiencyLevel(Integer id, ProficiencyLevelInput input) {
         var proficiencyLevel = proficiencyLevelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Proficiency level not found"));
@@ -480,7 +475,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         performanceRange.setText(input.getText());
         return performanceRangeRepository.save(performanceRange);
     }
-=======
     public String performanceCyclePeriod(Integer cycleId) {
         PerformanceCycle cycle = performanceCycleRepository.findAll(GlobalSpec.hasId(cycleId))
                 .stream()
@@ -494,5 +488,4 @@ public class PerformanceServiceImpl implements PerformanceService {
         return null;
     }
 
->>>>>>> db1335d1e29b29ab86ec1ee05a6164e243302377
 }
