@@ -20,6 +20,9 @@ public class ProficiencyLevel {
     @Column(name = "proficiency_level_name")
     private String proficiencyLevelName;
 
+    @Column(name = "proficiency_level_description")
+    private String proficiencyLevelDescription;
+
     @Column(name = "score")
     private Float score;
 }

@@ -15,3 +15,15 @@ input PerformanceCycleInput{
     performanceWeightage: Float!
     goalWeightage: Float!
 }
+
+input ProficiencyLevelInput {
+    name: String
+    description: String
+    score: Float
+}
+
+input PerformanceRangeInput {
+    minValue: Int
+    maxValue: Int
+    text: String
+}

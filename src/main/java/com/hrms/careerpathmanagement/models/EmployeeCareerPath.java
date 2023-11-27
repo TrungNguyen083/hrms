@@ -15,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EmployeeCareerPath {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")

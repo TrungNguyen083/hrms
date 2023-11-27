@@ -3,10 +3,14 @@ package com.hrms.performancemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.careerpathmanagement.models.PerformanceRange;
+import com.hrms.global.mapper.HrmsMapper;
+import com.hrms.performancemanagement.input.PerformanceRangeInput;
+import com.hrms.performancemanagement.model.PerformanceRange;
+import com.hrms.careerpathmanagement.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
+import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
 import com.hrms.careerpathmanagement.repositories.TemplateRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -24,9 +28,9 @@ import com.hrms.global.dto.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
-import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.input.PerformanceCycleInput;
+import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceTimeLine;
@@ -68,9 +72,9 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final EmployeeManagementService employeeManagementService;
     private final PerformanceTimeLineRepository performanceTimeLineRepository;
     private final TemplateRepository templateRepository;
-
     private final EmployeeRepository employeeRepository;
-    ModelMapper modelMapper;
+    private final ProficiencyLevelRepository proficiencyLevelRepository;
+    private HrmsMapper mapper;
 
     @Autowired
     public PerformanceServiceImpl(EmployeeManagementService employeeService,
@@ -84,7 +88,9 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   EmployeeManagementService employeeManagementService,
                                   PerformanceTimeLineRepository performanceTimeLineRepository,
                                   EmployeeRepository employeeRepository,
-                                  TemplateRepository templateRepository) {
+                                  TemplateRepository templateRepository,
+                                  ProficiencyLevelRepository proficiencyLevelRepository,
+                                  HrmsMapper mapper) {
         this.employeeService = employeeService;
         this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.performanceCycleRepository = performanceCycleRepository;
@@ -97,7 +103,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.performanceTimeLineRepository = performanceTimeLineRepository;
         this.employeeRepository = employeeRepository;
         this.templateRepository = templateRepository;
-        this.modelMapper = new ModelMapper();
+        this.proficiencyLevelRepository = proficiencyLevelRepository;
+        this.mapper = mapper;
     }
 
     @Override
@@ -433,7 +440,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     @Override
     public PerformanceCycle createPerformanceCycle(PerformanceCycleInput input) {
-        PerformanceCycle cycle = modelMapper.map(input, PerformanceCycle.class);
+        PerformanceCycle cycle = mapper.map(input, PerformanceCycle.class);
         cycle.setInsertionTime(new Date());
         cycle.setModificationTime(new Date());
         Template template = templateRepository.findAll(GlobalSpec.hasId(input.getTemplate()))
@@ -447,4 +454,23 @@ public class PerformanceServiceImpl implements PerformanceService {
         return cycle;
     }
 
+    @Override
+    public ProficiencyLevel updateProficiencyLevel(Integer id, ProficiencyLevelInput input) {
+        var proficiencyLevel = proficiencyLevelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Proficiency level not found"));
+        proficiencyLevel.setProficiencyLevelName(input.getName());
+        proficiencyLevel.setProficiencyLevelDescription(input.getDescription());
+        proficiencyLevel.setScore(input.getScore());
+        return proficiencyLevelRepository.save(proficiencyLevel);
+    }
+
+    @Override
+    public PerformanceRange updatePerformanceRange(Integer id, PerformanceRangeInput input) {
+        var performanceRange = performanceRangeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Performance range not found"));
+        performanceRange.setMinValue(input.getMinValue());
+        performanceRange.setMaxValue(input.getMaxValue());
+        performanceRange.setText(input.getText());
+        return performanceRangeRepository.save(performanceRange);
+    }
 }

@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement.models;
+package com.hrms.performancemanagement.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
