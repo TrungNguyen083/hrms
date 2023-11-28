@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
+import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.careerpathmanagement.services.CareerManagementService;
@@ -20,6 +21,7 @@ import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.*;
+import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
@@ -37,7 +39,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -45,7 +47,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.temporal.ChronoField;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -90,9 +93,14 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final PerformanceCycleRepository performanceCycleRepository;
     private final PerformanceSpecification performanceSpecification;
     private final CareerManagementService careerManagementService;
+    private final HrmsMapper modelMapper;
+    private final TemplateRepository templateRepository;
+    private final QuestionRepository questionRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryQuestionRepository categoryQuestionRepository;
+    private final TemplateCategoryRepository templateCategoryRepository;
     private CompetencyCycle latestCompCycle;
     private PerformanceCycle latestPerformCycle;
-    private ModelMapper modelMapper;
 
     @Autowired
     public CompetencyServiceImpl(CompetencyEvaluationRepository competencyEvaluationRepository,
@@ -117,7 +125,13 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  PerformanceCycleRepository performanceCycleRepository,
                                  PerformanceEvaluationRepository performanceEvaluationRepository,
                                  PerformanceSpecification performanceSpecification,
-                                 CareerManagementService careerManagementService) {
+                                 CareerManagementService careerManagementService,
+                                 HrmsMapper modelMapper,
+                                 TemplateRepository templateRepository,
+                                 QuestionRepository questionRepository,
+                                 CategoryRepository categoryRepository,
+                                 CategoryQuestionRepository categoryQuestionRepository,
+                                 TemplateCategoryRepository templateCategoryRepository) {
         this.competencyEvaluationRepository = competencyEvaluationRepository;
         this.employeeRepository = employeeRepository;
         this.competencyTimeLineRepository = competencyTimeLineRepository;
@@ -141,7 +155,12 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.performanceSpecification = performanceSpecification;
         this.careerManagementService = careerManagementService;
-        modelMapper = new ModelMapper();
+        this.modelMapper = modelMapper;
+        this.templateRepository = templateRepository;
+        this.questionRepository = questionRepository;
+        this.categoryRepository = categoryRepository;
+        this.categoryQuestionRepository = categoryQuestionRepository;
+        this.templateCategoryRepository = templateCategoryRepository;
     }
 
     @PostConstruct
@@ -1239,6 +1258,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public CompetencyCycle createCompetencyCycle(CompetencyCycleInput input) {
         CompetencyCycle cycle = modelMapper.map(input, CompetencyCycle.class);
@@ -1261,9 +1281,87 @@ public class CompetencyServiceImpl implements CompetencyService {
         return String.format("%s - %s", cycle.getStartDate(), cycle.getDueDate());
     }
 
+    @Transactional
     @Override
-    public List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) {
-        return null;
+    public List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) throws ParseException {
+        List<CompetencyTimeLine> comTimeLines = input.getTimeLines()
+                .stream()
+                .map(tl -> modelMapper.map(tl, CompetencyTimeLine.class))
+                .toList();
+
+        CompetencyCycle cycle = competencyCycleRepository.findAll(GlobalSpec.hasId(input.getCycleId()))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+
+        comTimeLines.forEach(tl -> tl.setCompetencyCycle(cycle));
+
+        competencyTimeLineRepository.saveAll(comTimeLines);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        cycle.setInitialDate(dateFormat.parse(input.getInitialDate()));
+        competencyCycleRepository.save(cycle);
+
+        return modelMapper.map(comTimeLines, new TypeToken<List<TimeLine>>() {}.getType());
+    }
+
+    @Override
+    public List<TemplateDTO> getTemplates() {
+        employeeRepository.findAll();
+        List<Template> templates = templateRepository.findAll();
+
+        return templates.stream().map(t -> TemplateDTO.builder()
+                .id(t.getId())
+                .templateName(t.getTemplateName())
+                .createdAt(t.getCreatedAt().toString())
+                .createdBy(t.getCreatedBy().getFullName())
+                .createdById(t.getCreatedBy().getId())
+                .build()).toList();
+    }
+
+    @Override
+    public Boolean createTemplate(TemplateInput input) {
+        Employee createBy = employeeRepository.findAll(GlobalSpec.hasId(input.getCreatedById()))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        Template template = Template.builder()
+                .templateName(input.getTemplateName())
+                .templateDescription(input.getTemplateDescription())
+                .createdAt(new Date())
+                .createdBy(createBy)
+                .build();
+
+        templateRepository.save(template);
+
+        List<TemplateCategory> templateCategories = input.getCategories().stream()
+                .flatMap(c -> {
+                    Category category = modelMapper.map(c, Category.class);
+                    categoryRepository.save(category);
+
+                    c.getQuestions().forEach(q -> {
+                        Question ques = modelMapper.map(q, Question.class);
+                        questionRepository.save(ques);
+
+                        CategoryQuestion categoryQuestion = CategoryQuestion.builder()
+                                .category(category)
+                                .question(ques)
+                                .build();
+
+                        categoryQuestionRepository.save(categoryQuestion);
+                    });
+
+                    TemplateCategory templateCategory = TemplateCategory.builder()
+                            .template(template)
+                            .category(category)
+                            .build();
+
+                    return Stream.of(templateCategoryRepository.save(templateCategory));
+                }).toList();
+
+        return !templateCategories.isEmpty();
     }
 
 }

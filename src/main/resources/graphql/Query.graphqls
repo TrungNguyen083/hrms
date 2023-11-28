@@ -32,6 +32,7 @@ type Query {
     competencyTimeLine(competencyCycleId: Int!): [TimeLine]
     performanceTimeLine(performanceCycleId: Int!): [TimeLine]
     skillSets(positionId: Int!): [SimpleItemDTO]
+    templates: [TemplateDTO]
 
 
 

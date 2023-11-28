@@ -13,6 +13,7 @@ type Mutation {
     #Company Management
     updateProficiencyLevel(id: Int!, input : ProficiencyLevelInput!): ProficiencyLevel
     updatePerformanceRange(id: Int!, input : PerformanceRangeInput!): PerformanceRange
+    createTemplate(input: TemplateInput!): Boolean
 
     #Competency Management
     createCompetencyCycle(input: CompetencyCycleInput!): CompetencyCycle

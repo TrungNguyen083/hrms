@@ -3,7 +3,9 @@ package com.hrms.careerpathmanagement.services;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
+import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
+import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
@@ -13,6 +15,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface CompetencyService {
@@ -59,5 +62,9 @@ public interface CompetencyService {
 
     String competencyCyclePeriod(Integer cycleId);
 
-    List<TimeLine> createCompetencyProcess(EvaluationProcessInput input);
+    List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) throws ParseException;
+
+    List<TemplateDTO> getTemplates();
+
+    Boolean createTemplate(TemplateInput input);
 }

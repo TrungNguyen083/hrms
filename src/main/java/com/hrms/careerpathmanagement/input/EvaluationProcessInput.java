@@ -12,4 +12,5 @@ import java.util.List;
 public class EvaluationProcessInput {
     private List<TimeLineInput> timeLines;
     private String initialDate;
+    private Integer cycleId;
 }
