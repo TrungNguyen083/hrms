@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 @Entity
 @Getter
@@ -33,5 +34,5 @@ public class PerformanceTimeLine {
     private PerformanceCycle performanceCycle;
 
     @Column(name = "is_done")
-    private Boolean isDone;
+    private Boolean isDone = false;
 }

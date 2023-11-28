@@ -3,6 +3,7 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
+import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
@@ -12,6 +13,7 @@ import com.hrms.global.dto.*;
 import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import jakarta.annotation.Nullable;
 
+import java.text.ParseException;
 import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -229,6 +232,7 @@ public class CompetencyController {
         return competencyService.getEvaluationCycles();
     }
 
+    @Transactional
     @MutationMapping(name = "createCompetencyCycle")
     public CompetencyCycle createCompetencyCycle(@Argument CompetencyCycleInput input) {
         return competencyService.createCompetencyCycle(input);
@@ -239,8 +243,19 @@ public class CompetencyController {
         return competencyService.competencyCyclePeriod(cycleId);
     }
 
+    @Transactional
     @MutationMapping(name = "createCompetencyProcess")
-    public List<TimeLine> createCompetencyProcess(@Argument EvaluationProcessInput input) {
+    public List<TimeLine> createCompetencyProcess(@Argument EvaluationProcessInput input) throws ParseException {
         return competencyService.createCompetencyProcess(input);
+    }
+
+    @QueryMapping(name = "templates")
+    public List<TemplateDTO> getTemplates() {
+        return competencyService.getTemplates();
+    }
+
+    @MutationMapping(name = "createTemplate")
+    public Boolean createTemplate(@Argument TemplateInput input) {
+        return competencyService.createTemplate(input);
     }
 }
