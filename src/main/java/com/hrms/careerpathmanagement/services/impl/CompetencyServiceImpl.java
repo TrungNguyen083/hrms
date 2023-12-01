@@ -664,9 +664,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     public DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId) {
         List<Integer> employeeIds = departmentId != null
                 ? employeeManagementService.getEmployeesInDepartment(departmentId)
-                    .stream()
-                    .map(Employee::getId)
-                    .toList()
+                .stream()
+                .map(Employee::getId)
+                .toList()
                 : new ArrayList<>();
 
         //Find competencyCycle has the latest due date and status is Completed
@@ -715,9 +715,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     public BarChartDTO getCompetencyChart(Integer departmentId) {
         List<Integer> employeeIds = departmentId != null
                 ? employeeManagementService.getEmployeesInDepartment(departmentId)
-                    .stream()
-                    .map(Employee::getId)
-                    .toList()
+                .stream()
+                .map(Employee::getId)
+                .toList()
                 : new ArrayList<>();
 
         int currentYear = latestCompCycle.getDueDate().before(Calendar.getInstance().getTime())
@@ -1303,7 +1303,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         cycle.setInitialDate(dateFormat.parse(input.getInitialDate()));
         competencyCycleRepository.save(cycle);
 
-        return modelMapper.map(comTimeLines, new TypeToken<List<TimeLine>>() {}.getType());
+        return modelMapper.map(comTimeLines, new TypeToken<List<TimeLine>>() {
+        }.getType());
     }
 
     @Override
@@ -1364,4 +1365,27 @@ public class CompetencyServiceImpl implements CompetencyService {
         return !templateCategories.isEmpty();
     }
 
+    @Override
+    public List<TreeSimpleData> getEvaluateSkillSetForm(Integer employeeId) {
+        skillSetRepository.findAll();
+        List<Competency> competencies = competencyRepository.findAll();
+        Integer positionId = employeeRepository.findAll(GlobalSpec.hasId(employeeId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Employee not found"))
+                .getPosition()
+                .getId();
+        List<SkillSet> skillSets = positionSkillSetRepository.findAll(GlobalSpec.hasPositionId(positionId))
+                .stream().map(PositionSkillSet::getSkillSet).toList();
+
+        return competencies.stream()
+                .map(c -> {
+                    List<TreeSimpleData> children = skillSets.stream()
+                            .filter(ss -> ss.getCompetency().getId().equals(c.getId()))
+                            .map(ss -> new TreeSimpleData(ss.getId(), ss.getSkillSetName(), null))
+                            .toList();
+                    return new TreeSimpleData(c.getId(), c.getCompetencyName(), children);
+                })
+                .toList();
+    }
 }

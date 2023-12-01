@@ -67,4 +67,6 @@ public interface CompetencyService {
     List<TemplateDTO> getTemplates();
 
     Boolean createTemplate(TemplateInput input);
+
+    List<TreeSimpleData> getEvaluateSkillSetForm(Integer employeeId);
 }

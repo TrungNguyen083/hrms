@@ -1,6 +1,5 @@
 package com.hrms.global.mapper;
 
-import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.careerpathmanagement.input.TimeLineInput;
 import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
@@ -12,11 +11,6 @@ import com.hrms.usermanagement.model.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 @Component
 public class HrmsMapper extends ModelMapper {
