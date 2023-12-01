@@ -240,7 +240,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Transactional
     public Employee createEmployee(EmployeeInputDTO employeeInputDTO) {
         Employee employee = new Employee();
-
+        employee.setInsertionTime(new Date(System.currentTimeMillis()));
+        employee.setModificationTime(new Date(System.currentTimeMillis()));
         return updateEmployee(employeeInputDTO, employee);
     }
 
@@ -248,7 +249,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Transactional
     public Employee updateEmployee(EmployeeInputDTO input) {
         Employee employee = findEmployee(input.getId());
-
         return updateEmployee(input, employee);
     }
 
@@ -256,7 +256,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private Employee updateEmployee(EmployeeInputDTO employeeInputDTO, Employee employee) {
         modelMapper.map(employeeInputDTO, employee);
         employeeRepository.save(employee);
-        manageEmergencyContacts(employeeInputDTO.getEmergencyContacts(), employee);
+        if(employeeInputDTO.getEmergencyContacts() != null)
+            manageEmergencyContacts(employeeInputDTO.getEmergencyContacts(), employee);
 
         return employee;
     }

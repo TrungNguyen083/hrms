@@ -62,6 +62,7 @@ type Query {
     departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
     incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
     competencyCyclePeriod(cycleId: Int!): String
+    evaluateSkillSetForm(employeeId: Int!): [TreeSimpleData]
 
     #PerformanceEvaluation:
     performanceEvaluationOverview(cycleId: Int!, departmentId: Int) : DiffPercentDTO

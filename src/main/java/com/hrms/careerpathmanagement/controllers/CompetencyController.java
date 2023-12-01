@@ -258,4 +258,9 @@ public class CompetencyController {
     public Boolean createTemplate(@Argument TemplateInput input) {
         return competencyService.createTemplate(input);
     }
+
+    @QueryMapping(name = "evaluateSkillSetForm")
+    public List<TreeSimpleData> getEvaluateSkillSetForm(@Argument Integer employeeId) {
+        return competencyService.getEvaluateSkillSetForm(employeeId);
+    }
 }

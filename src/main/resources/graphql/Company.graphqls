@@ -113,3 +113,9 @@ type TemplateDTO {
     createdBy: String
     createdById: Int
 }
+
+type TreeSimpleData {
+    id: Int
+    name: String
+    children: [TreeSimpleData]
+}
