@@ -1,0 +1,16 @@
+type GoalProjection {
+    id: Int!
+    title: String
+    progress: Float
+    competencyCycle: CompetencyCycleSummary
+}
+
+type CompetencyCycleSummary {
+    id: Int!
+    competencyCycleName: String
+}
+
+type GoalPagination {
+    data: [GoalProjection!]
+    pagination: Pagination!
+}

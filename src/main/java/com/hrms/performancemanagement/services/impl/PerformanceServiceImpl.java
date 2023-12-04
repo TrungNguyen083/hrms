@@ -36,6 +36,7 @@ import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceTimeLine;
+import com.hrms.performancemanagement.projection.IdOnly;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.hrms.performancemanagement.repositories.PerformanceTimeLineRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -46,6 +47,7 @@ import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -115,14 +117,11 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     public Float getAveragePerformanceScore(Integer cycleId) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Double> query = cb.createQuery(Double.class);
-        Root<PerformanceEvaluation> root = query.from(PerformanceEvaluation.class);
-
-        query.select(cb.avg(root.get("finalAssessment")))
-                .where(cb.equal(root.get("performanceCycle").get("performanceCycleId"), cycleId));
-
-        return em.createQuery(query).getSingleResult().floatValue();
+        var evalIds = performanceEvaluationRepository.findAllByCycleId(cycleId, IdOnly.class)
+                .stream()
+                .map(IdOnly::id)
+                .toList();
+        return performanceEvaluationRepository.averageByIdIn("finalAssessment", evalIds).floatValue();
     }
 
     @Override
@@ -195,7 +194,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         var averageScore = averagePerformanceScore(cycleId, departmentId);
         var averageScoreLastCycle = averagePerformanceScore(cycleId - 1, departmentId);
         var diffPercent = (averageScoreLastCycle == 0) ? 0 : (averageScore - averageScoreLastCycle) / averageScoreLastCycle * 100;
-        return new DiffPercentDTO(averageScore, 5.0f, diffPercent, averageScore > averageScoreLastCycle);
+        var maxScore = 5.0f;
+        return new DiffPercentDTO(averageScore, maxScore, diffPercent, averageScore > averageScoreLastCycle);
     }
 
     private Float averagePerformanceScore(Integer cycleId, Integer departmentId) {
@@ -243,7 +243,9 @@ public class PerformanceServiceImpl implements PerformanceService {
         var empIdsSetHasPosition = new HashSet<>(employeeRepository.findAllByDepartmentId(departmentId, EmployeeIdOnly.class)
             .stream().map(EmployeeIdOnly::id).toList());
 
-        return result.stream().filter(i -> empIdsSetHasPosition.contains(i.getEmployeeId())).toList();
+        return result.stream()
+                .filter(i -> empIdsSetHasPosition.contains(i.getEmployeeId()))
+                .toList();
     }
 
     @Override
@@ -264,13 +266,16 @@ public class PerformanceServiceImpl implements PerformanceService {
         Page<PerformanceEvaluation> evaluations = performanceEvaluationRepository.findAll(spec, pageable);
 
         List<EmployeeRatingDTO> results = new ArrayList<>();
-        evaluations.forEach(item -> results.add(new EmployeeRatingDTO(
-                item.getEmployee().getId(),
-                item.getEmployee().getFirstName(),
-                item.getEmployee().getLastName(),
-                employeeService.getProfilePicture(item.getEmployee().getId()),
-                item.getFinalAssessment()
-        )));
+        evaluations.forEach(item ->
+        {
+            results.add(new EmployeeRatingDTO(
+                    item.getEmployee().getId(),
+                    item.getEmployee().getFirstName(),
+                    item.getEmployee().getLastName(),
+                    employeeService.getProfilePicture(item.getEmployee().getId()),
+                    item.getFinalAssessment()
+            ));
+        });
 
         Pagination pagination = PaginationSetup.setupPaging(evaluations.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return new EmployeeRatingPagination(results, pagination);
@@ -335,7 +340,6 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId,
                                                                Integer pageNo, Integer pageSize) {
-        performanceCycleRepository.findAll();
 
         Specification<PerformanceEvaluation> spec = GlobalSpec.hasEmployeeId(employeeId);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);

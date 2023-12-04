@@ -1,0 +1,12 @@
+type Pagination {
+    pageNo: Int!
+    pageSize: Int!
+    totalItems: Int!
+    totalPages: Int!
+}
+
+input PagingInfo {
+    pageNo: Int!
+    pageSize: Int! = 10
+    sortBy: String
+}

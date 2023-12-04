@@ -19,15 +19,15 @@ public class SkillSetTarget {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "competency_cycle_id")
+    @JoinColumn(name = "competency_cycle_id", referencedColumnName = "competency_cycle_id")
     CompetencyCycle competencyCycle;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "skill_set_id")
+    @JoinColumn(name = "skill_set_id", referencedColumnName = "skill_set_id")
     SkillSet skillSet;
 
     @ManyToOne

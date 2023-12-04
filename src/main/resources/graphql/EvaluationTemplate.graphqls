@@ -1,0 +1,25 @@
+type TemplateDTO {
+    id: Int!
+    templateName: String!
+    templateDescription: String!
+    createdAt: String!
+    createdBy: Int!
+}
+
+type Question {
+    id: Int!
+    questionName: String!
+    questionDescription: String!
+    questionWeight: Float!
+}
+
+type CategoryDTO {
+    categoryId: Int!
+    categoryName: String!
+    questions: [Question!]
+}
+
+type TemplateQuestionDTO {
+    template: TemplateDTO!
+    categories: [CategoryDTO!]
+}

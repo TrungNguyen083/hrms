@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,6 @@ public interface PerformanceCycleRepository extends JpaRepository<PerformanceCyc
     Optional<Integer> findTopByOrderByPerformanceCycleIdDesc();
 
     PerformanceCycle findFirstByOrderByPerformanceCycleStartDateDesc();
+
+    <T>Collection<T> findByPerformanceCycleId(Integer id, Class<T> type);
 }

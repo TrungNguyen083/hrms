@@ -19,15 +19,15 @@ public class CompetencyEvaluation {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competency_cycle_id")
+    @JoinColumn(name = "competency_cycle_id", referencedColumnName = "competency_cycle_id")
     private CompetencyCycle competencyCycle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competency_id")
+    @JoinColumn(name = "competency_id", referencedColumnName = "competency_id")
     private Competency competency;
 
     @Column(name = "self_evaluation")

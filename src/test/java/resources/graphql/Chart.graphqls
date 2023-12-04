@@ -1,0 +1,80 @@
+type BarChartDTO {
+    title: String
+    items: [DataItemDTO!]
+}
+
+type DataItemDTO {
+    label: String
+    value: Float
+}
+
+type DataItemPagingDTO{
+    data: [DataItemDTO]!
+    pagination: Pagination!
+}
+
+type MultiBarChartDTO {
+    labels: [String]
+    datasets: [MultiBarChartDataDTO]
+}
+
+type MultiBarChartDataDTO {
+    label: String
+    data: [Float]
+}
+
+type PieChartDTO {
+    labels: [String]
+    datasets: [Float]
+}
+
+type HeatmapItemDTO {
+    verticalColumnName: String
+    horizontalColumnName: String
+    score: Float
+}
+
+type RadarChartDTO {
+    labels: [String]
+    datasets: [RadarDatasetDTO]
+}
+
+type RadarDatasetDTO {
+    lineName: String
+    dataset: [Float]
+}
+
+type DatasetDTO {
+    tag: String!
+    data: [Float!]!
+}
+
+type SkillMatrixTree {
+    data: SkillMatrixData
+    children: [SkillMatrixTree]
+}
+
+type SkillMatrixData {
+    name: String
+    targetSkillLevel: Float
+    skillLevelTotal: Float
+    skillLevelSelf: Float
+    skillLevelManager: Float
+    competencyLevel: Float
+}
+
+type SkillMatrixOverall{
+    managerName: String
+    status: String
+}
+
+
+type StackedBarChart {
+    labels: [JobLevel!]!
+    datasets: [DatasetDTO!]!
+}
+
+type CountAndPercentDTO {
+    count: Int
+    percentage: Float
+}
