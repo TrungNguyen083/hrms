@@ -10,6 +10,7 @@ import lombok.*;
 public class TemplateDTO {
     private Integer id;
     private String templateName;
+    private String templateDescription;
     private String createdAt;
     private Integer createdById;
     private String createdBy;

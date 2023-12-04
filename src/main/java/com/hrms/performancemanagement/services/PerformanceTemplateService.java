@@ -1,23 +1,15 @@
 package com.hrms.performancemanagement.services;
 
-import com.hrms.careerpathmanagement.models.CategoryQuestion;
-import com.hrms.careerpathmanagement.models.Question;
+import com.hrms.careerpathmanagement.dto.TemplateDTO;
 import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.performancemanagement.dto.CategoryDTO;
-import com.hrms.performancemanagement.dto.TemplateDTO;
 import com.hrms.performancemanagement.dto.PerformanceEvalTemplateDTO;
-import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.projection.TemplateIdOnly;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -74,7 +66,7 @@ public class PerformanceTemplateService {
                 .templateName(template.getTemplateName())
                 .templateDescription(template.getTemplateDescription())
                 .createdAt(template.getCreatedAt().toString())
-                .createdBy(template.getCreatedBy().getId())
+                .createdById(template.getCreatedBy().getId())
                 .build();
 
         var evalTemplate = new PerformanceEvalTemplateDTO(templateDTO);
