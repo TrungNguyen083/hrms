@@ -3,12 +3,12 @@ package com.hrms.performancemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
 import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
-import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
@@ -45,7 +45,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -54,6 +54,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -488,8 +490,27 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) {
-        return null;
+    public List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) throws ParseException {
+        List<PerformanceTimeLine> performTimeLines = input.getTimeLines()
+                .stream()
+                .map(tl -> mapper.map(tl, PerformanceTimeLine.class))
+                .toList();
+
+        PerformanceCycle cycle = performanceCycleRepository.findAll(GlobalSpec.hasId(input.getCycleId()))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Cycle not found"));
+
+        performTimeLines.forEach(tl -> tl.setPerformanceCycle(cycle));
+
+        performanceTimeLineRepository.saveAll(performTimeLines);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        cycle.setInitialDate(dateFormat.parse(input.getInitialDate()));
+        performanceCycleRepository.save(cycle);
+
+        return mapper.map(performTimeLines, new TypeToken<List<TimeLine>>() {}.getType());
     }
 
 }

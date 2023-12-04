@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface PerformanceService {
@@ -46,5 +47,5 @@ public interface PerformanceService {
     PerformanceRange updatePerformanceRange(Integer id, PerformanceRangeInput input);
     String performanceCyclePeriod(Integer cycleId);
 
-    List<TimeLine> createPerformanceProcess(EvaluationProcessInput input);
+    List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) throws ParseException;
 }

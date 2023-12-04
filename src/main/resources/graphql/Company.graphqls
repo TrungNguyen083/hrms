@@ -105,3 +105,17 @@ type Template {
     createdAt: String
     createdBy: Employee
 }
+
+type TemplateDTO {
+    id: Int
+    templateName: String
+    createdAt: String
+    createdBy: String
+    createdById: Int
+}
+
+type TreeSimpleData {
+    id: Int
+    name: String
+    children: [TreeSimpleData]
+}

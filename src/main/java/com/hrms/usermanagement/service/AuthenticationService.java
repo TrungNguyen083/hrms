@@ -1,7 +1,5 @@
 package com.hrms.usermanagement.service;
 
-import com.hrms.usermanagement.exception.UserNotFoundException;
-import com.hrms.usermanagement.exception.WrongPasswordException;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.UserRepository;
 import com.hrms.usermanagement.security.JwtService;
@@ -28,7 +26,7 @@ public class AuthenticationService {
     public String login(String username, String password) throws Exception {
         return Optional.ofNullable(userRepository.findByUsername(username))
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .filter(user -> user.getIsEnabled())
+                .filter(User::getIsEnabled)
                 .map(user -> jwtService.generateToken(username))
                 .orElseThrow(() -> new Exception("Authentication failed"));
     }
