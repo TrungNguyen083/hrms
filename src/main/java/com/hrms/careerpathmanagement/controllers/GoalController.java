@@ -9,10 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class GoalController {
@@ -48,6 +44,6 @@ public class GoalController {
                                      @Argument Integer pageNo,
                                      @Argument Integer pageSize)
     {
-        return goalService.getGoalsByEmployee(employeeId, pageNo, pageSize);
+        return goalService.getGoals(employeeId, pageNo, pageSize);
     }
 }

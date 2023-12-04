@@ -45,9 +45,6 @@ import java.util.*;
 @Service
 @Transactional
 public class EmployeeManagementServiceImpl implements EmployeeManagementService {
-
-    @PersistenceContext
-    private EntityManager entityManager;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final EmergencyContactRepository emergencyContactRepository;

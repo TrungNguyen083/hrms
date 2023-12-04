@@ -15,8 +15,6 @@ import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.dto.PieChartDTO;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +31,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class GoalService {
-    @PersistenceContext
-    EntityManager em;
     private final GoalRepository goalRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
 
     private final EmployeeRepository employeeRepository;
 
-    @Autowired
     private EmployeeSpecification employeeSpecification;
-    @Autowired
     private CompetencySpecification competencySpecification;
 
     static final String PROFILE_IMAGE = "PROFILE_IMAGE";
@@ -55,10 +49,14 @@ public class GoalService {
 
     @Autowired
     public GoalService(GoalRepository goalRepository, EmployeeDamInfoRepository employeeDamInfoRepository,
-                       EmployeeRepository employeeRepository) {
+                       EmployeeRepository employeeRepository, EmployeeSpecification employeeSpecification,
+                       CompetencySpecification competencySpecification)
+    {
         this.goalRepository = goalRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
         this.employeeRepository = employeeRepository;
+        this.employeeSpecification = employeeSpecification;
+        this.competencySpecification = competencySpecification;
     }
 
     public EmployeeGoalPagination getEmployeesGoals(Integer departmentId, Integer cycleId,
@@ -133,7 +131,7 @@ public class GoalService {
     }
 
 
-    public GoalPagination getGoalsByEmployee(Integer employeeId, Integer pageNo, Integer pageSize) {
+    public GoalPagination getGoals(Integer employeeId, Integer pageNo, Integer pageSize) {
         Sort sort = Sort.by("updatedAt").descending();
         Pageable page = PageRequest.of(pageNo - 1, pageSize, sort);
 
@@ -143,4 +141,5 @@ public class GoalService {
 
         return new GoalPagination(goals.toList(), pagination);
     }
+
 }

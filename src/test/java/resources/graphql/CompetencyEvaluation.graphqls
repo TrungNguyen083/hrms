@@ -1,0 +1,50 @@
+type Competency {
+    id: Int!
+    competencyName: String
+    description: String
+    competencyGroup: CompetencyGroup
+}
+
+type DiffPercentDTO{
+    first: Float
+    second: Float
+    diffPercent: Float
+    isIncreased: Boolean
+}
+
+type PercentageChangeDTO{
+    data: Int
+    diffPercent: Float
+    isIncreased: Boolean
+}
+
+type CompetencyChart{
+    competencyName: String
+    averageScore: Float
+}
+
+type CurrentEvaluation{
+    competencyCycleName: String
+    status: String
+    lastUpdated: String
+}
+
+type HistoryEvaluation{
+    completedDate: String
+    nameOfEvaluation: String
+    status: String
+    score: Float
+}
+
+type EvaluationCycle{
+    cycleId: Int
+    cycleName: String
+    status: String
+    period: String
+    type: String
+}
+
+type CompetencyGroup {
+    id: Int!
+    competencyGroupName: String
+}

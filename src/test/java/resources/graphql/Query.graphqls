@@ -32,7 +32,6 @@ type Query {
     competencyTimeLine(competencyCycleId: Int!): [TimeLine]
     performanceTimeLine(performanceCycleId: Int!): [TimeLine]
     skillSets(positionId: Int!): [SimpleItemDTO]
-    templates: [TemplateDTO]
 
 
 
@@ -62,7 +61,6 @@ type Query {
     departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
     incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
     competencyCyclePeriod(cycleId: Int!): String
-    evaluateSkillSetForm(employeeId: Int!): [TreeSimpleData]
 
     #PerformanceEvaluation:
     performanceEvaluationOverview(cycleId: Int!, departmentId: Int) : DiffPercentDTO

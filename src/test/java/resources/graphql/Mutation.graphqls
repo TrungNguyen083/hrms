@@ -1,0 +1,24 @@
+type Mutation {
+    #Employee Management
+    createProfile(input: EmployeeInput!): Employee
+    updateEmployee(input: EmployeeInput!): Employee
+
+
+    #User Management
+    createUser(signupDto: SignupDto!): Boolean!
+    updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
+    updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
+
+
+    #Company Management
+    updateProficiencyLevel(id: Int!, input : ProficiencyLevelInput!): ProficiencyLevel
+    updatePerformanceRange(id: Int!, input : PerformanceRangeInput!): PerformanceRange
+
+    #Competency Management
+    createCompetencyCycle(input: CompetencyCycleInput!): CompetencyCycle
+    createCompetencyProcess(input: EvaluationProcessInput!): [TimeLine]
+
+    #Performance Management
+    createPerformanceCycle(input: PerformanceCycleInput!): PerformanceCycle
+    createPerformanceProcess(input: EvaluationProcessInput!): [TimeLine]
+}

@@ -1,0 +1,40 @@
+input CompetencyCycleInput{
+    cycleName: String!
+    description: String!
+    startDate: String!
+    dueDate: String!
+    evaluatorType: String!
+}
+
+input PerformanceCycleInput{
+    cycleName: String!
+    description: String!
+    performanceCycleStartDate: String!
+    performanceCycleEndDate: String!
+    template: Int!
+    performanceWeightage: Float!
+    goalWeightage: Float!
+}
+
+input ProficiencyLevelInput {
+    name: String
+    description: String
+    score: Float
+}
+
+input PerformanceRangeInput {
+    minValue: Int
+    maxValue: Int
+    text: String
+}
+
+input EvaluationProcessInput {
+    timeLines : [TimeLineInput]!
+    initialDate: String!
+}
+
+input TimeLineInput {
+    timeLineName: String!
+    startDate: String!
+    dueDate: String!
+}

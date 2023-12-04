@@ -14,6 +14,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "competency_cycle")
 public class CompetencyCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

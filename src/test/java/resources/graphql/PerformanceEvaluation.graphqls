@@ -1,0 +1,66 @@
+type EmployeePerformance {
+    employeePerformanceId: Int!
+    employeeDocument: Employee!
+    selfAssessment: Int!
+    supervisorAssessment: Int!
+    finalAssessment: Int!
+    performanceCycle: PerformanceCycle!
+}
+
+type EmployeePerformancePagination {
+    data: [EmployeePerformance]
+    pagination: Pagination
+}
+
+type EmployeePerformanceRatingScore {
+    label: String
+    score: Int
+}
+
+type EmployeePotentialPerformance {
+    employeeDocument: Employee
+    profileImgUri: String
+    potential: Int
+    performance: Int
+}
+
+enum Potential {
+    HIGH
+    MEDIUM
+    LOW
+}
+
+enum Performance {
+    HIGH
+    MEDIUM
+    LOW
+}
+
+type EmployeePotentialPerformanceDTO {
+    employeeId: Int!
+    fullName: String!
+    profileImgUri: String
+    potential: Int!
+    performance: Int!
+}
+
+type PerformanceByJobLevelChartDTO {
+    labels: [JobLevel!]!
+    dataset: [DatasetDTO]
+}
+
+type PerformanceByJobLevel {
+    labels: [JobLevel]
+    categories: [String]
+    datasetDTOS: [[Float]]
+}
+
+type PerformanceByJobLevelChart {
+    labels: [JobLevel!]!
+    datasetDTOS: [DatasetDTO]
+}
+
+type PerformanceRangeData {
+    jobLevelIds: [Int]
+    data: [Float]
+}
