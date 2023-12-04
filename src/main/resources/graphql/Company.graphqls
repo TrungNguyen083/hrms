@@ -109,6 +109,7 @@ type Template {
 type TemplateDTO {
     id: Int
     templateName: String
+    templateDescription: String!
     createdAt: String
     createdBy: String
     createdById: Int

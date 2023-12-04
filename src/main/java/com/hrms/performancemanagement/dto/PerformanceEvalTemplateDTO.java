@@ -1,5 +1,6 @@
 package com.hrms.performancemanagement.dto;
 
+import com.hrms.careerpathmanagement.dto.TemplateDTO;
 import lombok.*;
 
 import java.util.ArrayList;
