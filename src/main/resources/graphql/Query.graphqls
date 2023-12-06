@@ -63,6 +63,8 @@ type Query {
     incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
     competencyCyclePeriod(cycleId: Int!): String
     evaluateSkillSetForm(employeeId: Int!): [TreeSimpleData]
+    competencyGroups: [CompetencyGroup]
+    evaluationResult(employeeId: Int!, cycleId: Int!): [EvaluationResult]
 
     #PerformanceEvaluation:
     performanceEvaluationOverview(cycleId: Int!, departmentId: Int) : DiffPercentDTO

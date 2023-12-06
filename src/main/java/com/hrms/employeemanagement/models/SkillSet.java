@@ -23,7 +23,7 @@ public class SkillSet {
     @Column(name = "skill_set_name")
     private String skillSetName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competency_id")
     private Competency competency;
 
@@ -35,4 +35,8 @@ public class SkillSet {
 
     @Column(name = "insertion_time")
     private Date insertionTime;
+
+    public SkillSet(Integer id) {
+        this.id = id;
+    }
 }

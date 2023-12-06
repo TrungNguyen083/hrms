@@ -7,7 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 @Entity
 @Getter
@@ -45,4 +46,13 @@ public class CompetencyEvaluationOverall {
 
     @Column(name = "completed_date")
     private Date completedDate;
+
+    @Column(name = "is_self_submitted")
+    private Boolean isSelfSubmitted;
+
+    @Column(name = "is_evaluator_submitted")
+    private Boolean isEvaluatorSubmitted;
+
+    @Column(name = "is_final_submitted")
+    private Boolean isFinalSubmitted;
 }

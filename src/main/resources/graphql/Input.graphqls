@@ -59,3 +59,16 @@ input QuestionInput {
     questionDescription: String
     weight: Float
 }
+
+input CompetencyEvaluationInput {
+    employeeId: Int!
+    competencyCycleId: Int!
+    isSubmitted: Boolean!
+    score: Float
+    skillSetScores: [SkillSetScoreInput]!
+}
+
+input SkillSetScoreInput {
+    skillSetId: Int!
+    score: Int!
+}

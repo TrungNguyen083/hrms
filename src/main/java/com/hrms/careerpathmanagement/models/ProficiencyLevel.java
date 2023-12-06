@@ -25,5 +25,9 @@ public class ProficiencyLevel {
 
     @Column(name = "score")
     private Float score;
+
+    public ProficiencyLevel(Integer id) {
+        this.id = id;
+    }
 }
 
