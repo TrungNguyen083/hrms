@@ -82,4 +82,8 @@ public class Employee {
 	public String getFullName() {
 		return this.lastName + " " + this.firstName;
 	}
+
+	public Employee(Integer id) {
+		this.id = id;
+	}
 }

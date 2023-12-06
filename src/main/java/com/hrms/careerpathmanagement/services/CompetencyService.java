@@ -2,6 +2,7 @@ package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
+import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
@@ -69,4 +70,14 @@ public interface CompetencyService {
     Boolean createTemplate(TemplateInput input);
 
     List<TreeSimpleData> getEvaluateSkillSetForm(Integer employeeId);
+
+    List<CompetencyGroupDTO> getCompetencyGroups();
+
+    List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer cycleId);
+
+    Boolean createSelfCompetencyEvaluation(CompetencyEvaluationInput input);
+
+    Boolean createEvaluatorCompetencyEvaluation(CompetencyEvaluationInput input);
+
+    Boolean createFinalCompetencyEvaluation(CompetencyEvaluationInput input);
 }

@@ -2,6 +2,7 @@ package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
+import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.models.*;
@@ -262,5 +263,30 @@ public class CompetencyController {
     @QueryMapping(name = "evaluateSkillSetForm")
     public List<TreeSimpleData> getEvaluateSkillSetForm(@Argument Integer employeeId) {
         return competencyService.getEvaluateSkillSetForm(employeeId);
+    }
+
+    @QueryMapping(name = "competencyGroups")
+    public List<CompetencyGroupDTO> getCompetencyGroups() {
+        return competencyService.getCompetencyGroups();
+    }
+
+    @QueryMapping(name = "evaluationResult")
+    public List<EvaluationResult> getEvaluationResult(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getEvaluationResult(employeeId, cycleId);
+    }
+
+    @MutationMapping(name = "createSelfCompetencyEvaluation")
+    public Boolean createSelfCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
+        return competencyService.createSelfCompetencyEvaluation(input);
+    }
+
+    @MutationMapping(name = "createEvaluatorCompetencyEvaluation")
+    public Boolean createEvaluatorCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
+        return competencyService.createEvaluatorCompetencyEvaluation(input);
+    }
+
+    @MutationMapping(name = "createFinalCompetencyEvaluation")
+    public Boolean createFinalCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
+        return competencyService.createFinalCompetencyEvaluation(input);
     }
 }

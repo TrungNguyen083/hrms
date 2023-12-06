@@ -47,4 +47,6 @@ type EvaluationCycle{
 type CompetencyGroup {
     id: Int!
     competencyGroupName: String
+    weight: Float
+    competencyIds: [Int]
 }

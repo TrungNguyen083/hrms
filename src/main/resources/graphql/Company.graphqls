@@ -120,3 +120,9 @@ type TreeSimpleData {
     name: String
     children: [TreeSimpleData]
 }
+
+type EvaluationResult {
+    skillSetId: Int
+    selfEvaluation: Int
+    evaluatorEvaluation: Int
+}

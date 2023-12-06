@@ -4,16 +4,14 @@ package com.hrms.careerpathmanagement.models;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.SkillSet;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SkillSetEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,24 +30,12 @@ public class SkillSetEvaluation {
     @JoinColumn(name = "skill_set_id")
     private SkillSet skillSet;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "employee_proficiency_level_id", referencedColumnName = "proficiency_level_id")
-    private ProficiencyLevel employeeProficiencyLevel;
+    @Column(name = "self_score")
+    private Integer selfScore;
 
-    @Column(name = "employee_comment")
-    private String employeeComment;
+    @Column(name = "evaluator_score")
+    private Integer evaluatorScore;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evaluator_proficiency_level_id", referencedColumnName = "proficiency_level_id")
-    private ProficiencyLevel evaluatorProficiencyLevel;
-
-    @Column(name = "evaluator_comment")
-    private String evaluatorComment;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "final_proficiency_level_id", referencedColumnName = "proficiency_level_id")
-    private ProficiencyLevel finalProficiencyLevel;
-
-    @Column(name = "final_comment")
-    private String finalComment;
+    @Column(name = "final_score")
+    private Integer finalScore;
 }

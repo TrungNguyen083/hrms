@@ -20,8 +20,9 @@ public class Skill {
     private int id;
     @Column(name = "skill_name")
     private String skillName;
-    @ManyToOne
+    @Column(name = "description")
+    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_set_id")
-    @JsonIgnore
     private SkillSet skillSet;
 }

@@ -54,4 +54,8 @@ public class CompetencyCycle {
     @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
     private java.util.Date insertionTime;
+
+    public CompetencyCycle(Integer id) {
+        this.id = id;
+    }
 }

@@ -77,6 +77,18 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> root.get("performanceCycle").get("performanceCycleId").in(performCycleIds);
     }
 
+    public static <T> Specification<T> hasSelfScoreExists() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("selfScore"));
+    }
+
+    public static <T> Specification<T> hasEvaluatorScoreExists() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("evaluatorScore"));
+    }
+
+    public static <T> Specification<T> hasFinalScoreExists() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("finalScore"));
+    }
+
     private GlobalSpec() {
     }
 

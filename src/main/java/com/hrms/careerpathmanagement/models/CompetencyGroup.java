@@ -19,4 +19,7 @@ public class CompetencyGroup {
 
     @Column(name = "competency_group_name")
     private String competencyGroupName;
+
+    @Column(name = "weight")
+    private Float weight;
 }

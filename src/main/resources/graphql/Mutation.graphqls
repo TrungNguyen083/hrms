@@ -18,6 +18,9 @@ type Mutation {
     #Competency Management
     createCompetencyCycle(input: CompetencyCycleInput!): CompetencyCycle
     createCompetencyProcess(input: EvaluationProcessInput!): [TimeLine]
+    createSelfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
+    createEvaluatorCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
+    createFinalCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
 
     #Performance Management
     createPerformanceCycle(input: PerformanceCycleInput!): PerformanceCycle
