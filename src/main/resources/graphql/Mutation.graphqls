@@ -25,4 +25,6 @@ type Mutation {
     #Performance Management
     createPerformanceCycle(input: PerformanceCycleInput!): PerformanceCycle
     createPerformanceProcess(input: EvaluationProcessInput!): [TimeLine]
+
+    createFeedbackRequest(requestorId: Int!, requestReceiverIds: [Int]!, cycleId: Int!, feedbackReceiverId: Int!): String
 }

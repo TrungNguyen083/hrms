@@ -1,8 +1,10 @@
 package com.hrms.performancemanagement.controllers;
 
+import com.hrms.performancemanagement.dto.FeedbackDTO;
 import com.hrms.performancemanagement.dto.PerformanceEvalTemplateDTO;
 import com.hrms.performancemanagement.services.PerformanceTemplateService;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -21,11 +23,24 @@ public class EvaluationTemplateController {
         return performanceTemplateService.getTemplateAndQuestion(cycleId);
     }
 
-    public void requestFeedback(@Argument Integer requestorId,
-                                @Argument Integer requestReceiverId,
+    @MutationMapping(name = "createFeedbackRequest")
+    public String requestFeedback(@Argument Integer requestorId,
+                                @Argument List<Integer> requestReceiverIds,
                                 @Argument Integer cycleId,
-                                @Argument List<Integer> feedbackReceiverIds)
+                                @Argument Integer feedbackReceiverId,
+                                @Argument String message)
     {
-        performanceTemplateService.createFeedbackRequest(requestorId, requestReceiverId, cycleId, feedbackReceiverIds);
+        return performanceTemplateService.createFeedbackRequest(requestorId,
+                requestReceiverIds,
+                cycleId,
+                feedbackReceiverId,
+                message
+        );
+    }
+
+    @QueryMapping(name = "feedbacks")
+    public List<FeedbackDTO> getFeedbacks(@Argument Integer feedbackReceiverId,
+                                          @Argument Integer cycleId) {
+        return performanceTemplateService.getFeedbacks(feedbackReceiverId, cycleId);
     }
 }
