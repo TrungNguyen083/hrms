@@ -121,6 +121,20 @@ type TreeSimpleData {
     children: [TreeSimpleData]
 }
 
+type EmployeeEvaProgress {
+    employeeId: Int
+    name: String
+    image: String
+    selfStatus: String
+    evaluatorStatus: String
+    finalStatus: String
+}
+
+type EmployeeEvaProgressPaging {
+    data: [EmployeeEvaProgress]
+    pagination: Pagination!
+}
+
 type EvaluationResult {
     skillSetId: Int
     selfEvaluation: Int

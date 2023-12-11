@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
@@ -69,6 +70,8 @@ public interface CompetencyService {
 
     Boolean createTemplate(TemplateInput input);
 
+    EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer cycleId, Integer pageNo, Integer pageSize);
+
     List<TreeSimpleData> getEvaluateSkillSetForm(Integer employeeId);
 
     List<CompetencyGroupDTO> getCompetencyGroups();
@@ -80,4 +83,5 @@ public interface CompetencyService {
     Boolean createEvaluatorCompetencyEvaluation(CompetencyEvaluationInput input);
 
     Boolean createFinalCompetencyEvaluation(CompetencyEvaluationInput input);
+
 }

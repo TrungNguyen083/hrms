@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
@@ -259,6 +260,14 @@ public class CompetencyController {
     public Boolean createTemplate(@Argument TemplateInput input) {
         return competencyService.createTemplate(input);
     }
+
+    @QueryMapping(name = "trackEvaluationProgress")
+    public EmployeeEvaProgressPaging getTrackEvaluationProgress(@Argument Integer cycleId,
+                                                                @Argument @Nullable Integer pageNo,
+                                                                @Argument @Nullable Integer pageSize) {
+        return competencyService.getTrackEvaluationProgress(cycleId, pageNo, pageSize);
+    }
+
 
     @QueryMapping(name = "evaluateSkillSetForm")
     public List<TreeSimpleData> getEvaluateSkillSetForm(@Argument Integer employeeId) {
