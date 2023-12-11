@@ -15,3 +15,12 @@ type TemplateQuestionDTO {
     template: TemplateDTO!
     categories: [CategoryDTO!]
 }
+
+type FeedbackDTO {
+    id: Int!
+    giverId: Int!
+    giverName: String!
+    giverProfileImage: String
+    feedbackContent: String!
+    createdAt: String!
+}

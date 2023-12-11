@@ -80,6 +80,7 @@ type Query {
     evaluationCycles: [EvaluationCycle]
     performanceCyclePeriod(cycleId: Int!): String
     templatedAndQuestion(cycleId: Int!): TemplateQuestionDTO
+    feedbacks(feedbackReceiverId: Int!, cycleId: Int!) : [FeedbackDTO]
 
     #CarreerManagement:
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]

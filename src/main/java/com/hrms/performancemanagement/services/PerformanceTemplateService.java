@@ -3,19 +3,28 @@ package com.hrms.performancemanagement.services;
 import com.hrms.careerpathmanagement.dto.TemplateDTO;
 import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.careerpathmanagement.repositories.*;
+import com.hrms.employeemanagement.models.Employee;
 import com.hrms.performancemanagement.dto.CategoryDTO;
+import com.hrms.performancemanagement.dto.FeedbackDTO;
 import com.hrms.performancemanagement.dto.PerformanceEvalTemplateDTO;
+import com.hrms.performancemanagement.model.FeedbackRequest;
+import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.projection.TemplateIdOnly;
+import com.hrms.performancemanagement.repositories.FeedbackRequestRepository;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
+@Slf4j
 public class PerformanceTemplateService {
     @PersistenceContext
     EntityManager em;
@@ -26,12 +35,13 @@ public class PerformanceTemplateService {
     private final TemplateCategoryRepository templateCategoryRepository;
     private final PerformanceEvaluationRepository performanceEvaluationRepository;
     private final PerformanceCycleRepository performanceCycleRepository;
+    private final FeedbackRequestRepository feedbackRequestRepository;
     @Autowired
     public PerformanceTemplateService(CategoryQuestionRepository categoryQuestionRepository,
                                       QuestionRepository questionRepository,
                                       CategoryRepository categoryRepository,
                                       TemplateRepository templateRepository,
-                                      TemplateCategoryRepository templateCategoryRepository, PerformanceEvaluationRepository performanceEvaluationRepository, PerformanceCycleRepository performanceCycleRepository)
+                                      TemplateCategoryRepository templateCategoryRepository, PerformanceEvaluationRepository performanceEvaluationRepository, PerformanceCycleRepository performanceCycleRepository, FeedbackRequestRepository feedbackRequestRepository)
     {
         this.categoryQuestionRepository = categoryQuestionRepository;
         this.questionRepository = questionRepository;
@@ -40,6 +50,7 @@ public class PerformanceTemplateService {
         this.templateCategoryRepository = templateCategoryRepository;
         this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.performanceCycleRepository = performanceCycleRepository;
+        this.feedbackRequestRepository = feedbackRequestRepository;
     }
 
     public Template getTemplateOfCycle(Integer cycleId) {
@@ -93,9 +104,39 @@ public class PerformanceTemplateService {
         return evalTemplate;
     }
 
-    public void createFeedbackRequest(Integer requestorId, Integer requestReceiverId, Integer CycleId,
-                                      List<Integer> feedbackReceiverIds)
+    public String createFeedbackRequest(Integer requestorId,
+                                      List<Integer> requestReceiverIds,
+                                      Integer cycleId,
+                                      Integer feedbackReceiverId,
+                                      String message)
     {
+        var requestor = new Employee();
+        requestor.setId(requestorId);
 
+        var feedbackReceiver = new Employee();
+        feedbackReceiver.setId(feedbackReceiverId);
+
+        var cycle = new PerformanceCycle();
+        cycle.setPerformanceCycleId(cycleId);
+
+        requestReceiverIds.forEach(id -> {
+            var requestReceiver = new Employee();
+            requestReceiver.setId(id);
+
+            feedbackRequestRepository.save(new FeedbackRequest(
+                            null,
+                            requestor, requestReceiver, feedbackReceiver,
+                            cycle, message, new Date()
+                ));
+        });
+
+        return "Feedback request created";
+    }
+
+    public List<FeedbackDTO> getFeedbacks(Integer feedbackReceiverId, Integer cycleId) {
+        var feedbackRequests = feedbackRequestRepository
+                .findByFeedbackReceiverIdAndPerformanceCycleId(feedbackReceiverId, cycleId);
+        feedbackRequests.forEach(System.out::println);
+        return null;
     }
 }
