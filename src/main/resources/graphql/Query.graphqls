@@ -65,6 +65,7 @@ type Query {
     evaluateSkillSetForm(employeeId: Int!): [TreeSimpleData]
     competencyGroups: [CompetencyGroup]
     evaluationResult(employeeId: Int!, cycleId: Int!): [EvaluationResult]
+    trackEvaluationProgress(cycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeeEvaProgressPaging
 
     #PerformanceEvaluation:
     performanceEvaluationOverview(cycleId: Int!, departmentId: Int) : DiffPercentDTO

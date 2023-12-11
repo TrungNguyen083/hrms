@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
@@ -636,11 +637,11 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .map(PerformanceCycle::getPerformanceCycleId)
                 .toList();
 
-        Specification<PerformanceEvaluation> hasEmployeeId = performanceSpecification.hasEmployeeId(employeeId);
-        Specification<PerformanceEvaluation> hasPerformanceCycleIds = performanceSpecification.hasPerformanceCycleIds(performCycleIds);
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleIds = GlobalSpec.hasPerformCycleIds(performCycleIds);
 
         return performanceEvaluationRepository
-                .findAll(hasEmployeeId.and(hasPerformanceCycleIds))
+                .findAll(hasEmployeeId.and(hasCycleIds))
                 .stream()
                 .map(eval -> new HistoryEvaluationDTO(eval.getCompletedDate().toString(),
                         eval.getPerformanceCycle().getPerformanceCycleName(),
@@ -654,11 +655,11 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .stream()
                 .map(CompetencyCycle::getId)
                 .toList();
-        Specification<CompetencyEvaluationOverall> hasEmployeeId = employeeSpecification.hasEmployeeId(employeeId);
-        Specification<CompetencyEvaluationOverall> hasCompetencyCycleIds = competencySpecification.hasCycleIds(compCycleIds);
+        Specification<CompetencyEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<CompetencyEvaluationOverall> hasCycleIds = GlobalSpec.hasCompCycleIds(compCycleIds);
 
         return evaluationOverallRepository
-                .findAll(hasEmployeeId.and(hasCompetencyCycleIds))
+                .findAll(hasEmployeeId.and(hasCycleIds))
                 .stream()
                 .map(evalOvr -> new HistoryEvaluationDTO(evalOvr.getCompletedDate().toString(),
                         evalOvr.getCompetencyCycle().getCompetencyCycleName(),
@@ -965,16 +966,19 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         List<RadarValueDTO> avgCompetencies = calculateAverageCompetencies(pairItems, competencyEvaluates);
 
-        List<RadarDatasetDTO> listDataset = createRadarDataset(competencyCyclesId, competencies, avgCompetencies, competencyCycles);
+        List<RadarDatasetDTO> listDataset = createRadarDataset(competencyCyclesId,
+                competencies,
+                avgCompetencies,
+                competencyCycles);
 
         List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
         return new RadarChartDTO(labels, listDataset);
     }
 
     private List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCyclesId, Integer departmentId) {
-        Specification<CompetencyEvaluation> hasCompetencyCycles = GlobalSpec.hasCompCycleIds(competencyCyclesId);
+        Specification<CompetencyEvaluation> hasCompCycleIds = GlobalSpec.hasCompCycleIds(competencyCyclesId);
         Specification<CompetencyEvaluation> hasEmployeeDepartment = GlobalSpec.hasEmployeeDepartmentId(departmentId);
-        return competencyEvaluationRepository.findAll(hasCompetencyCycles.and(hasEmployeeDepartment));
+        return competencyEvaluationRepository.findAll(hasCompCycleIds.and(hasEmployeeDepartment));
     }
 
     private List<Pair<Integer, Integer>> createPairItems(List<Integer> inputIds, List<Competency> competencies) {
@@ -1370,6 +1374,30 @@ public class CompetencyServiceImpl implements CompetencyService {
                 }).toList();
 
         return !templateCategories.isEmpty();
+    }
+
+    @Override
+    public EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer cycleId, Integer pageNo, Integer pageSize) {
+        employeeRepository.findAll();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
+        Specification<CompetencyEvaluationOverall> hasCycleId = GlobalSpec.hasCompCycleId(cycleId);
+        Page<CompetencyEvaluationOverall> compEvalOvr = evaluationOverallRepository.findAll(hasCycleId, pageable);
+        List<EmployeeEvaProgress> evaProgresses = compEvalOvr
+                .map(ceo -> EmployeeEvaProgress.builder()
+                        .employeeId(ceo.getEmployee().getId())
+                        .name(ceo.getEmployee().getFullName())
+                        .image(employeeManagementService.getProfilePicture(ceo.getEmployee().getId()))
+                        .selfStatus(ceo.getEmployeeStatus())
+                        .evaluatorStatus(ceo.getEvaluatorStatus())
+                        .finalStatus(ceo.getFinalStatus())
+                        .build())
+                .toList();
+
+
+        Pagination pagination = setupPaging(evaProgresses.size(), pageNo, pageSize);
+
+        return new EmployeeEvaProgressPaging(evaProgresses, pagination);
     }
 
     @Override
