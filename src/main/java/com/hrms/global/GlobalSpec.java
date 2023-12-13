@@ -89,6 +89,10 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("finalScore"));
     }
 
+    public static <T> Specification<T> hasFinalEvaluationNotNull() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("finalEvaluation"));
+    }
+
     private GlobalSpec() {
     }
 
