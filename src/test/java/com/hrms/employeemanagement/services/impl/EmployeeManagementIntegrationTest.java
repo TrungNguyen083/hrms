@@ -26,9 +26,6 @@ class EmployeeManagementIntegrationTest {
     @Autowired
     private EmployeeManagementService employeeService;
 
-    @Autowired
-    private HrmsMapper mapper;
-
     @Test
     void testGetAllEmployees() {
         List<Employee> result = employeeService.getAllEmployees();
