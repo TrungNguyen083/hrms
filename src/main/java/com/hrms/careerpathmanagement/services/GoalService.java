@@ -33,9 +33,7 @@ import java.util.stream.Collectors;
 public class GoalService {
     private final GoalRepository goalRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
-
     private final EmployeeRepository employeeRepository;
-
     private EmployeeSpecification employeeSpecification;
     private CompetencySpecification competencySpecification;
 

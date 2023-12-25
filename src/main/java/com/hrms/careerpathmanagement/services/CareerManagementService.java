@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class CareerManagementService {
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
     private final PositionLevelPathRepository positionLevelPathRepository;
     private final PositionLevelRepository positionLevelRepository;
 
@@ -37,9 +37,11 @@ public class CareerManagementService {
     public CareerManagementService(PositionLevelPathRepository positionLevelPathRepository,
                                    PositionLevelRepository positionLevelRepository,
                                    PositionJobLevelSkillSetRepository baselineSkillSetRepository,
-                                   SkillSetEvaluationRepository skillSetEvaluationRepository) {
+                                   SkillSetEvaluationRepository skillSetEvaluationRepository,
+                                   EntityManager em) {
         this.positionLevelPathRepository = positionLevelPathRepository;
         this.positionLevelRepository = positionLevelRepository;
+        this.em = em;
     }
 
     public CareerPathTreeDTO getCareerPathTree(PositionCareerPath position) {

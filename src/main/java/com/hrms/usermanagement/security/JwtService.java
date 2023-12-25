@@ -14,10 +14,7 @@ import java.util.Map;
 public class JwtService {
     @Value("${SECRET}")
     private String jwtSecret;
-
     private final int JwtExpiration = 86400;
-
-
 
     public String genToken(String username) {
         Map header = new HashMap<String, String>();
@@ -33,6 +30,7 @@ public class JwtService {
         Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
         return com.auth0.jwt.JWT.create()
                 .withClaim("username", username)
+                .withExpiresAt(new java.util.Date(System.currentTimeMillis() + JwtExpiration * 1000))
                 .sign(algorithm);
     }
 
@@ -48,6 +46,8 @@ public class JwtService {
             return false;
         }
     }
+
+    int[] a = new int[2*10^5];
 
     public boolean isExpired(String token) {
         try {

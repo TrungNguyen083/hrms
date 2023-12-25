@@ -4,16 +4,14 @@ import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.models.Position;
 import com.hrms.employeemanagement.models.SkillSet;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PositionJobLevelSkillSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

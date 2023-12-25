@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PositionLevel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

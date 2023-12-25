@@ -26,8 +26,6 @@ import java.util.List;
 @Service
 @Slf4j
 public class PerformanceTemplateService {
-    @PersistenceContext
-    EntityManager em;
     private final CategoryQuestionRepository categoryQuestionRepository;
     private final QuestionRepository questionRepository;
     private final CategoryRepository categoryRepository;

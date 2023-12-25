@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.security;
 
+import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.UserRepository;
 import com.hrms.usermanagement.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HRMSUserDetailsService implements UserDetailsService {
@@ -27,13 +30,41 @@ public class HRMSUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        var userName = user.getUsername();
-        var password = user.getPassword();
-        var roles = userRoleRepository.findAllByUser(user.getUserId());
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        roles.stream().forEach(role -> {
-                    authorities.add(new SimpleGrantedAuthority(role.getRole().getName().toUpperCase()));
-                });
-        return new org.springframework.security.core.userdetails.User(userName, password, authorities);
+        return new HRMSUserDetail(user);
     }
+
+    static final class HRMSUserDetail extends User implements UserDetails {
+        public HRMSUserDetail(User user) {
+            super(user);
+        }
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return getUserRoles().stream()
+                    .map(userRole -> new SimpleGrantedAuthority(userRole.getRole().getName()))
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public boolean isAccountNonExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isAccountNonLocked() {
+            return true;
+        }
+
+        @Override
+        public boolean isCredentialsNonExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return getIsEnabled();
+        }
+    }
+
+
 }

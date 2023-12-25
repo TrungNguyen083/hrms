@@ -2,10 +2,7 @@ package com.hrms.employeemanagement.models;
 
 import com.hrms.careerpathmanagement.models.Competency;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -14,6 +11,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SkillSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

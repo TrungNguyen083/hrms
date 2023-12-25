@@ -12,6 +12,8 @@ import com.hrms.usermanagement.repository.UserRepository;
 import com.hrms.usermanagement.repository.UserRoleRepository;
 import com.hrms.usermanagement.specification.UserSpecification;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +32,8 @@ import java.util.List;
 @Slf4j
 public class UserService {
 
-    @jakarta.persistence.PersistenceContext
-    jakarta.persistence.EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
     private UserRepository userRepository;
     private UserRoleRepository userRoleRepository;
     private PasswordEncoder passwordEncoder;
@@ -41,15 +43,13 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository,
                        PasswordEncoder passwordEncoder, UserSpecification userSpecification,
-                       HrmsMapper modelMapper) {
+                       HrmsMapper modelMapper, EntityManager em) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userSpecification = userSpecification;
         this.modelMapper = modelMapper;
-    }
-
-    public UserService() {
+        this.em = em;
     }
 
     private void checkUserExist(String username) throws Exception {
@@ -99,7 +99,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public Boolean updateUsers(List<Integer> userIds, Boolean status, List<Integer> roleIds) {
         deleteUserRolesNotInRoles(userIds, roleIds);
         List<Pair<Integer, Integer>> userRolePairItems = getUserRolePairItems(userIds, roleIds);
@@ -108,7 +108,8 @@ public class UserService {
         return true;
     }
 
-    private void deleteUserRolesNotInRoles(List<Integer> userIds, List<Integer> roleIds) {
+    @Transactional(readOnly = false)
+    protected void deleteUserRolesNotInRoles(List<Integer> userIds, List<Integer> roleIds) {
         Specification<UserRole> deleteNotInRoles = (root, query, criteriaBuilder) -> {
             Predicate roleIdNotInPredicate = root.get("role").get("roleId").in(roleIds).not();
             return criteriaBuilder.and(getEqualUserIdsPredicate(userIds, root), roleIdNotInPredicate);
@@ -122,7 +123,8 @@ public class UserService {
                 .toList();
     }
 
-    private void insertUserRolePairs(List<Pair<Integer, Integer>> userRolePairItems) {
+    @Transactional(readOnly = false)
+    protected void insertUserRolePairs(List<Pair<Integer, Integer>> userRolePairItems) {
         userRolePairItems.stream()
                 .filter(pair -> userRolePairItems.stream().noneMatch(existingPair -> existingPair.equals(pair)))
                 .forEach(pair -> userRoleRepository.addRoleIdUserId(pair.getFirst(), pair.getSecond()));
@@ -132,7 +134,8 @@ public class UserService {
         return root.get("user").get("userId").in(userIds);
     }
 
-    private void updateUsersStatus(List<Integer> userIds, boolean status) {
+    @Transactional(readOnly = false)
+    protected void updateUsersStatus(List<Integer> userIds, boolean status) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaUpdate<User> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(User.class);
         CriteriaUpdate<User> update = criteriaUpdate.set("isEnabled", status);

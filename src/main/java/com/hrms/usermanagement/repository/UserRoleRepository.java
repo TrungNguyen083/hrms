@@ -16,10 +16,6 @@ import java.util.List;
 @Repository
 public interface UserRoleRepository extends JpaRepository<UserRole, Integer>, JpaSpecificationExecutor<UserRole> {
     List<UserRole> findAll(Specification<UserRole> spec);
-
-    @Query(value = "SELECT role_id FROM user_role WHERE user_id = :userId", nativeQuery = true)
-    List<Role> findAllByUserId(Integer userId);
-
     @Transactional
     @Modifying
     @Query(value = "INSERT INTO user_role (user_id, role_id) VALUES (?1, ?2)", nativeQuery = true)
@@ -31,5 +27,7 @@ public interface UserRoleRepository extends JpaRepository<UserRole, Integer>, Jp
     @Query(value = "SELECT * FROM user_role WHERE user_id = :userId", nativeQuery = true)
     List<UserRole> findAllByUser(Integer userId);
 
+    @Query("SELECT ur.role FROM UserRole ur WHERE ur.user.userId = :userId")
+    List<Role> findAllRoleByUserId(Integer userId);
 
 }

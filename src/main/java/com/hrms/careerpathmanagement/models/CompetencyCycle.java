@@ -1,10 +1,7 @@
 package com.hrms.careerpathmanagement.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -15,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "competency_cycle")
+@Builder
 public class CompetencyCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

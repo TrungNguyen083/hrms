@@ -2,16 +2,14 @@ package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.PositionLevel;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PositionLevelPath {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

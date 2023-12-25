@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.util.Collection;
 import java.util.Set;
 
 @Entity
@@ -34,10 +35,15 @@ public class  User {
     @Column(name = "created_at")
     private Date createdAt;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<UserRole> userRoles;
+
+    public User(User user) {
+        this.userId = user.userId;
+        this.username = user.username;
+        this.password = user.password;
+        this.isEnabled = user.isEnabled;
+        this.createdAt = user.createdAt;
+        this.userRoles = user.userRoles;
+    }
 }

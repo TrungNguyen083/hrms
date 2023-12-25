@@ -11,18 +11,26 @@ import java.util.Optional;
 
 @Service
 public class AuthenticationService {
-    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    public AuthenticationService(UserRepository userRepository,
+                                 PasswordEncoder passwordEncoder,
+                                 JwtService jwtService)
+    {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
 
     public User getUser(String username) {
         return userRepository.findByUsername(username);
     }
+
     public String login(String username, String password) throws Exception {
         return Optional.ofNullable(userRepository.findByUsername(username))
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
