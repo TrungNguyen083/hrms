@@ -4,6 +4,7 @@ import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.dto.UserDtoPagination;
+import com.hrms.usermanagement.model.Role;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.service.UserService;
 import jakarta.annotation.Nullable;
@@ -37,13 +38,13 @@ public class UserController {
 
     @QueryMapping
     public UserDtoPagination users(@Nullable @Argument String search,
-                                   @Nullable @Argument List<Integer> roleIds,
+                                   @Nullable @Argument List<Integer> roles,
                                    @Nullable @Argument Boolean status,
                                    @Argument int pageNo,
                                    @Argument int pageSize)
     {
         var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
-        var users = userService.searchUsers(search, roleIds, status, pageable);
+        var users = userService.searchUsers(search, roles, status, pageable);
         users.data().stream().forEach(user -> user.setRoles(userService.getRoles(user.getUserId())));
         return users;
     }
@@ -61,4 +62,8 @@ public class UserController {
         return userService.updateUsers(ids, status, roles);
     }
 
+    @QueryMapping
+    public List<Role> roles() {
+        return userService.getRoles();
+    }
 }

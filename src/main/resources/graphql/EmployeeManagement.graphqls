@@ -18,7 +18,7 @@ type Employee {
     department: Department
     position: Position
     jobLevel: JobLevel
-    status: Int
+    status: Boolean
     leftDate: String
 }
 
@@ -34,8 +34,9 @@ type EmployeeDetail {
 }
 
 type EmployeeDTO {
-    employeeDocument: Employee
+    employee: Employee
     imageUrl: String
+    emergencyContacts: [EmergencyContact]
 }
 
 type EmployeePaging {
@@ -86,8 +87,7 @@ type EmployeeOverviewDTO {
     profileImgUri: String
     position: String!
     level: String!
-    skills: [Skill!]!
-    interests: [Skill!]!
+    skillSets: [String]
     certifications: [String]
 }
 

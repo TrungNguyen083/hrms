@@ -20,14 +20,14 @@ public class UserSpecification {
     }
 
     public Specification<User> hasRoles(@Nullable List<Integer> roleIds) {
-        return roleIds == null ? null : (root, query, cb) -> {
-            Join<User, UserRole> userRoleJoin = root.join("userRoles", JoinType.LEFT);
-            return userRoleJoin.get("id").in(roleIds);
+        return roleIds == null || roleIds.isEmpty() ? null : (root, query, cb) -> {
+            Join<User, UserRole> userRoleJoin = root.join("userRoles");
+            return userRoleJoin.get("role").get("id").in(roleIds);
         };
     }
 
     public Specification<User> hasStatus(@Nullable Boolean status) {
-        return  status == null ? null : (root, query, cb) -> cb.equal(root.get("status"), status);
+        return  status == null ? null : (root, query, cb) -> cb.equal(root.get("isEnabled"), status);
     }
 
     public Specification<User> hasSearch(@Nullable String search) {
