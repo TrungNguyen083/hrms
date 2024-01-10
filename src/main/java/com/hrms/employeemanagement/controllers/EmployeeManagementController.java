@@ -47,8 +47,8 @@ public class EmployeeManagementController {
     public EmployeePagingDTO findAllEmployees(@Nullable @Argument List<Integer> departmentIds,
                                               @Nullable @Argument List<Integer> currentContracts,
                                               @Nullable @Argument Boolean status, @Nullable @Argument String name,
-                                              @Argument PagingInfo pagingInfo) {
-        return employeeManagementService.filterEmployees(departmentIds, currentContracts, status, name, pagingInfo);
+                                              @Argument Integer pageNo, @Argument Integer pageSize) {
+        return employeeManagementService.filterEmployees(departmentIds, currentContracts, status, name, pageNo, pageSize);
     }
 
     @QueryMapping(name = "employeeOverview")
@@ -57,12 +57,12 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "employee")
-    public EmployeeDetailDTO findEmployeeById(@Argument int id) {
+    public EmployeeDTO findEmployeeById(@Argument int id) {
         return employeeManagementService.getEmployeeDetail(id);
     }
 
     @QueryMapping(name = "newEmployees")
-    public List<Employee> findNewEmployees() {
+    public List<EmployeeDTO> findNewEmployees() {
         return employeeManagementService.getNewEmployees();
     }
 

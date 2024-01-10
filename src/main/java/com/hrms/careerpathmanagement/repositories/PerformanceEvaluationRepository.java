@@ -24,6 +24,14 @@ public interface PerformanceEvaluationRepository extends JpaRepository<Performan
 
     List<PerformanceEvaluation> findByCycleIdAndPositionId(Integer positionId, Integer cycleId);
 
+    @Query("SELECT pe, e, p " +
+            "FROM PerformanceEvaluation pe " +
+            "INNER JOIN PerformanceCycle pc ON pe.performanceCycle.performanceCycleId = pc.performanceCycleId " +
+            "INNER JOIN Employee e ON pe.employee.id = e.id " +
+            "INNER JOIN Position p ON e.position.id = p.id " +
+            "WHERE pc.performanceCycleId = ?1")
+    List<PerformanceEvaluation> findByCycleId(Integer cycleId);
+
     <T> Collection<T> findAllByPerformanceCyclePerformanceCycleId(Integer cycleId, Class<T> type);
     Double averageByIdIn(String columnName, Iterable<Integer> ids);
 

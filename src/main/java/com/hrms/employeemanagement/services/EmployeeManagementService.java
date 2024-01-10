@@ -18,13 +18,13 @@ public interface EmployeeManagementService {
 	Employee createEmployee(EmployeeInputDTO input);
 	Employee findEmployee(Integer id);
 	Employee updateEmployee(EmployeeInputDTO input);
-	EmployeeDetailDTO getEmployeeDetail(Integer id);
-	List<Employee> getNewEmployees();
+	EmployeeDTO getEmployeeDetail(Integer id);
+	List<EmployeeDTO> getNewEmployees();
 	EmployeePagingDTO filterEmployees(List<Integer> departmentIds,
                                       List<Integer> currentContracts,
                                       Boolean status,
                                       String name,
-                                      PagingInfo pagingInfo);
+                                      Integer pageNo, Integer pageSize);
 	PercentageChangeDTO getHeadcountsStatistic();
 	BarChartDTO getHeadcountChartData();
 	void uploadPersonalFile(MultipartFile file, Integer employeeId, String type) throws IOException;

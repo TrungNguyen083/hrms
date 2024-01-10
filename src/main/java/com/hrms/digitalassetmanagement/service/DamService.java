@@ -37,10 +37,10 @@ public class DamService {
         return cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(publicId, filePath, "resource_type", "auto"));
     }
 
-    public String getFileUrl(String publicId) {
-        // Generate the URL for the file using its public ID
-        return cloudinary.url().generate(publicId);
-    }
+//    public String getFileUrl(String publicId) {
+//        // Generate the URL for the file using its public ID
+//        return cloudinary.url().generate(publicId);
+//    }
 
     private String generateUniqueFileName(String fileName) {
         // Append a unique identifier (UUID) to the original file name

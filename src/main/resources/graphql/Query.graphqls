@@ -1,9 +1,9 @@
 # Define a query to fetch employees
 type Query {
     #EmployeeManagement:
-    employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
-    employee(id: Int!): EmployeeDetail
-    newEmployees: [Employee]
+    employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pageNo: Int = 1, pageSize: Int = 10): EmployeePaging!
+    employee(id: Int!): EmployeeDTO
+    newEmployees: [EmployeeDTO]
     currentHeadcounts: PercentageChangeDTO
     headcountChart: BarChartDTO
     employeeOverview(employeeId: Int!): EmployeeOverviewDTO
@@ -73,9 +73,7 @@ type Query {
     departmentInCompletePerform(performanceCycleId: Int!): MultiBarChartDTO
     performanceEvalProgress(performanceCycleId: Int!): PieChartDTO
     averagePerformanceScore(cycleId: Int!): Float
-    topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]
     topPerformers(departmentId: Int, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
-    employeesPerformance(pageNo: Int, pageSize: Int): EmployeePerformancePagination
     employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : StackedBarChart
     employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO

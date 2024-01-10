@@ -18,11 +18,11 @@ public class SkillSetTarget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competency_cycle_id", referencedColumnName = "competency_cycle_id")
     CompetencyCycle competencyCycle;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     Employee employee;
 

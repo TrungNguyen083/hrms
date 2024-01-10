@@ -66,7 +66,7 @@ public class Employee {
 	@JoinColumn(name = "job_level_id")
 	private JobLevel jobLevel;
 	@Column(name = "status")
-	private Integer status;
+	private Boolean status;
 	@Column(name = "left_date")
 	private Date leftDate;
 

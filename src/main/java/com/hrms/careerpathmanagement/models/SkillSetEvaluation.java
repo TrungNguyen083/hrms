@@ -22,7 +22,7 @@ public class SkillSetEvaluation {
     @JoinColumn(name = "competency_cycle_id")
     private CompetencyCycle competencyCycle;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
 

@@ -1,10 +1,10 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
+import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
-import com.hrms.careerpathmanagement.models.SkillSetTarget;
+import com.hrms.careerpathmanagement.repositories.CompetencyCycleRepository;
 import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
-import com.hrms.careerpathmanagement.repositories.SkillSetTargetRepository;
 import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
@@ -12,19 +12,18 @@ import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeDamInfoSpec;
-import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemDTO;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
-import com.hrms.global.paging.PagingInfo;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
+import com.hrms.performancemanagement.model.PerformanceCycle;
+import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -50,34 +49,14 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final EmergencyContactRepository emergencyContactRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
     private final SkillSetEvaluationRepository skillSetEvaluationRepository;
-    private final SkillSetTargetRepository skillSetTargetRepository;
-    private final EmployeeSpecification employeeSpecification;
     private final DamService damService;
     private final CareerSpecification careerSpecification;
     private final PositionDepartmentRepository positionDepartmentRepository;
-
-    @Autowired
-    public EmployeeManagementServiceImpl(EmployeeRepository employeeRepository,
-                                         DepartmentRepository departmentRepository,
-                                         EmergencyContactRepository emergencyContactRepository,
-                                         EmployeeDamInfoRepository employeeDamInfoRepository,
-                                         SkillSetEvaluationRepository skillSetEvaluationRepository,
-                                         SkillSetTargetRepository skillSetTargetRepository,
-                                         EmployeeSpecification employeeSpecification,
-                                         DamService damService,
-                                         CareerSpecification careerSpecification,
-                                         PositionDepartmentRepository positionDepartmentRepository) {
-        this.employeeRepository = employeeRepository;
-        this.departmentRepository = departmentRepository;
-        this.emergencyContactRepository = emergencyContactRepository;
-        this.employeeDamInfoRepository = employeeDamInfoRepository;
-        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
-        this.skillSetTargetRepository = skillSetTargetRepository;
-        this.employeeSpecification = employeeSpecification;
-        this.damService = damService;
-        this.careerSpecification = careerSpecification;
-        this.positionDepartmentRepository = positionDepartmentRepository;
-    }
+    private final SkillSetRepository skillSetRepository;
+    private final CompetencyCycleRepository competencyCycleRepository;
+    private final PerformanceCycleRepository performanceCycleRepository;
+    private CompetencyCycle latestCompCycle;
+    private PerformanceCycle latestPerformCycle;
 
     private ModelMapper modelMapper;
 
@@ -89,10 +68,49 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         this.modelMapper = new ModelMapper();
     }
 
+    @Autowired
+    public EmployeeManagementServiceImpl(EmployeeRepository employeeRepository,
+                                         DepartmentRepository departmentRepository,
+                                         EmergencyContactRepository emergencyContactRepository,
+                                         EmployeeDamInfoRepository employeeDamInfoRepository,
+                                         SkillSetEvaluationRepository skillSetEvaluationRepository,
+                                         DamService damService,
+                                         CareerSpecification careerSpecification,
+                                         PositionDepartmentRepository positionDepartmentRepository,
+                                         SkillSetRepository skillSetRepository,
+                                         CompetencyCycleRepository competencyCycleRepository,
+                                         PerformanceCycleRepository performanceCycleRepository) {
+        this.employeeRepository = employeeRepository;
+        this.departmentRepository = departmentRepository;
+        this.emergencyContactRepository = emergencyContactRepository;
+        this.employeeDamInfoRepository = employeeDamInfoRepository;
+        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
+        this.damService = damService;
+        this.careerSpecification = careerSpecification;
+        this.positionDepartmentRepository = positionDepartmentRepository;
+        this.skillSetRepository = skillSetRepository;
+        this.competencyCycleRepository = competencyCycleRepository;
+        this.performanceCycleRepository = performanceCycleRepository;
+    }
+
+    @PostConstruct
+    private void initialize() {
+        this.latestCompCycle = getLatestCompCycle();
+        this.latestPerformCycle = getLatestPerformCycle();
+    }
+
+    private PerformanceCycle getLatestPerformCycle() {
+        return performanceCycleRepository.findFirstByOrderByPerformanceCycleStartDateDesc();
+    }
+
+    private CompetencyCycle getLatestCompCycle() {
+        return competencyCycleRepository.findFirstByOrderByStartDateDesc();
+    }
+
     @Override
     public List<Employee> getAllEmployees() {
         //Find all employee have status not equal "Terminated"
-        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), false);
         return employeeRepository.findAll(spec);
     }
 
@@ -100,7 +118,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     public List<Employee> getAllEmployeesHaveDepartment() {
         //Find all employee have status not equal 0 and department not null
         Specification<Employee> spec = (root, query, builder) -> builder.and(
-                builder.notEqual(root.get("status"), 0),
+                builder.notEqual(root.get("status"), false),
                 builder.isNotNull(root.get("department"))
         );
         return employeeRepository.findAll(spec);
@@ -123,7 +141,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public EmployeeDetailDTO getEmployeeDetail(Integer id) {
+    public EmployeeDTO getEmployeeDetail(Integer id) {
         Specification<Employee> spec = GlobalSpec.hasId(id);
         Employee employee = employeeRepository
                 .findOne(spec)
@@ -132,18 +150,36 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         List<EmergencyContact> emergencyContacts = emergencyContactRepository.findAll(contactSpec);
         //Get employeeDamInfo have employeeId = id and type = "Profile Picture" and has the latest uploadedAt
         String imageUrl = employeeDamInfoRepository
-                .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(id, "Profile Picture"))
+                .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(id, "PROFILE_IMAGE"))
                 .stream()
                 .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
                 .orElse(null);
-        return new EmployeeDetailDTO(employee, emergencyContacts, imageUrl);
+        return new EmployeeDTO(employee, imageUrl, emergencyContacts);
     }
 
     @Override
-    public List<Employee> getNewEmployees() {
-        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("joinedDate")));
+    public List<EmployeeDTO> getNewEmployees() {
+        Sort sort = Sort.by(Sort.Order.desc("joinedDate"));
 
-        return employeeRepository.findAll(pageRequest).getContent();
+        List<Employee> employees = employeeRepository.findAll(sort);
+        List<ProfileImageOnly> images = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(
+                employees.stream()
+                        .map(Employee::getId).toList(), PROFILE_IMAGE);
+        List<EmergencyContact> eContacts = emergencyContactRepository.findAll();
+
+        return employees.stream()
+                .map(employee -> {
+                    String url = images.stream()
+                            .filter(image -> image.getEmployeeId().equals(employee.getId()))
+                            .findFirst()
+                            .map(ProfileImageOnly::getUrl)
+                            .orElse(null);
+                    List<EmergencyContact> contacts = eContacts.stream()
+                            .filter(contact -> contact.getEmployee().getId().equals(employee.getId()))
+                            .toList();
+                    return new EmployeeDTO(employee, url, contacts);
+                })
+                .toList();
     }
 
     @Override
@@ -151,11 +187,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                              @Nullable List<Integer> currentContracts,
                                              @Nullable Boolean status,
                                              @Nullable String name,
-                                             PagingInfo pagingInfo) {
-        Sort sort = pagingInfo.getSortBy() != null ? Sort.by(Sort.Direction.DESC, pagingInfo.getSortBy()) : null;
-        Pageable pageable = sort != null
-                ? PageRequest.of(pagingInfo.getPageNo() - 1, pagingInfo.getPageSize(), sort)
-                : PageRequest.of(pagingInfo.getPageNo() - 1, pagingInfo.getPageSize());
+                                             Integer pageNo, Integer pageSize) {
         Specification<Employee> filterSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 departmentIds != null && !departmentIds.isEmpty()
                         ? root.get("department").get("id").in(departmentIds)
@@ -164,7 +196,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                         ? root.get("currentContract").in(currentContracts)
                         : criteriaBuilder.conjunction(),
                 status != null
-                        ? criteriaBuilder.equal(root.get("user").get("isEnabled"), status)
+                        ? criteriaBuilder.equal(root.get("status"), status)
                         : criteriaBuilder.conjunction(),
                 name != null
                         ? criteriaBuilder.or(
@@ -173,17 +205,32 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                         : criteriaBuilder.conjunction()
         );
 
-        Page<EmployeeDTO> empPage = employeeRepository.findAll(filterSpec, pageable).map(employee -> {
-            String imageUrl = employeeDamInfoRepository
-                    .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(employee.getId(), "Profile Picture"))
-                    .stream()
-                    .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
-                    .orElse(null);
-            return new EmployeeDTO(employee, imageUrl);
-        });
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
 
-        Pagination pagination = PaginationSetup.setupPaging(empPage.getTotalElements(), pagingInfo.getPageNo(), pagingInfo.getPageSize());
-        return new EmployeePagingDTO(empPage.getContent(), pagination);
+        Page<Employee> empPage = employeeRepository.findAll(filterSpec, pageable);
+
+        List<ProfileImageOnly> images = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(
+                empPage.stream()
+                        .map(Employee::getId).toList(), PROFILE_IMAGE);
+
+        List<EmergencyContact> eContacts = emergencyContactRepository.findAll();
+
+        List<EmployeeDTO> listDTO = empPage.stream()
+                .map(employee -> {
+                    String url = images.stream()
+                            .filter(image -> image.getEmployeeId().equals(employee.getId()))
+                            .findFirst()
+                            .map(ProfileImageOnly::getUrl)
+                            .orElse(null);
+                    List<EmergencyContact> contacts = eContacts.stream()
+                            .filter(contact -> contact.getEmployee().getId().equals(employee.getId()))
+                            .toList();
+                    return new EmployeeDTO(employee, url, contacts);
+                })
+                .toList();
+
+        Pagination pagination = PaginationSetup.setupPaging(empPage.getTotalElements(), pageNo, pageSize);
+        return new EmployeePagingDTO(listDTO, pagination);
     }
 
     @Override
@@ -253,7 +300,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private Employee updateEmployee(EmployeeInputDTO employeeInputDTO, Employee employee) {
         modelMapper.map(employeeInputDTO, employee);
         employeeRepository.save(employee);
-        if(employeeInputDTO.getEmergencyContacts() != null)
+        if (employeeInputDTO.getEmergencyContacts() != null)
             manageEmergencyContacts(employeeInputDTO.getEmergencyContacts(), employee);
 
         return employee;
@@ -328,7 +375,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 builder.equal(root.get("type"), PROFILE_IMAGE)
         );
         EmployeeDamInfo employeeDamInfo = employeeDamInfoRepository.findOne(spec).orElse(null);
-        return employeeDamInfo != null ? damService.getFileUrl(employeeDamInfo.getUrl()) : null;
+        return employeeDamInfo != null ? employeeDamInfo.getUrl() : null;
     }
 
     @Override
@@ -338,7 +385,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 builder.equal(root.get("type"), PROFILE_IMAGE)
         );
         List<EmployeeDamInfo> employeeDamInfos = employeeDamInfoRepository.findAll(spec);
-        return employeeDamInfos.stream().map(e -> damService.getFileUrl(e.getUrl())).toList();
+        return employeeDamInfos.stream().map(EmployeeDamInfo::getUrl).toList();
     }
 
     @Override
@@ -355,19 +402,20 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public EmployeeOverviewDTO getProfileOverview(Integer employeeId) {
-        Specification<Employee> spec = GlobalSpec.hasId(employeeId);
-        Employee employee = employeeRepository.findOne(spec).orElseThrow(() ->
+        skillSetRepository.findAll();
+
+        Employee employee = employeeRepository.findOne(GlobalSpec.hasId(employeeId)).orElseThrow(() ->
                 new RuntimeException("Employee not found with id: " + employeeId));
 
-        Specification<SkillSetEvaluation> hasEmp = employeeSpecification.hasEmployeeId(employeeId);
-        List<SkillSet> skillSets = skillSetEvaluationRepository
-                .findAll(hasEmp)
-                .stream().map(SkillSetEvaluation::getSkillSet).toList();
+        Specification<SkillSetEvaluation> hasEmp = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<SkillSetEvaluation> hasCycle = GlobalSpec.hasCompCycleId(latestCompCycle.getId());
 
-        Specification<SkillSetTarget> hasEmp2 = employeeSpecification.hasEmployeeId(employeeId);
-        List<SkillSet> interests = skillSetTargetRepository
-                .findAll(hasEmp2)
-                .stream().map(SkillSetTarget::getSkillSet).toList();
+        List<String> skillSets = skillSetEvaluationRepository
+                .findAll(hasEmp.and(hasCycle))
+                    .stream()
+                    .map(SkillSetEvaluation::getSkillSet)
+                    .toList()
+                .stream().map(SkillSet::getSkillSetName).toList();
 
         String profileImgUri = getProfilePicture(employeeId);
 
@@ -377,8 +425,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 profileImgUri,
                 employee.getPosition().getPositionName(),
                 employee.getJobLevel().getJobLevelName(),
-                skillSets.stream().map(SkillSet::getSkillSetName).toList(),
-                interests.stream().map(SkillSet::getSkillSetName).toList(),
+                skillSets,
                 null);
     }
 
@@ -407,7 +454,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                     .filter(u -> u.getEmployeeId().equals(e.getId()))
                     .findFirst()
                     .orElse(null);
-            String url = profile != null ? damService.getFileUrl(profile.getUrl()) : null;
+            String url = profile != null ? profile.getUrl() : null;
             return new NameImageDTO(e.getId(), e.getFirstName(), e.getLastName(), url);
         }).toList();
     }

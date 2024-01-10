@@ -76,7 +76,7 @@ public class PerformanceController {
      * @return Descartes coordinate, x-axis: performance, y-axis: potential
      */
     @QueryMapping(name = "employeesPotentialPerformance")
-    public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(@Argument Integer departmentId,
+    public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(@Argument @Nullable Integer departmentId,
                                                                             @Argument Integer cycleId) {
         return performanceService.getPotentialAndPerformance(departmentId, cycleId);
     }

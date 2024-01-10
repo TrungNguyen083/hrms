@@ -48,12 +48,12 @@ public class CompetencyCycle {
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
-    private java.util.Date modificationTime;
+    private Date modificationTime;
 
     // For insertion time
     @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
-    private java.util.Date insertionTime;
+    private Date insertionTime;
 
     public CompetencyCycle(Integer id) {
         this.id = id;

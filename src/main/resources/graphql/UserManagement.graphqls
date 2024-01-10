@@ -24,7 +24,6 @@ type Role {
 
 type UserDto {
     userId: Int
-    name: String
     status: Boolean
     userName: String
     createdAt: String

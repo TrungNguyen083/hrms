@@ -177,11 +177,11 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.latestPerformCycle = getLatestPerformCycle();
     }
 
-    public PerformanceCycle getLatestPerformCycle() {
+    private PerformanceCycle getLatestPerformCycle() {
         return performanceCycleRepository.findFirstByOrderByPerformanceCycleStartDateDesc();
     }
 
-    public CompetencyCycle getLatestCompCycle() {
+    private CompetencyCycle getLatestCompCycle() {
         return competencyCycleRepository.findFirstByOrderByStartDateDesc();
     }
 
@@ -452,9 +452,9 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<CompetencyEvaluation> hasCycSpec = competencySpecification.hasCycleId(competencyCycleId);
         Specification<CompetencyEvaluation> hasPosSpec = employeeSpecification.hasPositionId(positionId);
 
-        return positionId != null
-                ? competencyEvaluationRepository.findAll(hasCycSpec.and(hasPosSpec))
-                : competencyEvaluationRepository.findAll(hasCycSpec);
+        return (positionId == null || positionId == -1)
+                ? competencyEvaluationRepository.findAll(hasCycSpec)
+                : competencyEvaluationRepository.findAll(hasCycSpec.and(hasPosSpec));
     }
 
     private HeatmapItemDTO calculateAvgCompetency(List<CompetencyEvaluation> compEvaluates,
@@ -478,10 +478,20 @@ public class CompetencyServiceImpl implements CompetencyService {
         return new HeatmapItemDTO(jobLevel.getJobLevelName(), competency.getCompetencyName(), avgScore);
     }
 
+    public static <T> TypedQuery<T> paginateQuery(TypedQuery<T> query, Pageable pageable) {
+        if (pageable.isPaged()) {
+            query.setFirstResult((int) pageable.getOffset());
+            query.setMaxResults(pageable.getPageSize());
+        }
+        return query;
+    }
+
 
     @Override
     public DataItemPagingDTO getTopSkillSet(@Nullable Integer departmentId, @Nullable Integer employeeId,
                                             Integer competencyCycleId, int pageNo, int pageSize) {
+        competencyCycleId = (competencyCycleId == null) ? latestCompCycle.getId() : competencyCycleId;
+
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
 
@@ -514,10 +524,15 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         criteriaQuery.orderBy(criteriaBuilder.desc(skillSetEvaluationRoot.get("finalScore")));
 
-        List<DataItemDTO> dataItemDTOS = entityManager.createQuery(criteriaQuery).getResultList();
+        TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
 
-        Pagination pagination = setupPaging(dataItemDTOS.size(), pageNo, pageSize);
-        return new DataItemPagingDTO(dataItemDTOS, pagination);
+        var totalItems = query.getResultList().size();
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        List<DataItemDTO> results = paginateQuery(query, pageable).getResultList();
+
+        Pagination pagination = setupPaging(totalItems, pageNo, pageSize);
+        return new DataItemPagingDTO(results, pagination);
     }
 
     @Override
@@ -543,12 +558,14 @@ public class CompetencyServiceImpl implements CompetencyService {
         criteriaQuery.orderBy(criteriaBuilder.asc(sseRoot.get("finalScore")));
 
         TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
-        List<DataItemDTO> results = query.getResultList();
+
+        var totalItems = query.getResultList().size();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Page<DataItemDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
-        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
-        return new DataItemPagingDTO(topsHighest.getContent(), pagination);
+        List<DataItemDTO> results = paginateQuery(query, pageable).getResultList();
+
+        Pagination pagination = setupPaging(totalItems, pageNo, pageSize);
+        return new DataItemPagingDTO(results, pagination);
     }
 
     @Override
@@ -574,12 +591,14 @@ public class CompetencyServiceImpl implements CompetencyService {
         criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
 
         TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
-        List<DataItemDTO> results = query.getResultList();
+
+        var totalItems = query.getResultList().size();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Page<DataItemDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
-        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
-        return new DataItemPagingDTO(topsHighest.getContent(), pagination);
+        List<DataItemDTO> results = paginateQuery(query, pageable).getResultList();
+
+        Pagination pagination = setupPaging(totalItems, pageNo, pageSize);
+        return new DataItemPagingDTO(results, pagination);
     }
 
     @Override
@@ -1074,7 +1093,9 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public List<CompetencyCycle> getCompetencyCycles() {
-        return competencyCycleRepository.findAll();
+        //Sort by initialDate DESC
+        Sort sort = Sort.by("initialDate").descending();
+        return competencyCycleRepository.findAll(sort);
     }
 
     @Override
@@ -1096,6 +1117,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(criteriaBuilder.equal(ceoRoot.get("competencyCycle").get("id"), cycleId));
+        predicates.add(criteriaBuilder.isNotNull(ceoRoot.get("score")));
 
         if (departmentId != null) {
             predicates.add(criteriaBuilder.equal(employeeJoin.get("department").get("id"), departmentId));
