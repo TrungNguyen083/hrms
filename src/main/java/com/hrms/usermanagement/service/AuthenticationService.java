@@ -23,11 +23,12 @@ public class AuthenticationService {
     public User getUser(String username) {
         return userRepository.findByUsername(username);
     }
+
     public String login(String username, String password) throws Exception {
         return Optional.ofNullable(userRepository.findByUsername(username))
                 .filter(user -> passwordEncoder.matches(password, user.getPassword()))
                 .filter(User::getIsEnabled)
                 .map(user -> jwtService.generateToken(username))
-                .orElseThrow(() -> new Exception("Authentication failed"));
+                .orElseThrow(() -> new Exception("Authentication failed or your account is disabled"));
     }
 }

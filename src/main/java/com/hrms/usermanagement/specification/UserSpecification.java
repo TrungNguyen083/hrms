@@ -20,7 +20,7 @@ public class UserSpecification {
     }
 
     public Specification<User> hasRoles(@Nullable List<Integer> roleIds) {
-        return roleIds == null || roleIds.isEmpty() ? null : (root, query, cb) -> {
+        return (roleIds == null || roleIds.isEmpty() || roleIds.size() == 3) ? null : (root, query, cb) -> {
             Join<User, UserRole> userRoleJoin = root.join("userRoles");
             return userRoleJoin.get("role").get("id").in(roleIds);
         };

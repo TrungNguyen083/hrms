@@ -5,7 +5,6 @@ import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.dto.UserDtoPagination;
 import com.hrms.usermanagement.model.Role;
-import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.service.UserService;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,7 @@ public class UserController {
     }
 
     @MutationMapping
-    public User createUser(@Argument SignupDto signupDto) throws Exception {
+    public Boolean createUser(@Argument SignupDto signupDto) throws Exception {
         return userService.createUser(signupDto);
     }
 

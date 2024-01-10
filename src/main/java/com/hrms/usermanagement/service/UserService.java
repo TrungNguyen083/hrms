@@ -95,7 +95,7 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(SignupDto signupDto) throws Exception {
+    public Boolean createUser(SignupDto signupDto) throws Exception {
         checkUserExist(signupDto.getUsername());
 
         var user = new User();
@@ -104,7 +104,9 @@ public class UserService {
         user.setIsEnabled(false);
         user.setCreatedAt(Date.valueOf(LocalDate.now()));
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        return Boolean.TRUE;
     }
 
     @Transactional
