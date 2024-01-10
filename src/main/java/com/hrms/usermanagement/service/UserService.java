@@ -56,9 +56,22 @@ public class UserService {
     public UserService() {
     }
 
-    private void checkUserExist(String username) throws Exception {
-        if (Boolean.TRUE.equals(userRepository.existsByUsername(username))) {
-            throw new Exception("User already exists");
+    private void checkUserExist(String username, Integer userId) throws Exception {
+        //If userId not null, check if username exists for other users
+        if (userId != null) {
+            Specification<User> spec = (root, query, builder) -> {
+                Predicate usernamePredicate = builder.equal(root.get("username"), username);
+                Predicate userIdPredicate = builder.notEqual(root.get("userId"), userId);
+                return builder.and(usernamePredicate, userIdPredicate);
+            };
+            if (userRepository.exists(spec)) {
+                throw new Exception("Username already exists");
+            }
+        } else {
+            //If userId is null, check if username exists for any user
+            if (Boolean.TRUE.equals(userRepository.existsByUsername(username))) {
+                throw new Exception("Username already exists");
+            }
         }
     }
 
@@ -96,7 +109,7 @@ public class UserService {
 
     @Transactional
     public Boolean createUser(SignupDto signupDto) throws Exception {
-        checkUserExist(signupDto.getUsername());
+        checkUserExist(signupDto.getUsername(), null);
 
         var user = new User();
         user.setUsername(signupDto.getUsername());
@@ -157,19 +170,13 @@ public class UserService {
         );
     }
 
-    static Predicate getEqualUserIdsPredicate(List<Integer> userIds, Root<UserRole> root) {
-        return root.get("user").get("userId").in(userIds);
+    public Boolean updateUsernamePassword(Integer userId, String username, String password) throws Exception {
+        User u = userRepository.findById(userId).orElseThrow();
+        checkUserExist(username, u.getUserId());
+        u.setUsername(username);
+        u.setPassword(passwordEncoder.encode(password));
+        userRepository.save(u);
+        return Boolean.TRUE;
     }
-
-//    private void updateUsersStatus(List<Integer> userIds, Boolean status) {
-//        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-//        CriteriaUpdate<User> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(User.class);
-//        CriteriaUpdate<User> update = criteriaUpdate.set("isEnabled", status);
-//
-//        Root<User> root = update.from(User.class);
-//        update.where(root.get("userId").in(userIds));
-//
-//        em.createQuery(update).executeUpdate();
-//    }
 
 }

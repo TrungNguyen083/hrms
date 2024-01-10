@@ -65,4 +65,11 @@ public class UserController {
     public List<Role> roles() {
         return userService.getRoles();
     }
+
+    @MutationMapping(name = "updateUsernamePassword")
+    public Boolean updateUsernamePassword(@Argument Integer userId,
+                                          @Argument String username,
+                                          @Argument String password) throws Exception {
+        return userService.updateUsernamePassword(userId, username, password);
+    }
 }
