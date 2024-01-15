@@ -1,16 +1,12 @@
 package com.hrms.usermanagement.specification;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.model.UserRole;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 @Component

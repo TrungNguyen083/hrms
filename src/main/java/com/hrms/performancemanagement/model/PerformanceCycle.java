@@ -32,9 +32,11 @@ public class PerformanceCycle {
     private Date performanceCycleEndDate;
 
     @Column(name = "is_done")
+    @Builder.Default
     private Boolean isDone = false;
 
     @Column(name = "status")
+    @Builder.Default
     private String status = "Not Start";
 
     @ManyToOne(fetch = FetchType.LAZY)

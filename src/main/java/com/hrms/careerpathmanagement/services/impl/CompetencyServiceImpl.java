@@ -177,7 +177,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.latestPerformCycle = getLatestPerformCycle();
     }
 
-    private PerformanceCycle getLatestPerformCycle() {
+    public PerformanceCycle getLatestPerformCycle() {
         return performanceCycleRepository.findFirstByOrderByPerformanceCycleStartDateDesc();
     }
 

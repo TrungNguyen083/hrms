@@ -2,7 +2,6 @@ package com.hrms.usermanagement.service;
 
 import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.global.paging.Pagination;
-import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.dto.UserDtoPagination;
 import com.hrms.usermanagement.model.Role;
@@ -24,37 +23,28 @@ import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @Slf4j
 public class UserService {
-
-    @jakarta.persistence.PersistenceContext
-    jakarta.persistence.EntityManager em;
+    @Autowired
     private UserRepository userRepository;
-    private UserRoleRepository userRoleRepository;
-    private PasswordEncoder passwordEncoder;
-    private UserSpecification userSpecification;
-    private HrmsMapper modelMapper;
-    private RoleRepository roleRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository,
-                       PasswordEncoder passwordEncoder, UserSpecification userSpecification,
-                       HrmsMapper modelMapper, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.userRoleRepository = userRoleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userSpecification = userSpecification;
-        this.modelMapper = modelMapper;
-        this.roleRepository = roleRepository;
-    }
+    private UserRoleRepository userRoleRepository;
 
-    public UserService() {
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserSpecification userSpecification;
+
+    @Autowired
+    private HrmsMapper modelMapper;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     private void checkUserExist(String username, Integer userId) throws Exception {
         //If userId not null, check if username exists for other users
@@ -105,21 +95,6 @@ public class UserService {
         return modelMapper.map(userRepository
                 .findById(userId)
                 .orElseThrow(() -> new Exception("User Not Exist")), UserDto.class);
-    }
-
-    @Transactional
-    public Boolean createUser(SignupDto signupDto) throws Exception {
-        checkUserExist(signupDto.getUsername(), null);
-
-        var user = new User();
-        user.setUsername(signupDto.getUsername());
-        user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
-        user.setIsEnabled(false);
-        user.setCreatedAt(Date.valueOf(LocalDate.now()));
-
-        userRepository.save(user);
-
-        return Boolean.TRUE;
     }
 
     @Transactional
