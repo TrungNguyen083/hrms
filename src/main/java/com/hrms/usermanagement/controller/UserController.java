@@ -56,6 +56,7 @@ public class UserController {
 
 
     @MutationMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Boolean updateUsers(@Argument List<Integer> ids,
                                @Argument Boolean status,
                                @Argument List<Integer> roles)
@@ -64,11 +65,13 @@ public class UserController {
     }
 
     @QueryMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Role> roles() {
         return userService.getRoles();
     }
 
     @MutationMapping(name = "updateUsernamePassword")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Boolean updateUsernamePassword(@Argument Integer userId,
                                           @Argument String username,
                                           @Argument String password) throws Exception {

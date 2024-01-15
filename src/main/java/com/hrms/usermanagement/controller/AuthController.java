@@ -56,18 +56,4 @@ public class AuthController {
             throw new UsernameNotFoundException("invalid user request !");
         }
     }
-
-    @GetMapping("/users")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public UserDtoPagination users(@RequestParam(required = false) String search,
-                                   @RequestParam(required = false) List<Integer> roles,
-                                   @RequestParam(required = false) Boolean status,
-                                   @RequestParam int pageNo,
-                                   @RequestParam int pageSize)
-    {
-        var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
-        var users = userService.searchUsers(search, roles, status, pageable);
-        users.data().stream().forEach(user -> user.setRoles(userService.getRoles(user.getUserId())));
-        return users;
-    }
 }
