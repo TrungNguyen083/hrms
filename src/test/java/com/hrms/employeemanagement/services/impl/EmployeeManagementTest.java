@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
+import com.hrms.employeemanagement.dto.EmployeeDTO;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 
@@ -58,7 +59,7 @@ class   EmployeeManagementTest {
         when(employeeRepository.findAll(any(PageRequest.class))).thenReturn(employeePage);
 
         // Calling the service method
-        List<Employee> result = employeeService.getNewEmployees();
+        List<EmployeeDTO> result = employeeService.getNewEmployees();
 
         // Verifying that the repository method was called with the correct specification
         verify(employeeRepository, times(1)).findAll(any(PageRequest.class));

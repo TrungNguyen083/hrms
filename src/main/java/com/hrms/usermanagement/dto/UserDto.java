@@ -14,11 +14,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class UserDto {
-    public UserDto(Integer userId, String userName) {
-        this.userId = userId;
-        this.userName = userName;
-
-    }
     private Integer userId;
     private String userName;
     private Boolean status;

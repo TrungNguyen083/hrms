@@ -52,7 +52,7 @@ class EmployeeManagementIntegrationTest {
 
     @Test
     void testFilterEmployees() {
-        EmployeePagingDTO result = employeeService.filterEmployees(List.of(1), null, null, "Messi", new PagingInfo(1,10, null));
+        EmployeePagingDTO result = employeeService.filterEmployees(List.of(1), null, null, "Messi", 1,10);
         Assertions.assertEquals(1, result.data().size());
     }
 

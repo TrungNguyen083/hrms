@@ -6,6 +6,7 @@ import com.hrms.performancemanagement.services.PerformanceTemplateService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -19,11 +20,13 @@ public class EvaluationTemplateController {
     }
 
     @QueryMapping(name = "templatedAndQuestion")
+    @PreAuthorize("hasAnyAuthority('USER') or hasAuthority('MANAGER')")
     public PerformanceEvalTemplateDTO getTemplateAndQuestion(@Argument Integer cycleId) {
         return performanceTemplateService.getTemplateAndQuestion(cycleId);
     }
 
     @MutationMapping(name = "createFeedbackRequest")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public String requestFeedback(@Argument Integer requestorId,
                                 @Argument List<Integer> requestReceiverIds,
                                 @Argument Integer cycleId,
@@ -39,6 +42,7 @@ public class EvaluationTemplateController {
     }
 
     @QueryMapping(name = "feedbacks")
+    @PreAuthorize("hasAnyAuthority('USER') or hasAuthority('MANAGER')")
     public List<FeedbackDTO> getFeedbacks(@Argument Integer feedbackReceiverId,
                                           @Argument Integer cycleId) {
         return performanceTemplateService.getFeedbacks(feedbackReceiverId, cycleId);
