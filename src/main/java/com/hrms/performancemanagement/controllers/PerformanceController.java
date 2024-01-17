@@ -27,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
@@ -44,16 +45,19 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "departmentInCompletePerform")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public MultiBarChartDTO getDepartmentInCompletePerform(@Argument Integer performanceCycleId) {
         return performanceService.getDepartmentInCompletePerform(performanceCycleId);
     }
 
     @QueryMapping(name = "performanceEvalProgress")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public PieChartDTO getPerformanceEvalProgress(@Argument Integer performanceCycleId) {
         return performanceService.getPerformanceEvalProgress(performanceCycleId);
     }
 
     @QueryMapping(name = "averagePerformanceScore")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public Float getAveragePerformanceScore(@Argument Integer cycleId) {
         return performanceService.getAveragePerformanceScore(cycleId);
     }
@@ -65,6 +69,7 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "performanceByJobLevel")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public StackedBarChart getPerformanceByJobLevel(@Argument Integer positionId,
                                                     @Argument Integer cycleId) {
         return performanceService.getPerformanceByJobLevel(positionId, cycleId);
@@ -76,6 +81,7 @@ public class PerformanceController {
      * @return Descartes coordinate, x-axis: performance, y-axis: potential
      */
     @QueryMapping(name = "employeesPotentialPerformance")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(@Argument @Nullable Integer departmentId,
                                                                             @Argument Integer cycleId) {
         return performanceService.getPotentialAndPerformance(departmentId, cycleId);
@@ -89,6 +95,7 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "topPerformers")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public EmployeeRatingPagination getPerformanceRating(@Argument @Nullable Integer departmentId,
                                                          @Argument Integer cycleId,
                                                          @Argument Integer pageNo,
@@ -99,6 +106,7 @@ public class PerformanceController {
     }
 
     @QueryMapping
+    @PreAuthorize("hasAuthority('MANAGER')")
     public Page<PerformanceEvaluation> getPerformanceEvaluations(@Argument Integer cycleId,
                                                                  @Argument int pageNo,
                                                                  @Argument int pageSize) {
@@ -111,6 +119,7 @@ public class PerformanceController {
      * @return BarChart
      */
     @QueryMapping(name = "employeePerformanceRatingScore")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
     public DataItemPagingDTO getEmployeePerformanceRatingScore(@Argument Integer employeeId,
                                                                @Argument int pageNo,
                                                                @Argument int pageSize) {
@@ -118,6 +127,7 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "performanceTimeLine")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
     public List<TimeLine> getPerformanceTimeLine(@Argument Integer performanceCycleId) {
         return performanceService.getPerformanceTimeLine(performanceCycleId);
     }
@@ -126,6 +136,7 @@ public class PerformanceController {
      * SUM Dashboard - Component : Employees Potential Performance
      */
     @QueryMapping(name = "potentialAndPerformanceByPosition")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(@Argument Integer departmentId,
                                                                                       @Argument Integer cycleId,
                                                                                       @Argument Integer positionId) {
@@ -133,6 +144,7 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "performanceEvaluationOverview")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public DiffPercentDTO getPerformanceEvaOverview(@Argument Integer cycleId,
                                                  @Argument Integer departmentId)
     {
@@ -140,6 +152,7 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "performanceRatingScheme")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public BarChartDTO getPerformanceRatingScheme(@Argument @Nullable Integer departmentId,
                                                   @Argument Integer cycleId)
     {
@@ -147,27 +160,32 @@ public class PerformanceController {
     }
   
     @MutationMapping(name = "createPerformanceCycle")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public PerformanceCycle createPerformanceCycle(@Argument PerformanceCycleInput input) {
         return performanceService.createPerformanceCycle(input);
     }
 
     @MutationMapping(name = "updateProficiencyLevel")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public ProficiencyLevel updateProficiencyLevel(@Argument Integer id, @Argument ProficiencyLevelInput input)
     {
         return performanceService.updateProficiencyLevel(id, input);
     }
 
     @MutationMapping(name = "updatePerformanceRange")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public PerformanceRange updatePerformanceRage(@Argument Integer id, @Argument PerformanceRangeInput input) {
         return performanceService.updatePerformanceRange(id, input);
     }
 
     @QueryMapping(name = "performanceCyclePeriod")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
     public String performanceCyclePeriod(@Argument Integer cycleId) {
         return performanceService.performanceCyclePeriod(cycleId);
     }
 
     @MutationMapping(name = "createPerformanceProcess")
+    @PreAuthorize("hasAuthority('MANAGER')")
     public List<TimeLine> createPerformanceProcess(@Argument EvaluationProcessInput input) throws ParseException {
         return performanceService.createPerformanceProcess(input);
     }
