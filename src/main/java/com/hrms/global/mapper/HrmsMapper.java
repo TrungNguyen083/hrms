@@ -20,7 +20,7 @@ public class HrmsMapper extends ModelMapper {
                 mapper -> {
                     mapper.map(User::getUserId, UserDto::setUserId);
                     mapper.map(User::getUsername, UserDto::setUserName);
-                    mapper.map(User::getIsEnabled, UserDto::setStatus);
+                    mapper.map(User::getIsEnabled, UserDto::setIsEnable);
                     mapper.map(User::getCreatedAt, UserDto::setCreatedAt);
                 }
         );

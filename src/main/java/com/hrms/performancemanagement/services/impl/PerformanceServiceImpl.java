@@ -121,7 +121,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 .stream()
                 .map(IdOnly::id)
                 .toList();
-        return performanceEvaluationRepository.averageByIdIn("finalAssessment", evalIds).floatValue();
+        return performanceEvaluationRepository.avgEvalScoreByIdIn(evalIds).floatValue();
     }
 
     @Override
