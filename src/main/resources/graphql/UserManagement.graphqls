@@ -1,12 +1,4 @@
-input SignupDto {
-    username: String
-    password: String
-}
 
-type Token {
-    owner: User
-    token: String
-}
 
 type User {
     userId: Int!

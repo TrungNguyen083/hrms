@@ -13,7 +13,6 @@ type Query {
 
 
     #UserManagement:
-    login(username: String!, password: String!): Token
     user(userId: Int): UserDto
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
     getUsers: [UserDto]
