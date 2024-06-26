@@ -27,3 +27,8 @@ type UserDtoConnection {
     totalCount: Int
     pagination: Pagination
 }
+
+input AuthRequest {
+    username: String!
+    password: String!
+}

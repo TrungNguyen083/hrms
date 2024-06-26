@@ -5,6 +5,8 @@ type Mutation {
 
 
     #User Management
+    generateToken(authRequest: AuthRequest!): String
+    createUser(authRequest: AuthRequest!): User
     updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
     updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
 
