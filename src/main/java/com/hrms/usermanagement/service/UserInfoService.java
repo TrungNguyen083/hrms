@@ -1,11 +1,9 @@
 package com.hrms.usermanagement.service;
 
-import com.hrms.usermanagement.dto.SignupDto;
+import com.hrms.usermanagement.dto.AuthRequest;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.UserRepository;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,12 +35,12 @@ public class UserInfoService implements UserDetailsService {
     }
 
     @Transactional
-    public Boolean createUser(SignupDto signupDto) throws Exception {
-        checkUserExist(signupDto.getUsername(), null);
+    public Boolean createUser(AuthRequest authRequest) throws Exception {
+        checkUserExist(authRequest.getUsername());
 
         var user = new User();
-        user.setUsername(signupDto.getUsername());
-        user.setPassword(encoder.encode(signupDto.getPassword()));
+        user.setUsername(authRequest.getUsername());
+        user.setPassword(encoder.encode(authRequest.getPassword()));
         user.setIsEnabled(false);
         user.setCreatedAt(Date.valueOf(LocalDate.now()));
 
@@ -51,22 +49,10 @@ public class UserInfoService implements UserDetailsService {
         return Boolean.TRUE;
     }
 
-    private void checkUserExist(String username, Integer userId) throws Exception {
-        //If userId not null, check if username exists for other users
-        if (userId != null) {
-            Specification<User> spec = (root, query, builder) -> {
-                Predicate usernamePredicate = builder.equal(root.get("username"), username);
-                Predicate userIdPredicate = builder.notEqual(root.get("userId"), userId);
-                return builder.and(usernamePredicate, userIdPredicate);
-            };
-            if (repository.exists(spec)) {
-                throw new Exception("Username already exists");
-            }
-        } else {
-            //If userId is null, check if username exists for any user
-            if (Boolean.TRUE.equals(repository.existsByUsername(username))) {
-                throw new Exception("Username already exists");
-            }
+    private void checkUserExist(String username) throws Exception {
+        //If userId is null, check if username exists for any user
+        if (Boolean.TRUE.equals(repository.existsByUsername(username))) {
+            throw new Exception("Username already exists");
         }
     }
 

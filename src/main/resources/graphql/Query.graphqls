@@ -11,7 +11,6 @@ type Query {
     departmentHeadcountChart(departmentId: Int!): BarChartDTO
 
 
-
     #UserManagement:
     user(userId: Int): UserDto
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection

@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @QueryMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public UserDtoPagination users(@Nullable @Argument String search,
                                    @Nullable @Argument List<Integer> roles,
                                    @Nullable @Argument Boolean status,
@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @QueryMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Role> roles() {
         return userService.getRoles();
     }
