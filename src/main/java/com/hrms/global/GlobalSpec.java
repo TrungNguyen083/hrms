@@ -14,6 +14,10 @@ public class GlobalSpec {
         return (root, query, cb) -> root.get("id").in(ids);
     }
 
+    public static <T> Specification<T> hasUserIds(List<Integer> ids) {
+        return (root, query, cb) -> root.get("userId").in(ids);
+    }
+
     public static <T> Specification<T> hasPositionId(Integer positionId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("position").get("id"), positionId);
     }

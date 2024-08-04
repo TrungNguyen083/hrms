@@ -34,10 +34,11 @@ public class  User {
     @Column(name = "created_at")
     private Date createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role = new Role(6);
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<UserRole> userRoles;
 }

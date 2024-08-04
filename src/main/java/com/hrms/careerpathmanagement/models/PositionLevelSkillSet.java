@@ -14,10 +14,11 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PositionJobLevelSkillSet {
+public class PositionLevelSkillSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    @Column(name = "position_level_skill_set_id")
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "position_id", referencedColumnName = "position_id")

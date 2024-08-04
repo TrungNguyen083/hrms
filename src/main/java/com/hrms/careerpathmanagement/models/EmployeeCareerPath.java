@@ -1,7 +1,8 @@
 package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.PositionLevel;
+import com.hrms.employeemanagement.models.JobLevel;
+import com.hrms.employeemanagement.models.Position;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import lombok.Setter;
 public class EmployeeCareerPath {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "employee_career_path_id")
     private Integer id;
 
     @ManyToOne
@@ -23,8 +25,12 @@ public class EmployeeCareerPath {
     private Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "position_level_id")
-    PositionLevel positionLevel;
+    @JoinColumn(name = "position_id")
+    private Position position;
+
+    @ManyToOne
+    @JoinColumn(name = "job_level_id")
+    private JobLevel jobLevel;
 
     @Column(name = "ordered")
     Integer ordered;

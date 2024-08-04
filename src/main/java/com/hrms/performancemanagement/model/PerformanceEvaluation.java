@@ -15,7 +15,7 @@ import java.sql.Date;
 @Builder
 public class PerformanceEvaluation {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "performance_evaluation_id")
     private Integer id;
 

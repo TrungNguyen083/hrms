@@ -21,5 +21,9 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
     @Query("UPDATE User u SET u.isEnabled = :status WHERE u.userId IN :userIds")
     void updateIsEnabledForUserIds(@Param("status") Boolean status, @Param("userIds") List<Integer> userIds);
 
+    @Modifying
+    @Query("UPDATE User u SET u.role = :roleId WHERE u.userId IN :userIds")
+    void updateRoleForUserIds(@Param("roleId") Integer roleId, @Param("userIds") List<Integer> userIds);
+
 }
 

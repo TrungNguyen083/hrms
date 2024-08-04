@@ -9,8 +9,11 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 
 @RestController
@@ -40,9 +43,10 @@ public class AuthController {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
+            List<String> authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+            return jwtService.generateToken(authRequest.getUsername(), authorities);
         } else {
-            throw new UsernameNotFoundException("invalid user request !");
+            throw new UsernameNotFoundException("Invalid user request!");
         }
     }
 }

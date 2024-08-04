@@ -16,7 +16,7 @@ import java.util.List;
 public class UserDto {
     private Integer userId;
     private String userName;
-    private Boolean isEnable;
-    private List<Role> roles;
+    private Boolean status;
+    private Role role;
     private Date createdAt;
 }

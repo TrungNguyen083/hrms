@@ -17,6 +17,7 @@ import java.util.Date;
 public class FeedbackRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "feedback_request_id")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)

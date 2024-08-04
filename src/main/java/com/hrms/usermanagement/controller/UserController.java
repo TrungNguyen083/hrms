@@ -14,6 +14,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
@@ -40,32 +41,38 @@ public class UserController {
     }
 
     @QueryMapping
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public UserDtoPagination users(@Nullable @Argument String search,
-                                   @Nullable @Argument List<Integer> roles,
+                                   @Nullable @Argument Integer roleId,
                                    @Nullable @Argument Boolean status,
                                    @Argument int pageNo,
                                    @Argument int pageSize)
     {
         var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
-        var users = userService.searchUsers(search, roles, status, pageable);
-        users.data().stream().forEach(user -> user.setRoles(userService.getRoles(user.getUserId())));
-        return users;
+        return userService.searchUsers(search, roleId, status, pageable);
     }
 
 
 
     @MutationMapping
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Boolean updateUsers(@Argument List<Integer> ids,
+    public Boolean updateUsers(@Argument Integer userId,
                                @Argument Boolean status,
-                               @Argument List<Integer> roles)
+                               @Argument Integer roleId)
     {
-        return userService.updateUsers(ids, status, roles);
+        return userService.updateUsers(userId, status, roleId);
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Boolean assignUser(@Argument Integer userId,
+                               @Argument Integer employeeId)
+    {
+        return userService.assignUser(userId, employeeId);
     }
 
     @QueryMapping
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Role> roles() {
         return userService.getRoles();
     }

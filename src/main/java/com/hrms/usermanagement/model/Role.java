@@ -20,6 +20,10 @@ public class Role {
     @Column(name = "name", length = 32)
     private String name;
 
+    public Role(Integer id) {
+        roleId = id;
+    }
+
     @Override
     public String toString() {
         return "Role{" +

@@ -106,6 +106,7 @@ public class EmployeeManagementController {
         return positionRepository.findAll();
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/dam/upload/{employeeId}")
     public ResponseEntity<String> uploadFile(@PathVariable Integer employeeId,
                                              @RequestParam("file") MultipartFile file,
