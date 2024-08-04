@@ -6,7 +6,7 @@ type User {
     password: String
     isEnabled: Boolean
     createdAt: String
-    roles: [Role]
+    role: Role
 }
 
 type Role {
@@ -19,7 +19,7 @@ type UserDto {
     status: Boolean
     userName: String
     createdAt: String
-    roles: [Role]
+    role: Role
 }
 
 type UserDtoConnection {

@@ -1,7 +1,6 @@
 package com.hrms.usermanagement.specification;
 
 import com.hrms.usermanagement.model.User;
-import com.hrms.usermanagement.model.UserRole;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,15 +14,12 @@ public class UserSpecification {
         return id == null ? null : (root, query, cb) -> cb.equal(root.get("id"), id);
     }
 
-    public Specification<User> hasRoles(@Nullable List<Integer> roleIds) {
-        return (roleIds == null || roleIds.isEmpty() || roleIds.size() == 3) ? null : (root, query, cb) -> {
-            Join<User, UserRole> userRoleJoin = root.join("userRoles");
-            return userRoleJoin.get("role").get("id").in(roleIds);
-        };
+    public Specification<User> hasRoleId(@Nullable Integer roleId) {
+        return roleId == null ? null : (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("id"), roleId);
     }
 
     public Specification<User> hasStatus(@Nullable Boolean status) {
-        return  status == null ? null : (root, query, cb) -> cb.equal(root.get("isEnabled"), status);
+        return status == null ? null : (root, query, cb) -> cb.equal(root.get("isEnabled"), status);
     }
 
     public Specification<User> hasSearch(@Nullable String search) {
@@ -31,11 +27,10 @@ public class UserSpecification {
     }
 
     public Specification<User> getUsersSpec(@Nullable String search,
-                                         List<Integer> roleIds,
-                                         @Nullable Boolean status)
-    {
+                                            @Nullable Integer roleId,
+                                            @Nullable Boolean status) {
         return Specification.where(hasSearch(search))
-                .and(hasRoles(roleIds))
+                .and(hasRoleId(roleId))
                 .and(hasStatus(status));
     }
 }

@@ -19,10 +19,10 @@ public class CareerController {
         this.careerManagementService = careerManagementService;
     }
 
-    @GetMapping("/path")
-    public ResponseEntity<CareerPathTreeDTO> getCareerPathTree(@RequestParam PositionCareerPath position) {
-        return ResponseEntity.ok(careerManagementService.getCareerPathTree(position));
-    }
+//    @GetMapping("/path")
+//    public ResponseEntity<CareerPathTreeDTO> getCareerPathTree(@RequestParam PositionCareerPath position) {
+//        return ResponseEntity.ok(careerManagementService.getCareerPathTree(position));
+//    }
 
     @GetMapping("/match")
     public ResponseEntity<Float> getMatchPercent(@RequestParam Integer employeeId,

@@ -17,6 +17,7 @@ import java.util.Date;
 public class Goal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "goal_id")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)

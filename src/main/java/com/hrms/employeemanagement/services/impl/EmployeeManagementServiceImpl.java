@@ -209,9 +209,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
         Page<Employee> empPage = employeeRepository.findAll(filterSpec, pageable);
 
-        List<ProfileImageOnly> images = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(
-                empPage.stream()
-                        .map(Employee::getId).toList(), PROFILE_IMAGE);
+        List<ProfileImageOnly> images = getProfileImageOnlies(empPage);
 
         List<EmergencyContact> eContacts = emergencyContactRepository.findAll();
 
@@ -231,6 +229,13 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
         Pagination pagination = PaginationSetup.setupPaging(empPage.getTotalElements(), pageNo, pageSize);
         return new EmployeePagingDTO(listDTO, pagination);
+    }
+
+    private List<ProfileImageOnly> getProfileImageOnlies(Page<Employee> empPage) {
+        List<ProfileImageOnly> images = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(
+                empPage.stream()
+                        .map(Employee::getId).toList(), PROFILE_IMAGE);
+        return images;
     }
 
     @Override
@@ -491,9 +496,9 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public BarChartDTO getDepartmentHeadcountChart(Integer departmentId) {
-        Specification<PositionDepartment> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
-        List<PositionDepartment> posDepartments = positionDepartmentRepository.findAll(hasDepartment);
-        List<Position> positions = posDepartments.stream().map(PositionDepartment::getPosition).toList();
+        Specification<DepartmentPosition> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+        List<DepartmentPosition> posDepartments = positionDepartmentRepository.findAll(hasDepartment);
+        List<Position> positions = posDepartments.stream().map(DepartmentPosition::getPosition).toList();
         List<Integer> posIds = positions.stream().map(Position::getId).toList();
         //Find all employees in departmentIds and have status not equal to 0
         Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);

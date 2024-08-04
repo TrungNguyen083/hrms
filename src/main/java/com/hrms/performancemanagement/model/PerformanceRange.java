@@ -1,9 +1,6 @@
 package com.hrms.performancemanagement.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +13,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PerformanceRange {
     @Id
-    @GeneratedValue
-    private Integer performanceRangeId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "performance_range_id")
+    private Integer id;
 
     @Column(name = "min_value")
     private Integer minValue;

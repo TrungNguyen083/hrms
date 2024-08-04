@@ -15,7 +15,7 @@ public class JobLevel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "job_level_id")
-    private int id;
+    private Integer id;
     @Column(name = "job_level_name")
     private String jobLevelName;
 

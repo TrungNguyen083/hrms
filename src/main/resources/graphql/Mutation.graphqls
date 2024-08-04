@@ -6,9 +6,10 @@ type Mutation {
 
     #User Management
     generateToken(authRequest: AuthRequest!): String
-    createUser(authRequest: AuthRequest!): User
-    updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
+    createUser(authRequest: AuthRequest!): Boolean
+    updateUsers(userId: Int!, status: Boolean, roleId: Int): Boolean!
     updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
+    assignUser(userId: Int!, employeeId: Int!): Boolean!
 
 
     #Company Management

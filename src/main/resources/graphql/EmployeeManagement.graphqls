@@ -46,23 +46,23 @@ type EmployeePaging {
 
 input EmployeeInput {
     id: Int
-    firstName: String!
-    lastName: String!
-    gender: String!
-    email: String!
-    joinedDate: String!
-    dateOfBirth: String!
-    phoneNumber: String!
-    address: String!
-    currentContract: Int!
+    firstName: String
+    lastName: String
+    gender: String
+    email: String
+    joinedDate: String
+    dateOfBirth: String
+    phoneNumber: String
+    address: String
+    currentContract: Int
     profileBio: String
     facebookLink: String
     twitterLink: String
     linkedinLink: String
     instagramLink: String
-    positionId: Int!
+    positionId: Int
     jobLevelId: Int
-    departmentId: Int!
+    departmentId: Int
     emergencyContacts: [EmergencyContactInput!]!
 }
 

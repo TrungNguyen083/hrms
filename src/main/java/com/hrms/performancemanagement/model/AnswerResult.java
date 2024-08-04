@@ -19,6 +19,7 @@ import java.util.Date;
 public class AnswerResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "answer_result_id")
     private Integer id;
 
     @ManyToOne

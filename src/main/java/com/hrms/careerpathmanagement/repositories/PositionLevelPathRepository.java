@@ -9,6 +9,5 @@ import java.util.List;
 public interface PositionLevelPathRepository extends JpaRepository<PositionLevelPath, Integer>,
         JpaSpecificationExecutor<PositionLevelPath>
 {
-    List<PositionLevelPath> findAllByCurrentId(Integer currentId);
-    boolean existsByCurrentId(Integer currentId);
+
 }
