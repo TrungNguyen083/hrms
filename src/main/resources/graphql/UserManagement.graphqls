@@ -20,6 +20,8 @@ type UserDto {
     userName: String
     createdAt: String
     role: Role
+    employee: Employee
+    profileImage: String
 }
 
 type UserDtoConnection {

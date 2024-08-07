@@ -2,7 +2,7 @@ package com.hrms.careerpathmanagement.models;
 
 
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.SkillSet;
+import com.hrms.employeemanagement.models.Skill;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SkillSetEvaluation {
+public class SkillEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "skill_set_evaluation_id")
@@ -27,8 +27,8 @@ public class SkillSetEvaluation {
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "skill_set_id")
-    private SkillSet skillSet;
+    @JoinColumn(name = "skill_id")
+    private Skill skill;
 
     @Column(name = "self_score")
     private Integer selfScore;

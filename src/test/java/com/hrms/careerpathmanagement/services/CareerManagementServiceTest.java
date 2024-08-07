@@ -1,8 +1,8 @@
 package com.hrms.careerpathmanagement.services;
 
-import com.hrms.careerpathmanagement.repositories.PositionLevelSkillSetRepository;
+import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
 import com.hrms.careerpathmanagement.repositories.PositionLevelPathRepository;
-import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
+import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +12,8 @@ class CareerManagementServiceTest {
 
     private CareerManagementService careerManagementService;
     private PositionLevelPathRepository positionLevelPathRepository;
-    private PositionLevelSkillSetRepository baselineSkillSetRepository;
-    private SkillSetEvaluationRepository skillSetEvaluationRepository;
+    private PositionLevelSkillRepository baselineSkillSetRepository;
+    private SkillEvaluationRepository skillEvaluationRepository;
 
     @BeforeEach
     void init() {
@@ -21,7 +21,7 @@ class CareerManagementServiceTest {
         careerManagementService = new CareerManagementService(
                 positionLevelPathRepository,
                 baselineSkillSetRepository,
-                skillSetEvaluationRepository
+                skillEvaluationRepository
         );
 
 

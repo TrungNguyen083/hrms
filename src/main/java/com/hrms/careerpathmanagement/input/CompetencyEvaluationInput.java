@@ -14,5 +14,5 @@ public class CompetencyEvaluationInput {
     private Integer competencyCycleId;
     private Boolean isSubmitted;
     private Float score;
-    private List<SkillSetScoreInput> skillSetScores;
+    private List<SkillScoreInput> skillScores;
 }

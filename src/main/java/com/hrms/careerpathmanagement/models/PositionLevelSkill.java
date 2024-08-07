@@ -2,7 +2,7 @@ package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.models.Position;
-import com.hrms.employeemanagement.models.SkillSet;
+import com.hrms.employeemanagement.models.Skill;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PositionLevelSkillSet {
+public class PositionLevelSkill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "position_level_skill_set_id")
@@ -29,8 +29,8 @@ public class PositionLevelSkillSet {
     private JobLevel jobLevel;
 
     @ManyToOne
-    @JoinColumn(name = "skill_set_id", referencedColumnName = "skill_set_id")
-    private SkillSet skillSet;
+    @JoinColumn(name = "skill_id", referencedColumnName = "skill_id")
+    private Skill skill;
 
     @ManyToOne
     @JoinColumn(name = "proficiency_level_id", referencedColumnName = "proficiency_level_id")

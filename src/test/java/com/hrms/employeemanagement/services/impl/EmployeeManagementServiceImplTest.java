@@ -1,10 +1,9 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
-import com.hrms.careerpathmanagement.repositories.SkillSetTargetRepository;
+import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
+import com.hrms.careerpathmanagement.repositories.SkillTargetRepository;
 import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.digitalassetmanagement.service.DamService;
-import com.hrms.employeemanagement.dto.EmergencyContactInputDTO;
 import com.hrms.employeemanagement.dto.EmployeeInputDTO;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
@@ -38,10 +37,10 @@ class EmployeeManagementServiceImplTest {
     EmployeeDamInfoRepository employeeDamInfoRepository;
 
     @Mock
-    SkillSetEvaluationRepository skillSetEvaluationRepository;
+    SkillEvaluationRepository skillEvaluationRepository;
 
     @Mock
-    SkillSetTargetRepository skillSetTargetRepository;
+    SkillTargetRepository skillTargetRepository;
 
     @Mock
     EmployeeSpecification employeeSpecification;

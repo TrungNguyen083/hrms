@@ -2,9 +2,11 @@ package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
+import com.hrms.careerpathmanagement.models.PositionLevelSkill;
+import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.CompetencyCycleRepository;
-import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
+import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
+import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
 import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
@@ -48,13 +50,14 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final DepartmentRepository departmentRepository;
     private final EmergencyContactRepository emergencyContactRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
-    private final SkillSetEvaluationRepository skillSetEvaluationRepository;
+    private final SkillEvaluationRepository skillEvaluationRepository;
     private final DamService damService;
     private final CareerSpecification careerSpecification;
     private final PositionDepartmentRepository positionDepartmentRepository;
-    private final SkillSetRepository skillSetRepository;
+    private final SkillRepository skillRepository;
     private final CompetencyCycleRepository competencyCycleRepository;
     private final PerformanceCycleRepository performanceCycleRepository;
+    private final PositionLevelSkillRepository positionLevelSkillRepository;
     private CompetencyCycle latestCompCycle;
     private PerformanceCycle latestPerformCycle;
 
@@ -73,24 +76,26 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                          DepartmentRepository departmentRepository,
                                          EmergencyContactRepository emergencyContactRepository,
                                          EmployeeDamInfoRepository employeeDamInfoRepository,
-                                         SkillSetEvaluationRepository skillSetEvaluationRepository,
+                                         SkillEvaluationRepository skillEvaluationRepository,
                                          DamService damService,
                                          CareerSpecification careerSpecification,
                                          PositionDepartmentRepository positionDepartmentRepository,
-                                         SkillSetRepository skillSetRepository,
+                                         SkillRepository skillRepository,
                                          CompetencyCycleRepository competencyCycleRepository,
-                                         PerformanceCycleRepository performanceCycleRepository) {
+                                         PerformanceCycleRepository performanceCycleRepository,
+                                         PositionLevelSkillRepository positionLevelSkillRepository) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.emergencyContactRepository = emergencyContactRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
-        this.skillSetEvaluationRepository = skillSetEvaluationRepository;
+        this.skillEvaluationRepository = skillEvaluationRepository;
         this.damService = damService;
         this.careerSpecification = careerSpecification;
         this.positionDepartmentRepository = positionDepartmentRepository;
-        this.skillSetRepository = skillSetRepository;
+        this.skillRepository = skillRepository;
         this.competencyCycleRepository = competencyCycleRepository;
         this.performanceCycleRepository = performanceCycleRepository;
+        this.positionLevelSkillRepository = positionLevelSkillRepository;
     }
 
     @PostConstruct
@@ -148,13 +153,28 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 .orElseThrow(() -> new RuntimeException("EmployeeDocument not found with id: " + id));
         Specification<EmergencyContact> contactSpec = GlobalSpec.hasEmployeeId(id);
         List<EmergencyContact> emergencyContacts = emergencyContactRepository.findAll(contactSpec);
+
         //Get employeeDamInfo have employeeId = id and type = "Profile Picture" and has the latest uploadedAt
         String imageUrl = employeeDamInfoRepository
                 .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(id, "PROFILE_IMAGE"))
                 .stream()
                 .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
                 .orElse(null);
-        return new EmployeeDTO(employee, imageUrl, emergencyContacts);
+
+        if (employee.getPosition() == null || employee.getJobLevel() == null)
+            return new EmployeeDTO(employee, imageUrl, emergencyContacts, Collections.emptyList());
+
+        //Get Skills
+        Specification<PositionLevelSkill> specSP = GlobalSpec.hasPositionId(employee.getPosition().getId());
+        Specification<PositionLevelSkill> specSL = GlobalSpec.hasJobLevelId(employee.getJobLevel().getId());
+
+        List<Skill> skills = positionLevelSkillRepository.findAll(specSP.and(specSL))
+                .stream()
+                .map(PositionLevelSkill::getSkill)
+                .toList();
+
+        return new EmployeeDTO(employee, imageUrl, emergencyContacts, skills);
+
     }
 
     @Override
@@ -167,6 +187,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                         .map(Employee::getId).toList(), PROFILE_IMAGE);
         List<EmergencyContact> eContacts = emergencyContactRepository.findAll();
 
+        List<PositionLevelSkill> pols = positionLevelSkillRepository.findAll();
+
         return employees.stream()
                 .map(employee -> {
                     String url = images.stream()
@@ -174,10 +196,17 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                             .findFirst()
                             .map(ProfileImageOnly::getUrl)
                             .orElse(null);
+
                     List<EmergencyContact> contacts = eContacts.stream()
                             .filter(contact -> contact.getEmployee().getId().equals(employee.getId()))
                             .toList();
-                    return new EmployeeDTO(employee, url, contacts);
+
+                    List<Skill> skills = pols.stream()
+                            .filter(pls -> pls.getPosition().equals(employee.getPosition())
+                                    && pls.getJobLevel().equals(employee.getJobLevel()))
+                            .map(PositionLevelSkill::getSkill)
+                            .toList();
+                    return new EmployeeDTO(employee, url, contacts, skills);
                 })
                 .toList();
     }
@@ -213,6 +242,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
         List<EmergencyContact> eContacts = emergencyContactRepository.findAll();
 
+        List<PositionLevelSkill> pols = positionLevelSkillRepository.findAll();
+
         List<EmployeeDTO> listDTO = empPage.stream()
                 .map(employee -> {
                     String url = images.stream()
@@ -220,10 +251,17 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                             .findFirst()
                             .map(ProfileImageOnly::getUrl)
                             .orElse(null);
+
                     List<EmergencyContact> contacts = eContacts.stream()
                             .filter(contact -> contact.getEmployee().getId().equals(employee.getId()))
                             .toList();
-                    return new EmployeeDTO(employee, url, contacts);
+
+                    List<Skill> skills = pols.stream()
+                            .filter(pls -> pls.getPosition().equals(employee.getPosition())
+                                    && pls.getJobLevel().equals(employee.getJobLevel()))
+                            .map(PositionLevelSkill::getSkill)
+                            .toList();
+                    return new EmployeeDTO(employee, url, contacts, skills);
                 })
                 .toList();
 
@@ -407,20 +445,20 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public EmployeeOverviewDTO getProfileOverview(Integer employeeId) {
-        skillSetRepository.findAll();
+        skillRepository.findAll();
 
         Employee employee = employeeRepository.findOne(GlobalSpec.hasId(employeeId)).orElseThrow(() ->
                 new RuntimeException("Employee not found with id: " + employeeId));
 
-        Specification<SkillSetEvaluation> hasEmp = GlobalSpec.hasEmployeeId(employeeId);
-        Specification<SkillSetEvaluation> hasCycle = GlobalSpec.hasCompCycleId(latestCompCycle.getId());
+        Specification<SkillEvaluation> hasEmp = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<SkillEvaluation> hasCycle = GlobalSpec.hasCompCycleId(latestCompCycle.getId());
 
-        List<String> skillSets = skillSetEvaluationRepository
+        List<String> skillSets = skillEvaluationRepository
                 .findAll(hasEmp.and(hasCycle))
-                    .stream()
-                    .map(SkillSetEvaluation::getSkillSet)
-                    .toList()
-                .stream().map(SkillSet::getSkillSetName).toList();
+                .stream()
+                .map(SkillEvaluation::getSkill)
+                .toList()
+                .stream().map(Skill::getSkillName).toList();
 
         String profileImgUri = getProfilePicture(employeeId);
 

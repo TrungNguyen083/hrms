@@ -108,33 +108,33 @@ public class CompetencyController {
         }
     }
 
-    @QueryMapping(name = "topSkillSet")
+    @QueryMapping(name = "topSkill")
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('USER')")
-    public DataItemPagingDTO getTopSkillSet(@Argument @Nullable Integer departmentId,
+    public DataItemPagingDTO getTopSkill(@Argument @Nullable Integer departmentId,
                                                 @Argument @Nullable Integer employeeId,
                                                 @Argument @Nullable Integer competencyCycleId,
                                                 @Argument int pageNo, @Argument int pageSize) {
         try {
-            return competencyService.getTopSkillSet(departmentId, employeeId, competencyCycleId, pageNo, pageSize);
+            return competencyService.getTopSkill(departmentId, employeeId, competencyCycleId, pageNo, pageSize);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
         }
     }
 
-    @QueryMapping(name = "topKeenSkillSetEmployee")
+    @QueryMapping(name = "topKeenSkillEmployee")
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('USER')")
-    public DataItemPagingDTO getTopKeenSkillSetEmployee(@Argument(name = "employeeId") Integer empId,
+    public DataItemPagingDTO getTopKeenSkillEmployee(@Argument(name = "employeeId") Integer empId,
                                                         @Argument Integer pageNo, @Argument Integer pageSize) {
-        return competencyService.getTopKeenSkillSetEmployee(empId, pageNo, pageSize);
+        return competencyService.getTopKeenSkillEmployee(empId, pageNo, pageSize);
     }
 
-    @QueryMapping(name = "topHighestSkillSetTargetEmployee")
+    @QueryMapping(name = "topHighestSkillTargetEmployee")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public DataItemPagingDTO getTopHighestSkillSetTargetEmployee(@Argument(name = "employeeId") Integer empId,
+    public DataItemPagingDTO getTopHighestSkillTargetEmployee(@Argument(name = "employeeId") Integer empId,
                                                                  @Argument Integer pageNo,
                                                                  @Argument Integer pageSize) {
-        return competencyService.getTopSkillSetTargetEmployee(empId, pageNo, pageSize);
+        return competencyService.getTopSkillTargetEmployee(empId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "employeeSkillMatrix")
@@ -168,8 +168,8 @@ public class CompetencyController {
 
     @QueryMapping(name = "skillGapBarChart")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public BarChartDTO getSkillSetGap(@Argument Integer employeeId, @Argument Integer cycleId) {
-        return competencyService.getSkillSetGap(employeeId, cycleId);
+    public BarChartDTO getSkillGap(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getSkillGap(employeeId, cycleId);
     }
 
     @QueryMapping(name = "competencyLevelPieChart")
@@ -235,17 +235,17 @@ public class CompetencyController {
     }
 
 
-    @QueryMapping(name = "skillSets")
+    @QueryMapping(name = "positionLevelSkills")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<SimpleItemDTO> getSkillSetByPosition(@Argument Integer positionId) {
-        return competencyService.getSkillSetByPosition(positionId);
+    public List<SimpleItemDTO> getPositionLevelSkills(@Argument Integer positionId, @Argument Integer jobLevelId) {
+        return competencyService.getPositionLevelSkills(positionId, jobLevelId);
     }
 
-    @QueryMapping(name = "departmentSkillSetHeatMap")
+    @QueryMapping(name = "departmentSkillHeatMap")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public List<HeatmapItemDTO> getDepartmentSkillSetHeatMap(@Argument Integer departmentId, @Argument Integer cycleId,
-                                                             @Argument List<Integer> employeeIds, @Argument List<Integer> skillSetIds) {
-        return competencyService.getDepartmentSkillSetHeatmap(departmentId, cycleId, employeeIds, skillSetIds);
+    public List<HeatmapItemDTO> getDepartmentSkillHeatMap(@Argument Integer departmentId, @Argument Integer cycleId,
+                                                             @Argument List<Integer> employeeIds, @Argument List<Integer> skillIds) {
+        return competencyService.getDepartmentSkillHeatmap(departmentId, cycleId, employeeIds, skillIds);
     }
 
     @QueryMapping(name = "departmentCompetencyGap")
@@ -301,10 +301,10 @@ public class CompetencyController {
     }
 
 
-    @QueryMapping(name = "evaluateSkillSetForm")
+    @QueryMapping(name = "evaluateSkillForm")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<TreeSimpleData> getEvaluateSkillSetForm(@Argument Integer employeeId) {
-        return competencyService.getEvaluateSkillSetForm(employeeId);
+    public List<TreeSimpleData> getEvaluateSkillForm(@Argument Integer employeeId) {
+        return competencyService.getEvaluateSkillForm(employeeId);
     }
 
     @QueryMapping(name = "competencyGroups")

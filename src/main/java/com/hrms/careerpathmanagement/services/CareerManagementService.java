@@ -1,11 +1,11 @@
 package com.hrms.careerpathmanagement.services;
 
-import com.hrms.careerpathmanagement.models.PositionLevelSkillSet;
+import com.hrms.careerpathmanagement.models.PositionLevelSkill;
 import com.hrms.careerpathmanagement.models.ProficiencyLevel;
-import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
-import com.hrms.careerpathmanagement.repositories.PositionLevelSkillSetRepository;
+import com.hrms.careerpathmanagement.models.SkillEvaluation;
+import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
 import com.hrms.careerpathmanagement.repositories.PositionLevelPathRepository;
-import com.hrms.careerpathmanagement.repositories.SkillSetEvaluationRepository;
+import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -27,8 +27,8 @@ public class CareerManagementService {
 
     @Autowired
     public CareerManagementService(PositionLevelPathRepository positionLevelPathRepository,
-                                   PositionLevelSkillSetRepository baselineSkillSetRepository,
-                                   SkillSetEvaluationRepository skillSetEvaluationRepository) {
+                                   PositionLevelSkillRepository baselineSkillSetRepository,
+                                   SkillEvaluationRepository skillEvaluationRepository) {
         this.positionLevelPathRepository = positionLevelPathRepository;
     }
 
@@ -82,7 +82,7 @@ public class CareerManagementService {
     private List<Integer> getBaselineSkillSetIds(Integer positionId, Integer levelId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         var query = cb.createQuery(Integer.class);
-        var root = query.from(PositionLevelSkillSet.class);
+        var root = query.from(PositionLevelSkill.class);
 
         query.select(root.get("skillSet").get("id")).where(cb.and(
                 cb.equal(root.get("position").get("id"), positionId),
@@ -95,7 +95,7 @@ public class CareerManagementService {
     private List<Integer> getCurrentSkillSetIds(Integer employeeId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         var query = cb.createQuery(Integer.class);
-        var root = query.from(SkillSetEvaluation.class);
+        var root = query.from(SkillEvaluation.class);
 
         query.select(root.get("skillSet").get("id"))
                 .where(cb.equal(root.get("employee").get("id"), employeeId))
@@ -104,11 +104,11 @@ public class CareerManagementService {
         return em.createQuery(query).getResultList();
     }
 
-    public Optional<Double> getBaselineSkillSetAvgScore(Integer positionId, Integer levelId) {
+    public Optional<Double> getBaselineSkillAvgScore(Integer positionId, Integer levelId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Double> query = cb.createQuery(Double.class);
-        Root<PositionLevelSkillSet> root = query.from(PositionLevelSkillSet.class);
-        Join<PositionLevelSkillSet, ProficiencyLevel> proficencyJoin = root.join("proficiencyLevel");
+        Root<PositionLevelSkill> root = query.from(PositionLevelSkill.class);
+        Join<PositionLevelSkill, ProficiencyLevel> proficencyJoin = root.join("proficiencyLevel");
 
         query.select(cb.avg(proficencyJoin.get("score")));
         query.where(cb.equal(root.get("position").get("id"), positionId),

@@ -65,10 +65,10 @@ input CompetencyEvaluationInput {
     competencyCycleId: Int!
     isSubmitted: Boolean!
     score: Float
-    skillSetScores: [SkillSetScoreInput]!
+    skillScores: [SkillScoreInput]!
 }
 
-input SkillSetScoreInput {
-    skillSetId: Int!
+input SkillScoreInput {
+    skillId: Int!
     score: Int!
 }

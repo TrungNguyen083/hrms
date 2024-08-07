@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.dto;
 
+import com.hrms.employeemanagement.models.Employee;
 import com.hrms.usermanagement.model.Role;
 import lombok.Data;
 import lombok.Getter;
@@ -19,4 +20,6 @@ public class UserDto {
     private Boolean status;
     private Role role;
     private Date createdAt;
+    private Employee employee;
+    private String profileImage;
 }

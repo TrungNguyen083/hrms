@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SkillSetScoreInput {
-    private Integer skillSetId;
+public class SkillScoreInput {
+    private Integer skillId;
     private Integer score;
 }
