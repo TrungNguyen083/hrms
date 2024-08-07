@@ -42,12 +42,12 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> root.get("department").get("id").in(departmentIds);
     }
 
-    public static <T> Specification<T> hasCompCycleId(Integer cycleId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId);
+    public static <T> Specification<T> hasEvaluateCycleId(Integer evaluateCycleId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("evaluateCycle").get("id"), evaluateCycleId);
     }
 
-    public static <T> Specification<T> hasCompCycleIds(List<Integer> cycleIds) {
-        return (root, query, cb) -> root.get("competencyCycle").get("id").in(cycleIds);
+    public static <T> Specification<T> hasEvaluateCycleIds(List<Integer> evaluateCycleIds) {
+        return (root, query, cb) -> root.get("evaluateCycle").get("id").in(evaluateCycleIds);
     }
 
     public static Specification<EmployeeDamInfo> hasEmployeeAndType(Integer id, String type) {
@@ -75,14 +75,6 @@ public class GlobalSpec {
 
     public static <T> Specification<T> hasEmployeeDepartmentId(Integer departmentId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId);
-    }
-
-    public static <T> Specification<T> hasPerformCycleId(Integer performanceCycleId) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("performanceCycle").get("performanceCycleId"), performanceCycleId);
-    }
-
-    public static <T> Specification<T> hasPerformCycleIds(List<Integer> performCycleIds) {
-        return (root, query, criteriaBuilder) -> root.get("performanceCycle").get("performanceCycleId").in(performCycleIds);
     }
 
     public static <T> Specification<T> hasSelfScoreExists() {

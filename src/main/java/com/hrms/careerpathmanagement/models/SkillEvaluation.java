@@ -2,8 +2,8 @@ package com.hrms.careerpathmanagement.models;
 
 
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.Skill;
-import com.hrms.global.models.CompetencyCycle;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +20,8 @@ public class SkillEvaluation {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competency_cycle_id")
-    private CompetencyCycle competencyCycle;
+    @JoinColumn(name = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")

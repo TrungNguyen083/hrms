@@ -33,8 +33,8 @@ public class FeedbackRequest {
     private Employee feedbackReceiver;
 
     @ManyToOne
-    @JoinColumn(name = "cycle_id", referencedColumnName = "performance_cycle_id")
-    private PerformanceCycle cycle;
+    @JoinColumn(name = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
 
     private String message;
 

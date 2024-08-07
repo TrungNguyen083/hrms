@@ -16,19 +16,19 @@ public interface GoalRepository extends JpaRepository<Goal, Integer>, JpaSpecifi
     Page<GoalProjection> findAllByEmployeeId(Integer employeeId, Pageable page);
 
     default long countByDepartmentCycleStatus(Integer departmentId, Integer cycleId, String status) {
-        return countByEmployeeDepartmentIdAndCompetencyCycleIdAndStatusIs(departmentId, cycleId, status);
+        return countByEmployeeDepartmentIdAndEvaluateCycleIdAndStatusIs(departmentId, cycleId, status);
     }
-    long countByEmployeeDepartmentIdAndCompetencyCycleIdAndStatusIs(Integer departmentId,
+    long countByEmployeeDepartmentIdAndEvaluateCycleIdAndStatusIs(Integer departmentId,
                                                                     Integer cycleId,
                                                                     String status);
 
     default List<Goal> findAllByDepartmentAndCycle(Integer departmentId, Integer cycleId) {
-        return findAllByEmployeeDepartmentIdAndCompetencyCycleId(departmentId, cycleId);
+        return findAllByEmployeeDepartmentIdAndEvaluateCycleId(departmentId, cycleId);
     }
 
-    List<Goal> findAllByEmployeeDepartmentIdAndCompetencyCycleId(Integer departmentId, Integer cycleId);
+    List<Goal> findAllByEmployeeDepartmentIdAndEvaluateCycleId(Integer departmentId, Integer cycleId);
 
-    List<Goal> findAllByEmployeeDepartmentIdAndCompetencyCycleIdOrderByUpdatedAt(Integer departmentId,
+    List<Goal> findAllByEmployeeDepartmentIdAndEvaluateCycleIdOrderByUpdatedAt(Integer departmentId,
                                                                            Integer cycleId,
                                                                            Pageable pageable);
 }

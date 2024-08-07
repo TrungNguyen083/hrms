@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -15,7 +16,6 @@ import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
-import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +25,6 @@ import java.text.ParseException;
 import java.util.List;
 
 public interface PerformanceService {
-    List<PerformanceCycle> getAllPerformanceCycles();
     Page<PerformanceEvaluation> getPerformanceEvaluations(Integer cycleId, Pageable pageable);
     Float getAveragePerformanceScore(Integer cycleId);
     BarChartDTO getPerformanceRatingScheme(Integer cycleId, Integer departmentId);
@@ -40,7 +39,7 @@ public interface PerformanceService {
 
     List<TimeLine> getPerformanceTimeLine(Integer cycleId);
 
-    PerformanceCycle createPerformanceCycle(PerformanceCycleInput input);
+    EvaluateCycle createPerformanceCycle(PerformanceCycleInput input);
 
     ProficiencyLevel updateProficiencyLevel(Integer id, ProficiencyLevelInput input);
 

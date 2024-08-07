@@ -15,7 +15,7 @@ public interface PerformanceEvaluationRepository extends JpaRepository<Performan
 
     @Query("SELECT pe, e, p " +
             "FROM PerformanceEvaluation pe " +
-            "INNER JOIN PerformanceCycle pc ON pe.id = pc.id " +
+            "INNER JOIN EvaluateCycle pc ON pe.id = pc.id " +
             "INNER JOIN Employee e ON pe.employee.id = e.id " +
             "INNER JOIN Position p ON e.position.id = p.id " +
             "WHERE p.id = ?1 AND pc.id = ?2")
@@ -24,20 +24,20 @@ public interface PerformanceEvaluationRepository extends JpaRepository<Performan
 
     @Query("SELECT pe, e, p " +
             "FROM PerformanceEvaluation pe " +
-            "INNER JOIN PerformanceCycle pc ON pe.id = pc.id " +
+            "INNER JOIN EvaluateCycle pc ON pe.id = pc.id " +
             "INNER JOIN Employee e ON pe.employee.id = e.id " +
             "INNER JOIN Position p ON e.position.id = p.id " +
             "WHERE pc.id = ?1")
     List<PerformanceEvaluation> findByCycleId(Integer cycleId);
 
-    <T> Collection<T> findAllByPerformanceCycleId(Integer cycleId, Class<T> type);
+    <T> Collection<T> findAllByEvaluateCycleId(Integer cycleId, Class<T> type);
 
     @Query("SELECT avg(pe.finalAssessment) FROM PerformanceEvaluation pe " +
-            "INNER JOIN PerformanceCycle pc ON pe.id = pc.id " +
+            "INNER JOIN EvaluateCycle pc ON pe.id = pc.id " +
             "WHERE pe.id IN ?1")
     Double avgEvalScoreByIdIn(List<Integer> ids);
 
     default <T> Collection<T> findAllByCycleId(Integer cycleId, Class<T> type) {
-        return findAllByPerformanceCycleId(cycleId, type);
+        return findAllByEvaluateCycleId(cycleId, type);
     }
 }

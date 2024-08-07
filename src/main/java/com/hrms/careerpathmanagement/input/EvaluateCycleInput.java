@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompetencyCycleInput {
+public class EvaluateCycleInput {
     private String cycleName;
     private String description;
     private String startDate;

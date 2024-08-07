@@ -1,4 +1,4 @@
-input CompetencyCycleInput{
+input EvaluateCycleInput{
     cycleName: String!
     description: String!
     startDate: String!

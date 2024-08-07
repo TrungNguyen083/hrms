@@ -14,14 +14,15 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompetencyTimeLine {
+@Table(name = "evaluate_time_line")
+public class EvaluateTimeLine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "competency_time_line_id")
+    @Column(name = "evaluate_time_line_id")
     private Integer id;
 
-    @Column(name = "competency_time_line_name")
-    private String competencyTimeLineName;
+    @Column(name = "evaluate_time_line_name")
+    private String evaluateTimeLineName;
 
     @Column(name = "start_date")
     private Date startDate;
@@ -30,8 +31,8 @@ public class CompetencyTimeLine {
     private Date dueDate;
 
     @ManyToOne
-    @JoinColumn(name = "competency_cycle_id")
-    private CompetencyCycle competencyCycle;
+    @JoinColumn(name = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
     
     @Column(name = "is_done")
     private Boolean isDone = false;

@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 public class CompetencyEvaluationInput {
     private Integer employeeId;
-    private Integer competencyCycleId;
+    private Integer evaluateCycleId;
     private Boolean isSubmitted;
     private Float score;
     private List<SkillScoreInput> skillScores;
