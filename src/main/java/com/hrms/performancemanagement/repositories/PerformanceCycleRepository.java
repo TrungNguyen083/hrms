@@ -12,9 +12,9 @@ import java.util.Optional;
 public interface PerformanceCycleRepository extends JpaRepository<PerformanceCycle, Integer>, JpaSpecificationExecutor<PerformanceCycle> {
     List<PerformanceCycle> findAll(Sort sort);
 
-    Optional<Integer> findTopByOrderByPerformanceCycleIdDesc();
+    Optional<Integer> findTopByOrderByIdDesc();
 
     PerformanceCycle findFirstByOrderByPerformanceCycleStartDateDesc();
 
-    <T>Collection<T> findByPerformanceCycleId(Integer id, Class<T> type);
+    <T>Collection<T> findById(Integer id, Class<T> type);
 }

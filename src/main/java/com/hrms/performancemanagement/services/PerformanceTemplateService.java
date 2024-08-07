@@ -54,7 +54,7 @@ public class PerformanceTemplateService {
 
     public Template getTemplateOfCycle(Integer cycleId) {
         var templateId = performanceCycleRepository
-                .findByPerformanceCycleId(cycleId, TemplateIdOnly.class)
+                .findById(cycleId, TemplateIdOnly.class)
                 .stream()
                 .map(TemplateIdOnly::templateId)
                 .findFirst()
