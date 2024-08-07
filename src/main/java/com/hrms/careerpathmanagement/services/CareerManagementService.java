@@ -1,7 +1,7 @@
 package com.hrms.careerpathmanagement.services;
 
-import com.hrms.careerpathmanagement.models.PositionLevelSkill;
-import com.hrms.careerpathmanagement.models.ProficiencyLevel;
+import com.hrms.global.models.PositionLevelSkill;
+import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
 import com.hrms.careerpathmanagement.repositories.PositionLevelPathRepository;

@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement.models;
+package com.hrms.global.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ public class CompetencyCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competency_cycle_id")
-    private int id;
+    private Integer id;
 
     @Column(name = "competency_cycle_name")
     private String competencyCycleName;

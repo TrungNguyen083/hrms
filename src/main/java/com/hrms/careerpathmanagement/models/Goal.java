@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.global.models.CompetencyCycle;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

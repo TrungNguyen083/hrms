@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement.models;
+package com.hrms.global.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,30 +8,23 @@ import lombok.Setter;
 
 import java.util.Date;
 
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Competency {
+public class Position {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "competency_id")
+    @Column(name = "position_id")
     private Integer id;
-
-    @Column(name = "competency_name")
-    private String competencyName;
-
-    @Column(name = "description")
-    private String description;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competency_group_id")
-    private CompetencyGroup competencyGroup;
-
-    @Column(name = "ordered")
-    private Integer ordered;
-
+    @Column(name = "position_name")
+    private String positionName;
+    @Column(name = "has_level")
+    private Boolean hasLevel;
+    @Column(name = "has_department")
+    private Boolean hasDepartment;
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
@@ -41,5 +34,7 @@ public class Competency {
     @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)
     private Date insertionTime;
+    public Position(Integer id) {
+        this.id = id;
+    }
 }
-

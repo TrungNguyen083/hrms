@@ -2,7 +2,7 @@ package com.hrms.employeemanagement.dto;
 
 import com.hrms.employeemanagement.models.EmergencyContact;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.Skill;
+import com.hrms.global.models.Skill;
 
 import java.util.List;
 

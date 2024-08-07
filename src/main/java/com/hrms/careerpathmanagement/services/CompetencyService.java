@@ -6,7 +6,7 @@ import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.input.TemplateInput;
-import com.hrms.careerpathmanagement.models.CompetencyCycle;
+import com.hrms.global.models.CompetencyCycle;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
@@ -38,7 +38,7 @@ public interface CompetencyService {
     DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
     BarChartDTO getCompetencyChart(Integer departmentId);
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
-    RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
+    RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesIds, Integer departmentId);
 
     List<CompetencyCycle> getCompetencyCycles();
 

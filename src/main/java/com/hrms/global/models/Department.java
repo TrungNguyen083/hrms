@@ -1,5 +1,6 @@
-package com.hrms.employeemanagement.models;
+package com.hrms.global.models;
 
+import com.hrms.employeemanagement.models.Employee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

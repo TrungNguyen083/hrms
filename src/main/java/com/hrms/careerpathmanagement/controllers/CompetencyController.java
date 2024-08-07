@@ -6,12 +6,12 @@ import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.input.TemplateInput;
-import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
+import com.hrms.global.models.CompetencyCycle;
 import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import jakarta.annotation.Nullable;
 
@@ -41,7 +41,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyTimeLine")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public List<TimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
         try {
             return competencyService.getCompetencyTimeline(competencyCycleId);
@@ -52,7 +52,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "departmentInCompleteComp")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public MultiBarChartDTO getDepartmentInCompleteComp(@Argument Integer competencyCycleId) {
         try {
             return competencyService.getDepartmentInCompleteComp(competencyCycleId);
@@ -63,7 +63,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyEvalProgress")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public PieChartDTO getCompetencyEvalProgress(@Argument Integer competencyCycleId) {
         try {
             return competencyService.getCompetencyEvalProgress(competencyCycleId);
@@ -74,7 +74,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "avgCompetencyScore")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public List<HeatmapItemDTO> getHeatmapCompetency(@Argument @Nullable Integer positionId,
                                                      @Argument Integer competencyCycleId) {
         try {
@@ -86,7 +86,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyCycles")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public List<CompetencyCycle> getCompetencyCycles() {
         try {
             return competencyService.getCompetencyCycles();
@@ -97,11 +97,11 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyRadarChart")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public RadarChartDTO getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId,
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    public RadarChartDTO getCompetencyRadarChart(@Argument List<Integer> competencyCyclesIds,
                                                  @Argument Integer departmentId) {
         try {
-            return competencyService.getCompetencyRadarChart(competencyCyclesId, departmentId);
+            return competencyService.getCompetencyRadarChart(competencyCyclesIds, departmentId);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -196,7 +196,7 @@ public class CompetencyController {
      * @return List Employees (name, profileImg) with their competency rating
      */
     @QueryMapping(name = "topCompetencyRating")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('MANAGER')")
     public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument @Nullable Integer departmentId,
                                                                @Argument Integer cycleId,
                                                                @Argument Integer pageNo,

@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.models;
+package com.hrms.global.models;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -2,7 +2,7 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
-import com.hrms.careerpathmanagement.models.ProficiencyLevel;
+import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.careerpathmanagement.dto.TimeLine;
@@ -14,7 +14,7 @@ import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.input.ProficiencyLevelInput;
-import com.hrms.performancemanagement.model.PerformanceCycle;
+import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.performancemanagement.services.PerformanceService;

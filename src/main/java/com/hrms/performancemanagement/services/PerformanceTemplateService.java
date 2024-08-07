@@ -1,14 +1,14 @@
 package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.TemplateDTO;
-import com.hrms.careerpathmanagement.models.Template;
+import com.hrms.global.models.Template;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.performancemanagement.dto.CategoryDTO;
 import com.hrms.performancemanagement.dto.FeedbackDTO;
 import com.hrms.performancemanagement.dto.PerformanceEvalTemplateDTO;
-import com.hrms.performancemanagement.model.FeedbackRequest;
-import com.hrms.performancemanagement.model.PerformanceCycle;
+import com.hrms.global.models.FeedbackRequest;
+import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.projection.TemplateIdOnly;
 import com.hrms.performancemanagement.repositories.FeedbackRequestRepository;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
@@ -16,7 +16,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -117,7 +116,7 @@ public class PerformanceTemplateService {
         feedbackReceiver.setId(feedbackReceiverId);
 
         var cycle = new PerformanceCycle();
-        cycle.setPerformanceCycleId(cycleId);
+        cycle.setId(cycleId);
 
         requestReceiverIds.forEach(id -> {
             var requestReceiver = new Employee();

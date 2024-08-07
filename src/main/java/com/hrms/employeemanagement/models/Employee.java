@@ -1,5 +1,8 @@
 package com.hrms.employeemanagement.models;
 
+import com.hrms.global.models.Department;
+import com.hrms.global.models.JobLevel;
+import com.hrms.global.models.Position;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

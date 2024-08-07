@@ -1,8 +1,7 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
-import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.careerpathmanagement.models.PositionLevelSkill;
+import com.hrms.global.models.*;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.CompetencyCycleRepository;
 import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
@@ -21,7 +20,7 @@ import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
-import com.hrms.performancemanagement.model.PerformanceCycle;
+import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;

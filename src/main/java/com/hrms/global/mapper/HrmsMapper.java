@@ -1,11 +1,11 @@
 package com.hrms.global.mapper;
 
 import com.hrms.careerpathmanagement.input.TimeLineInput;
-import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
-import com.hrms.careerpathmanagement.models.ProficiencyLevel;
+import com.hrms.global.models.CompetencyTimeLine;
+import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.input.ProficiencyLevelInput;
-import com.hrms.performancemanagement.model.PerformanceTimeLine;
+import com.hrms.global.models.PerformanceTimeLine;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.model.User;
 import org.modelmapper.ModelMapper;
