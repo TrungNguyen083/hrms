@@ -1,7 +1,7 @@
 package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.SkillSet;
+import com.hrms.employeemanagement.models.Skill;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,22 +13,22 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SkillSetTarget {
+public class SkillTarget {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competency_cycle_id", referencedColumnName = "competency_cycle_id")
-    CompetencyCycle competencyCycle;
+    @JoinColumn(name = "competency_cycle_id")
+    private CompetencyCycle competencyCycle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
-    Employee employee;
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "skill_set_id", referencedColumnName = "skill_set_id")
-    SkillSet skillSet;
+    @JoinColumn(name = "skill_id")
+    private Skill skill;
 
     @ManyToOne
     @JoinColumn(name = "target_proficiency_level_id", referencedColumnName = "proficiency_level_id")

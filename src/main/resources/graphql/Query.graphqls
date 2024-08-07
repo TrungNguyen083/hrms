@@ -29,7 +29,7 @@ type Query {
     competencyCycles: [CompetencyCycle]
     competencyTimeLine(competencyCycleId: Int!): [TimeLine]
     performanceTimeLine(performanceCycleId: Int!): [TimeLine]
-    skillSets(positionId: Int!): [SimpleItemDTO]
+    positionLevelSkills(positionId: Int!, jobLevelId: Int!): [SimpleItemDTO] #old name: skills(positionId: Int!): [SimpleItemDTO]
     templates: [TemplateDTO]
 
 
@@ -40,27 +40,27 @@ type Query {
     topCompetencyRating(departmentId: Int, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeRatingPagination
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [HeatmapItemDTO]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChartDTO
-    topSkillSet(departmentId: Int, employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
-    topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
-    topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topSkill(departmentId: Int, employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topKeenSkillEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topHighestSkillTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     employeeSkillMatrix(employeeId: Int!): [SkillMatrixTree]
     skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
     currentEvaluation(employeeId: Int!): [CurrentEvaluation]
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
     getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
-    skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
+    skillSummarization(employeeId: Int!, cycleId: Int!): SkillSummarization
     companyCompetencyDiffPercent(departmentId: Int): DiffPercentDTO
     competencyChart(departmentId: Int): BarChartDTO
     overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
     departmentEmployees(departmentId: Int!, positionId: Int!): [SimpleItemDTO]
-    departmentSkillSetHeatMap(departmentId: Int!, cycleId: Int!, employeeIds: [Int]!, skillSetIds: [Int]): [HeatmapItemDTO]
+    departmentSkillHeatMap(departmentId: Int!, cycleId: Int!, employeeIds: [Int]!, skillIds: [Int]): [HeatmapItemDTO]
     competencyEvaluationStatus(cycleId: Int!, departmentId: Int!, pageNo: Int, pageSize: Int): EmployeeStatusPagination
     employeesInDepartment(departmentId: Int!): [NameImageDTO]
     departmentCompetencyGap(cycleId: Int!, employeeIds: [Int]!): RadarChartDTO
     incompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
     competencyCyclePeriod(cycleId: Int!): String
-    evaluateSkillSetForm(employeeId: Int!): [TreeSimpleData]
+    evaluateSkillForm(employeeId: Int!): [TreeSimpleData]
     competencyGroups: [CompetencyGroup]
     evaluationResult(employeeId: Int!, cycleId: Int!): [EvaluationResult]
     trackEvaluationProgress(cycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeeEvaProgressPaging

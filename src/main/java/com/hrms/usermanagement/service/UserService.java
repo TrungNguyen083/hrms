@@ -1,6 +1,9 @@
 package com.hrms.usermanagement.service;
 
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.projection.ProfileImageOnly;
+import com.hrms.employeemanagement.repositories.EmployeeDamInfoRepository;
+import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.global.GlobalSpec;
 import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.global.paging.Pagination;
@@ -22,7 +25,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,18 +35,20 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private UserSpecification userSpecification;
-
     @Autowired
     private HrmsMapper modelMapper;
-
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Autowired
+    private EmployeeDamInfoRepository employeeDamInfoRepository;
+
+    static String PROFILE_IMAGE = "PROFILE_IMAGE";
 
     private void checkUserExist(String username, Integer userId) throws Exception {
         //If userId not null, check if username exists for other users
@@ -70,12 +77,31 @@ public class UserService {
 
         Page<User> users = userRepository.findAll(spec, pageable);
 
+        List<ProfileImageOnly> images = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(
+                users.stream()
+                        .map(User::getEmployee) // Get the employee
+                        .filter(Objects::nonNull) // Filter out null employees
+                        .map(Employee::getId) // Map to employee IDs
+                        .toList(),
+                PROFILE_IMAGE
+        );
+
         Pagination pagination = new Pagination(pageable.getPageNumber() + 1, pageable.getPageSize(),
                 users.getTotalElements(),
                 users.getTotalPages()
         );
 
-        return new UserDtoPagination(users.map(u -> modelMapper.map(u, UserDto.class)), pagination, users.getTotalElements());
+        Page<UserDto> userDtos = users.map(u -> modelMapper.map(u, UserDto.class));
+
+        userDtos.getContent().stream()
+                .filter(userDto -> Objects.nonNull(userDto.getEmployee()))
+                .forEach(i -> images.stream()
+                        .filter(j -> j.getEmployeeId().equals(i.getEmployee().getId()))
+                        .findFirst()
+                        .ifPresent(j -> i.setProfileImage(j.getUrl()))
+                );
+
+        return new UserDtoPagination(userDtos, pagination, users.getTotalElements());
     }
 
     public List<Role> getRoles() {
@@ -91,9 +117,18 @@ public class UserService {
     @Transactional
     public Boolean updateUsers(Integer userId, Boolean status, Integer roleId) {
         User u = userRepository.findById(userId).orElseThrow();
+        Employee e = employeeRepository.findById(u.getEmployee().getId()).orElseThrow();
+        if (!status) {
+            e.setLeftDate(new Date(System.currentTimeMillis()));
+            e.setStatus(false);
+        } else {
+            e.setJoinedDate(new Date(System.currentTimeMillis()));
+            e.setStatus(true);
+        }
         u.setIsEnabled(status);
         u.setRole(new Role(roleId));
         userRepository.save(u);
+        employeeRepository.save(e);
         return Boolean.TRUE;
     }
 
@@ -110,8 +145,11 @@ public class UserService {
     @Transactional
     public Boolean assignUser(Integer userId, Integer employeeId) {
         User u = userRepository.findById(userId).orElseThrow();
-        u.setEmployee(new Employee(employeeId));
+        Employee e = employeeRepository.findById(employeeId).orElseThrow();
+        u.setEmployee(e);
+        e.setEmail(u.getUsername());
         userRepository.save(u);
+        employeeRepository.save(e);
         return Boolean.TRUE;
     }
 }

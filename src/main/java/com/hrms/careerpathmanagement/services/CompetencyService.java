@@ -7,7 +7,6 @@ import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
-import com.hrms.careerpathmanagement.models.Template;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
@@ -27,15 +26,15 @@ public interface CompetencyService {
     MultiBarChartDTO getDepartmentInCompleteComp(Integer competencyCycleId);
     PieChartDTO getCompetencyEvalProgress(Integer competencyCycleId);
     List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer competencyCycleId);
-    DataItemPagingDTO getTopSkillSet(@Nullable Integer departmentId, @Nullable Integer empId,
-                                     @Nullable Integer competencyCycleId, int pageNo, int pageSize);
+    DataItemPagingDTO getTopSkill(@Nullable Integer departmentId, @Nullable Integer empId,
+                                  @Nullable Integer competencyCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
     SkillMatrixOverallDTO getSkillMatrixOverall(Integer employeeId);
-    DataItemPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize);
-    DataItemPagingDTO getTopSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize);
+    DataItemPagingDTO getTopKeenSkillEmployee(Integer employeeId, int pageNo, int pageSize);
+    DataItemPagingDTO getTopSkillTargetEmployee(Integer employeeId, int pageNo, int pageSize);
     List<CurrentEvaluationDTO> getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
-    BarChartDTO getSkillSetGap(Integer employeeId, Integer cycleId);
+    BarChartDTO getSkillGap(Integer employeeId, Integer cycleId);
     DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
     BarChartDTO getCompetencyChart(Integer departmentId);
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
@@ -47,14 +46,14 @@ public interface CompetencyService {
 
     PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId);
 
-    List<SimpleItemDTO> getSkillSetByPosition(Integer positionId);
+    List<SimpleItemDTO> getPositionLevelSkills(Integer positionId, Integer jobLevelId);
   
     MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId);
 
     EmployeeStatusPagination getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId, Pageable page);
 
-    List<HeatmapItemDTO> getDepartmentSkillSetHeatmap(Integer departmentId, Integer cycleId,
-                                                      List<Integer> employeeIds, List<Integer> skillSetIds);
+    List<HeatmapItemDTO> getDepartmentSkillHeatmap(Integer departmentId, Integer cycleId,
+                                                   List<Integer> employeeIds, List<Integer> skillIds);
 
     RadarChartDTO getDepartmentCompetencyGap(Integer cycleId, List<Integer> employeeIds);
 
@@ -72,7 +71,7 @@ public interface CompetencyService {
 
     EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer cycleId, Integer pageNo, Integer pageSize);
 
-    List<TreeSimpleData> getEvaluateSkillSetForm(Integer employeeId);
+    List<TreeSimpleData> getEvaluateSkillForm(Integer employeeId);
 
     List<CompetencyGroupDTO> getCompetencyGroups();
 

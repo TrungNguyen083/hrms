@@ -8,7 +8,7 @@ import com.hrms.careerpathmanagement.input.*;
 import com.hrms.careerpathmanagement.models.CompetencyCycle;
 import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
 import com.hrms.careerpathmanagement.models.CompetencyTimeLine;
-import com.hrms.careerpathmanagement.models.SkillSetEvaluation;
+import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.careerpathmanagement.services.impl.CompetencyServiceImpl;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -49,7 +49,7 @@ class CompetencyServiceTest {
     private TemplateRepository templateRepo;
 
     @Autowired
-    private SkillSetEvaluationRepository ssEvalRepo;
+    private SkillEvaluationRepository ssEvalRepo;
 
     @Autowired
     private CompetencyEvaluationOverallRepository ovrRepo;
@@ -89,53 +89,53 @@ class CompetencyServiceTest {
 
     @Test
     void getTopSkillSet_byAllEmployee_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getTopSkillSet(null, null, 8, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkill(null, null, 8, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSet(null, null, 8, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkill(null, null, 8, 1, 10)
                 .getPagination());
     }
 
     @Test
     void getTopSkillSet_byDepartment_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getTopSkillSet(1, null, 6, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkill(1, null, 6, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSet(1, null, 6, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkill(1, null, 6, 1, 10)
                 .getPagination());
-        Assertions.assertFalse(competencyService.getTopSkillSet(2, null, 6, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkill(2, null, 6, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSet(2, null, 6, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkill(2, null, 6, 1, 10)
                 .getPagination());
     }
 
     @Test
     void getTopSkillSet_byEmployee_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getTopSkillSet(null, 1, 8, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkill(null, 1, 8, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSet(null, 1, 8, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkill(null, 1, 8, 1, 10)
                 .getPagination());
-        Assertions.assertFalse(competencyService.getTopSkillSet(null, 4, 7, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkill(null, 4, 7, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSet(null, 4, 7, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkill(null, 4, 7, 1, 10)
                 .getPagination());
-        Assertions.assertFalse(competencyService.getTopSkillSet(null, 5, 7, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkill(null, 5, 7, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSet(null, 5, 7, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkill(null, 5, 7, 1, 10)
                 .getPagination());
     }
 
     @Test
     void getTopKeenSkillSetEmployee_byEmployee_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getTopKeenSkillSetEmployee(5, 1, 10)
+        Assertions.assertFalse(competencyService.getTopKeenSkillEmployee(5, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopKeenSkillSetEmployee(5, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopKeenSkillEmployee(5, 1, 10)
                 .getPagination());
     }
 
     @Test
     void getTopSkillSetTargetEmployee_byEmployee_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getTopSkillSetTargetEmployee(5, 1, 10)
+        Assertions.assertFalse(competencyService.getTopSkillTargetEmployee(5, 1, 10)
                 .getData().isEmpty());
-        Assertions.assertNotNull(competencyService.getTopSkillSetTargetEmployee(5, 1, 10)
+        Assertions.assertNotNull(competencyService.getTopSkillTargetEmployee(5, 1, 10)
                 .getPagination());
     }
 
@@ -215,17 +215,10 @@ class CompetencyServiceTest {
     }
 
     @Test
-    void getSkillSetByPosition_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getSkillSetByPosition(1).isEmpty());
-        Assertions.assertFalse(competencyService.getSkillSetByPosition(3).isEmpty());
-        Assertions.assertTrue(competencyService.getSkillSetByPosition(4).isEmpty());
-    }
-
-    @Test
     void getDepartmentSkillSetHeatmap_shouldItHasValue() {
-        Assertions.assertFalse(competencyService.getDepartmentSkillSetHeatmap(1, 7, List.of(5, 9), List.of(1, 2, 3, 4, 5, 6)).isEmpty());
-        Assertions.assertTrue(competencyService.getDepartmentSkillSetHeatmap(2, 7, List.of(4, 19, 42), List.of(1, 2, 3, 4, 5, 6)).get(0).getScore() != 0);
-        Assertions.assertTrue(competencyService.getDepartmentSkillSetHeatmap(3, 7, List.of(8), List.of(1, 2, 3, 4, 5, 6)).get(0).getScore() == 0);
+        Assertions.assertFalse(competencyService.getDepartmentSkillHeatmap(1, 7, List.of(5, 9), List.of(1, 2, 3, 4, 5, 6)).isEmpty());
+        Assertions.assertTrue(competencyService.getDepartmentSkillHeatmap(2, 7, List.of(4, 19, 42), List.of(1, 2, 3, 4, 5, 6)).get(0).getScore() != 0);
+        Assertions.assertTrue(competencyService.getDepartmentSkillHeatmap(3, 7, List.of(8), List.of(1, 2, 3, 4, 5, 6)).get(0).getScore() == 0);
     }
 
     @Test
@@ -316,9 +309,9 @@ class CompetencyServiceTest {
 
     @Test
     void getEvaluateSkillSetForm_shouldItHasValue() {
-        List<TreeSimpleData> l1 = competencyService.getEvaluateSkillSetForm(4);
-        List<TreeSimpleData> l2 = competencyService.getEvaluateSkillSetForm(5);
-        List<TreeSimpleData> l3 = competencyService.getEvaluateSkillSetForm(6);
+        List<TreeSimpleData> l1 = competencyService.getEvaluateSkillForm(4);
+        List<TreeSimpleData> l2 = competencyService.getEvaluateSkillForm(5);
+        List<TreeSimpleData> l3 = competencyService.getEvaluateSkillForm(6);
         Assertions.assertNotNull(l1);
         Assertions.assertNotNull(l2);
         Assertions.assertNotNull(l3);
@@ -352,21 +345,21 @@ class CompetencyServiceTest {
 
     @Test
     void createSelfCompetencyEvaluation_saveDraft_shouldItCanCreate() {
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, false, null, lss);
         Assertions.assertTrue(competencyService.createSelfCompetencyEvaluation(cei));
 
-        Specification<SkillSetEvaluation> spec = GlobalSpec.hasCompCycleId(8);
+        Specification<SkillEvaluation> spec = GlobalSpec.hasCompCycleId(8);
         spec = spec.and(GlobalSpec.hasEmployeeId(3));
-        List<SkillSetEvaluation> listCT = ssEvalRepo.findAll(spec);
+        List<SkillEvaluation> listCT = ssEvalRepo.findAll(spec);
 
         Assertions.assertNotNull(listCT);
         Assertions.assertEquals(8, listCT.size());
@@ -374,21 +367,21 @@ class CompetencyServiceTest {
 
     @Test
     void createSelfCompetencyEvaluation_submit_shouldItCanCreate() {
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, true, null, lss);
         Assertions.assertTrue(competencyService.createSelfCompetencyEvaluation(cei));
 
-        Specification<SkillSetEvaluation> spec = GlobalSpec.hasCompCycleId(8);
+        Specification<SkillEvaluation> spec = GlobalSpec.hasCompCycleId(8);
         spec = spec.and(GlobalSpec.hasEmployeeId(3));
-        List<SkillSetEvaluation> listCT = ssEvalRepo.findAll(spec);
+        List<SkillEvaluation> listCT = ssEvalRepo.findAll(spec);
 
         Assertions.assertNotNull(listCT);
         Assertions.assertEquals(8, listCT.size());
@@ -403,21 +396,21 @@ class CompetencyServiceTest {
 
     @Test
     void createEvaluatorCompetencyEvaluation_saveDraft_shouldItCanCreate() {
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, false, null, lss);
         Assertions.assertTrue(competencyService.createEvaluatorCompetencyEvaluation(cei));
 
-        Specification<SkillSetEvaluation> spec = GlobalSpec.hasCompCycleId(8);
+        Specification<SkillEvaluation> spec = GlobalSpec.hasCompCycleId(8);
         spec = spec.and(GlobalSpec.hasEmployeeId(3));
-        List<SkillSetEvaluation> listCT = ssEvalRepo.findAll(spec);
+        List<SkillEvaluation> listCT = ssEvalRepo.findAll(spec);
 
         Assertions.assertNotNull(listCT);
         Assertions.assertEquals(8, listCT.size());
@@ -425,21 +418,21 @@ class CompetencyServiceTest {
 
     @Test
     void createEvaluatorCompetencyEvaluation_submit_shouldItCanCreate() {
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, true, null, lss);
         Assertions.assertTrue(competencyService.createEvaluatorCompetencyEvaluation(cei));
 
-        Specification<SkillSetEvaluation> spec = GlobalSpec.hasCompCycleId(8);
+        Specification<SkillEvaluation> spec = GlobalSpec.hasCompCycleId(8);
         spec = spec.and(GlobalSpec.hasEmployeeId(3));
-        List<SkillSetEvaluation> listCT = ssEvalRepo.findAll(spec);
+        List<SkillEvaluation> listCT = ssEvalRepo.findAll(spec);
 
         Assertions.assertNotNull(listCT);
         Assertions.assertEquals(8, listCT.size());
@@ -454,21 +447,21 @@ class CompetencyServiceTest {
 
     @Test
     void createFinalCompetencyEvaluation_saveDraft_shouldItCanCreate() {
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, false, null, lss);
         Assertions.assertTrue(competencyService.createFinalCompetencyEvaluation(cei));
 
-        Specification<SkillSetEvaluation> spec = GlobalSpec.hasCompCycleId(8);
+        Specification<SkillEvaluation> spec = GlobalSpec.hasCompCycleId(8);
         spec = spec.and(GlobalSpec.hasEmployeeId(3));
-        List<SkillSetEvaluation> listCT = ssEvalRepo.findAll(spec);
+        List<SkillEvaluation> listCT = ssEvalRepo.findAll(spec);
 
         Assertions.assertNotNull(listCT);
         Assertions.assertEquals(8, listCT.size());
@@ -476,21 +469,21 @@ class CompetencyServiceTest {
 
     @Test
     void createFinalCompetencyEvaluation_submit_shouldItCanCreate() {
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, true, null, lss);
         Assertions.assertTrue(competencyService.createFinalCompetencyEvaluation(cei));
 
-        Specification<SkillSetEvaluation> spec = GlobalSpec.hasCompCycleId(8);
+        Specification<SkillEvaluation> spec = GlobalSpec.hasCompCycleId(8);
         spec = spec.and(GlobalSpec.hasEmployeeId(3));
-        List<SkillSetEvaluation> listCT = ssEvalRepo.findAll(spec);
+        List<SkillEvaluation> listCT = ssEvalRepo.findAll(spec);
 
         Assertions.assertNotNull(listCT);
         Assertions.assertEquals(8, listCT.size());
@@ -507,15 +500,15 @@ class CompetencyServiceTest {
     void createCompetencyEvaluation_selfEvaluatorFinalWithSameRow() {
         long skillSetEvaluationCount = ssEvalRepo.count();
 
-        List<SkillSetScoreInput> lss = List.of(
-                new SkillSetScoreInput(1, 2),
-                new SkillSetScoreInput(2, 2),
-                new SkillSetScoreInput(3, 2),
-                new SkillSetScoreInput(4, 2),
-                new SkillSetScoreInput(5, 3),
-                new SkillSetScoreInput(6, 3),
-                new SkillSetScoreInput(7, 3),
-                new SkillSetScoreInput(8, 3));
+        List<SkillScoreInput> lss = List.of(
+                new SkillScoreInput(1, 2),
+                new SkillScoreInput(2, 2),
+                new SkillScoreInput(3, 2),
+                new SkillScoreInput(4, 2),
+                new SkillScoreInput(5, 3),
+                new SkillScoreInput(6, 3),
+                new SkillScoreInput(7, 3),
+                new SkillScoreInput(8, 3));
         CompetencyEvaluationInput cei = new CompetencyEvaluationInput(3, 8, true, null, lss);
         Assertions.assertTrue(competencyService.createSelfCompetencyEvaluation(cei));
         Assertions.assertTrue(competencyService.createEvaluatorCompetencyEvaluation(cei));

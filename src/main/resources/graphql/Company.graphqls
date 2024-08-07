@@ -84,16 +84,11 @@ type ProficiencyLevel {
 type Skill {
     id: Int!
     skillName: String
-    skillSet: SkillSet
-}
-
-type SkillSet {
-    id: Int!
-    skillSetName: String
     competency: Competency
+    description: String
 }
 
-type SkillSetSummarization {
+type SkillSummarization {
     currentRating: Float
     targetRating: Float
 }
@@ -136,7 +131,7 @@ type EmployeeEvaProgressPaging {
 }
 
 type EvaluationResult {
-    skillSetId: Int
+    skillId: Int
     selfEvaluation: Int
     evaluatorEvaluation: Int
 }

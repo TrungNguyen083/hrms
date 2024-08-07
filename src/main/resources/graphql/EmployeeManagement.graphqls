@@ -37,6 +37,7 @@ type EmployeeDTO {
     employee: Employee
     imageUrl: String
     emergencyContacts: [EmergencyContact]
+    skills: [Skill]
 }
 
 type EmployeePaging {
@@ -87,7 +88,7 @@ type EmployeeOverviewDTO {
     profileImgUri: String
     position: String!
     level: String!
-    skillSets: [String]
+    skills: [String]
     certifications: [String]
 }
 

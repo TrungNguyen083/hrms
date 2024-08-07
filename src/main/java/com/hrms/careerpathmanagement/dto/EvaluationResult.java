@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class EvaluationResult {
-    private Integer skillSetId;
+    private Integer skillId;
     private Integer selfEvaluation;
     private Integer evaluatorEvaluation;
 }
