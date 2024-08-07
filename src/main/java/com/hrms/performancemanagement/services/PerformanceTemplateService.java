@@ -1,6 +1,7 @@
 package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.TemplateDTO;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.Template;
 import com.hrms.careerpathmanagement.repositories.*;
 import com.hrms.employeemanagement.models.Employee;
@@ -8,10 +9,9 @@ import com.hrms.performancemanagement.dto.CategoryDTO;
 import com.hrms.performancemanagement.dto.FeedbackDTO;
 import com.hrms.performancemanagement.dto.PerformanceEvalTemplateDTO;
 import com.hrms.global.models.FeedbackRequest;
-import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.projection.TemplateIdOnly;
 import com.hrms.performancemanagement.repositories.FeedbackRequestRepository;
-import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
+import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +33,14 @@ public class PerformanceTemplateService {
     private final TemplateRepository templateRepository;
     private final TemplateCategoryRepository templateCategoryRepository;
     private final PerformanceEvaluationRepository performanceEvaluationRepository;
-    private final PerformanceCycleRepository performanceCycleRepository;
+    private final EvaluateCycleRepository evaluateCycleRepository;
     private final FeedbackRequestRepository feedbackRequestRepository;
     @Autowired
     public PerformanceTemplateService(CategoryQuestionRepository categoryQuestionRepository,
                                       QuestionRepository questionRepository,
                                       CategoryRepository categoryRepository,
                                       TemplateRepository templateRepository,
-                                      TemplateCategoryRepository templateCategoryRepository, PerformanceEvaluationRepository performanceEvaluationRepository, PerformanceCycleRepository performanceCycleRepository, FeedbackRequestRepository feedbackRequestRepository)
+                                      TemplateCategoryRepository templateCategoryRepository, PerformanceEvaluationRepository performanceEvaluationRepository, EvaluateCycleRepository evaluateCycleRepository, FeedbackRequestRepository feedbackRequestRepository)
     {
         this.categoryQuestionRepository = categoryQuestionRepository;
         this.questionRepository = questionRepository;
@@ -48,12 +48,12 @@ public class PerformanceTemplateService {
         this.templateRepository = templateRepository;
         this.templateCategoryRepository = templateCategoryRepository;
         this.performanceEvaluationRepository = performanceEvaluationRepository;
-        this.performanceCycleRepository = performanceCycleRepository;
+        this.evaluateCycleRepository = evaluateCycleRepository;
         this.feedbackRequestRepository = feedbackRequestRepository;
     }
 
     public Template getTemplateOfCycle(Integer cycleId) {
-        var templateId = performanceCycleRepository
+        var templateId = evaluateCycleRepository
                 .findById(cycleId, TemplateIdOnly.class)
                 .stream()
                 .map(TemplateIdOnly::templateId)
@@ -115,7 +115,7 @@ public class PerformanceTemplateService {
         var feedbackReceiver = new Employee();
         feedbackReceiver.setId(feedbackReceiverId);
 
-        var cycle = new PerformanceCycle();
+        var cycle = new EvaluateCycle();
         cycle.setId(cycleId);
 
         requestReceiverIds.forEach(id -> {

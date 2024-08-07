@@ -1,28 +1,26 @@
 package com.hrms.global.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
 
+@Builder
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "competency_cycle")
-public class CompetencyCycle {
+@Table(name = "evaluate_cycle")
+public class EvaluateCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "competency_cycle_id")
+    @Column(name = "evaluate_cycle_id")
     private Integer id;
 
-    @Column(name = "competency_cycle_name")
-    private String competencyCycleName;
+    @Column(name = "evaluate_cycle_name")
+    private String evaluateCycleName;
 
     @Column(name = "description")
     private String description;
@@ -37,13 +35,15 @@ public class CompetencyCycle {
     private Integer year;
 
     @Column(name = "status")
+    @Builder.Default
     private String status = "Not Start";
-
-    @Column(name = "evaluator_type")
-    private String evaluatorType;
 
     @Column(name = "initial_date")
     private Date initialDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "template_id")
+    private Template template;
 
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
@@ -55,7 +55,7 @@ public class CompetencyCycle {
     @Temporal(TemporalType.TIMESTAMP)
     private Date insertionTime;
 
-    public CompetencyCycle(Integer id) {
+    public EvaluateCycle(Integer id) {
         this.id = id;
     }
 }

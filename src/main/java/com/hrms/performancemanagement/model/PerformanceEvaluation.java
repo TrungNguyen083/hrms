@@ -1,7 +1,7 @@
 package com.hrms.performancemanagement.model;
 
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.global.models.PerformanceCycle;
+import com.hrms.global.models.EvaluateCycle;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,8 +34,8 @@ public class PerformanceEvaluation {
     private Float finalAssessment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performance_cycle_id")
-    private PerformanceCycle performanceCycle;
+    @JoinColumn(name = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
 
     @Column(name = "potential_score")
     private Float potentialScore;

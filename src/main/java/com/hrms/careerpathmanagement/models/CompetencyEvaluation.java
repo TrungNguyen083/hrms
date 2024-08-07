@@ -2,7 +2,7 @@ package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.models.Competency;
-import com.hrms.global.models.CompetencyCycle;
+import com.hrms.global.models.EvaluateCycle;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,8 +21,8 @@ public class CompetencyEvaluation {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competency_cycle_id", referencedColumnName = "competency_cycle_id")
-    private CompetencyCycle competencyCycle;
+    @JoinColumn(name = "evaluate_cycle_id", referencedColumnName = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")

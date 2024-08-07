@@ -3,7 +3,6 @@ package com.hrms.employeemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
 import com.hrms.global.models.*;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
-import com.hrms.careerpathmanagement.repositories.CompetencyCycleRepository;
 import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
 import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
 import com.hrms.careerpathmanagement.specification.CareerSpecification;
@@ -20,8 +19,7 @@ import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
-import com.hrms.global.models.PerformanceCycle;
-import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
+import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.unboundid.util.NotNull;
 import com.unboundid.util.Nullable;
 import jakarta.annotation.PostConstruct;
@@ -54,11 +52,9 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final CareerSpecification careerSpecification;
     private final PositionDepartmentRepository positionDepartmentRepository;
     private final SkillRepository skillRepository;
-    private final CompetencyCycleRepository competencyCycleRepository;
-    private final PerformanceCycleRepository performanceCycleRepository;
     private final PositionLevelSkillRepository positionLevelSkillRepository;
-    private CompetencyCycle latestCompCycle;
-    private PerformanceCycle latestPerformCycle;
+    private final EvaluateCycleRepository evaluateCycleRepository;
+    private EvaluateCycle latestEvaluateCycle;
 
     private ModelMapper modelMapper;
 
@@ -80,8 +76,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                          CareerSpecification careerSpecification,
                                          PositionDepartmentRepository positionDepartmentRepository,
                                          SkillRepository skillRepository,
-                                         CompetencyCycleRepository competencyCycleRepository,
-                                         PerformanceCycleRepository performanceCycleRepository,
+                                         EvaluateCycleRepository evaluateCycleRepository,
                                          PositionLevelSkillRepository positionLevelSkillRepository) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
@@ -92,23 +87,17 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         this.careerSpecification = careerSpecification;
         this.positionDepartmentRepository = positionDepartmentRepository;
         this.skillRepository = skillRepository;
-        this.competencyCycleRepository = competencyCycleRepository;
-        this.performanceCycleRepository = performanceCycleRepository;
         this.positionLevelSkillRepository = positionLevelSkillRepository;
+        this.evaluateCycleRepository = evaluateCycleRepository;
     }
 
     @PostConstruct
     private void initialize() {
-        this.latestCompCycle = getLatestCompCycle();
-        this.latestPerformCycle = getLatestPerformCycle();
+        this.latestEvaluateCycle = getLatestEvalCycle();
     }
 
-    private PerformanceCycle getLatestPerformCycle() {
-        return performanceCycleRepository.findFirstByOrderByPerformanceCycleStartDateDesc();
-    }
-
-    private CompetencyCycle getLatestCompCycle() {
-        return competencyCycleRepository.findFirstByOrderByStartDateDesc();
+    private EvaluateCycle getLatestEvalCycle() {
+        return evaluateCycleRepository.findFirstByOrderByStartDateDesc();
     }
 
     @Override
@@ -450,7 +439,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 new RuntimeException("Employee not found with id: " + employeeId));
 
         Specification<SkillEvaluation> hasEmp = GlobalSpec.hasEmployeeId(employeeId);
-        Specification<SkillEvaluation> hasCycle = GlobalSpec.hasCompCycleId(latestCompCycle.getId());
+        Specification<SkillEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(latestEvaluateCycle.getId());
 
         List<String> skillSets = skillEvaluationRepository
                 .findAll(hasEmp.and(hasCycle))

@@ -2,7 +2,7 @@ package com.hrms.performancemanagement.model;
 
 import com.hrms.global.models.CategoryQuestion;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.global.models.PerformanceCycle;
+import com.hrms.global.models.EvaluateCycle;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,8 +23,8 @@ public class AnswerResult {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "performance_cycle_id", referencedColumnName = "performance_cycle_id")
-    private PerformanceCycle cycle;
+    @JoinColumn(name = "evaluate_cycle_id", referencedColumnName = "evaluate_cycle_id")
+    private EvaluateCycle cycle;
 
     @ManyToOne
     @JoinColumn(name = "category_question_id", referencedColumnName = "category_question_id")

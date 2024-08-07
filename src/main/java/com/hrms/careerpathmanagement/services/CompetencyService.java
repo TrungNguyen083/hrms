@@ -2,11 +2,11 @@ package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
-import com.hrms.careerpathmanagement.input.CompetencyCycleInput;
+import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.input.TemplateInput;
-import com.hrms.global.models.CompetencyCycle;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
@@ -22,12 +22,12 @@ import java.util.List;
 public interface CompetencyService {
     @Scheduled(cron = "0 0 0 * * *")
     void updateIsDoneForOverdueItems();
-    List<TimeLine> getCompetencyTimeline(Integer competencyCycleId);
-    MultiBarChartDTO getDepartmentInCompleteComp(Integer competencyCycleId);
-    PieChartDTO getCompetencyEvalProgress(Integer competencyCycleId);
-    List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer competencyCycleId);
+    List<TimeLine> getEvaluateTimeline(Integer evaluateCycleId);
+    MultiBarChartDTO getDepartmentInCompleteComp(Integer evaluateCycleId);
+    PieChartDTO getCompetencyEvalProgress(Integer evaluateCycleId);
+    List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer evaluateCycleId);
     DataItemPagingDTO getTopSkill(@Nullable Integer departmentId, @Nullable Integer empId,
-                                  @Nullable Integer competencyCycleId, int pageNo, int pageSize);
+                                  @Nullable Integer evaluateCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
     SkillMatrixOverallDTO getSkillMatrixOverall(Integer employeeId);
     DataItemPagingDTO getTopKeenSkillEmployee(Integer employeeId, int pageNo, int pageSize);
@@ -38,9 +38,9 @@ public interface CompetencyService {
     DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
     BarChartDTO getCompetencyChart(Integer departmentId);
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
-    RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesIds, Integer departmentId);
+    RadarChartDTO getCompetencyRadarChart(List<Integer> evaluateCycleIds, Integer departmentId);
 
-    List<CompetencyCycle> getCompetencyCycles();
+    List<EvaluateCycle> getEvaluateCycles();
 
     EmployeeRatingPagination getCompetencyRating(Integer departmentId, Integer cycleId, Integer pageNo, Integer pageSize);
 
@@ -52,16 +52,16 @@ public interface CompetencyService {
 
     EmployeeStatusPagination getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId, Pageable page);
 
-    List<HeatmapItemDTO> getDepartmentSkillHeatmap(Integer departmentId, Integer cycleId,
+    List<HeatmapItemDTO> getDepartmentSkillHeatmap(Integer departmentId, Integer evaluateCycleId,
                                                    List<Integer> employeeIds, List<Integer> skillIds);
 
-    RadarChartDTO getDepartmentCompetencyGap(Integer cycleId, List<Integer> employeeIds);
+    RadarChartDTO getDepartmentCompetencyGap(Integer evaluateCycleId, List<Integer> employeeIds);
 
     List<EvaluationCycleDTO> getEvaluationCycles();
 
-    CompetencyCycle createCompetencyCycle(CompetencyCycleInput input);
+    EvaluateCycle createEvaluateCycle(EvaluateCycleInput input);
 
-    String competencyCyclePeriod(Integer cycleId);
+    String evaluateCyclePeriod(Integer evaluateCycleId);
 
     List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) throws ParseException;
 
@@ -69,13 +69,13 @@ public interface CompetencyService {
 
     Boolean createTemplate(TemplateInput input);
 
-    EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer cycleId, Integer pageNo, Integer pageSize);
+    EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer evaluateCycleId, Integer pageNo, Integer pageSize);
 
     List<TreeSimpleData> getEvaluateSkillForm(Integer employeeId);
 
     List<CompetencyGroupDTO> getCompetencyGroups();
 
-    List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer cycleId);
+    List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer evaluateCycleId);
 
     Boolean createSelfCompetencyEvaluation(CompetencyEvaluationInput input);
 

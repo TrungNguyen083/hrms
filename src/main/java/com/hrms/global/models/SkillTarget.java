@@ -19,7 +19,7 @@ public class SkillTarget {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competency_cycle_id")
-    private CompetencyCycle competencyCycle;
+    private EvaluateCycle evaluateCycle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")

@@ -1,11 +1,10 @@
 package com.hrms.global.mapper;
 
 import com.hrms.careerpathmanagement.input.TimeLineInput;
-import com.hrms.global.models.CompetencyTimeLine;
+import com.hrms.global.models.EvaluateTimeLine;
 import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.input.ProficiencyLevelInput;
-import com.hrms.global.models.PerformanceTimeLine;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.model.User;
 import org.modelmapper.ModelMapper;
@@ -38,16 +37,16 @@ public class HrmsMapper extends ModelMapper {
             mapper.map(ProficiencyLevelInput::getScore, ProficiencyLevel::setScore);
         });
 
-        this.typeMap(TimeLineInput.class, CompetencyTimeLine.class).addMappings(mapper -> {
-            mapper.map(TimeLineInput::getTimeLineName, CompetencyTimeLine::setCompetencyTimeLineName);
-            mapper.map(TimeLineInput::getStartDate, CompetencyTimeLine::setStartDate);
-            mapper.map(TimeLineInput::getDueDate, CompetencyTimeLine::setDueDate);
+        this.typeMap(TimeLineInput.class, EvaluateTimeLine.class).addMappings(mapper -> {
+            mapper.map(TimeLineInput::getTimeLineName, EvaluateTimeLine::setEvaluateTimeLineName);
+            mapper.map(TimeLineInput::getStartDate, EvaluateTimeLine::setStartDate);
+            mapper.map(TimeLineInput::getDueDate, EvaluateTimeLine::setDueDate);
         });
 
-        this.typeMap(TimeLineInput.class, PerformanceTimeLine.class).addMappings(mapper -> {
-            mapper.map(TimeLineInput::getTimeLineName, PerformanceTimeLine::setPerformanceTimeLineName);
-            mapper.map(TimeLineInput::getStartDate, PerformanceTimeLine::setStartDate);
-            mapper.map(TimeLineInput::getDueDate, PerformanceTimeLine::setDueDate);
+        this.typeMap(TimeLineInput.class, EvaluateTimeLine.class).addMappings(mapper -> {
+            mapper.map(TimeLineInput::getTimeLineName, EvaluateTimeLine::setEvaluateTimeLineName);
+            mapper.map(TimeLineInput::getStartDate, EvaluateTimeLine::setStartDate);
+            mapper.map(TimeLineInput::getDueDate, EvaluateTimeLine::setDueDate);
         });
     }
 }

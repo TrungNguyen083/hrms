@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -14,7 +15,6 @@ import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.input.ProficiencyLevelInput;
-import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -161,7 +161,7 @@ public class PerformanceController {
   
     @MutationMapping(name = "createPerformanceCycle")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public PerformanceCycle createPerformanceCycle(@Argument PerformanceCycleInput input) {
+    public EvaluateCycle createPerformanceCycle(@Argument PerformanceCycleInput input) {
         return performanceService.createPerformanceCycle(input);
     }
 

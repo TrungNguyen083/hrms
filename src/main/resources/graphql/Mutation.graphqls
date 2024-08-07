@@ -18,7 +18,7 @@ type Mutation {
     createTemplate(input: TemplateInput!): Boolean
 
     #Competency Management
-    createCompetencyCycle(input: CompetencyCycleInput!): CompetencyCycle
+    createEvaluateCycle(input: EvaluateCycleInput!): EvaluateCycle
     createCompetencyProcess(input: EvaluationProcessInput!): [TimeLine]
     createSelfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
     createEvaluatorCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
