@@ -1,6 +1,6 @@
 package com.hrms.performancemanagement.dto;
 
-import com.hrms.careerpathmanagement.models.Question;
+import com.hrms.global.models.Question;
 import lombok.*;
 
 import java.util.List;

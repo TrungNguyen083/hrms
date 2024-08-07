@@ -1,6 +1,6 @@
-package com.hrms.performancemanagement.model;
+package com.hrms.global.models;
 
-import com.hrms.careerpathmanagement.models.Template;
+import com.hrms.global.models.Template;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +17,7 @@ public class PerformanceCycle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "performance_cycle_id")
-    private Integer performanceCycleId;
+    private Integer id;
 
     @Column(name = "performance_cycle_name")
     private String performanceCycleName;

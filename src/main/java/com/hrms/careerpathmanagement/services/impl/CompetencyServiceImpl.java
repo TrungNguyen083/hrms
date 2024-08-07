@@ -24,11 +24,12 @@ import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.*;
 import com.hrms.global.mapper.HrmsMapper;
+import com.hrms.global.models.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
-import com.hrms.performancemanagement.model.PerformanceCycle;
+import com.hrms.global.models.PerformanceCycle;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.hrms.performancemanagement.specification.PerformanceSpecification;
@@ -601,7 +602,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     @NotNull
     private CurrentEvaluationDTO getCurrentPerformEval(Integer employeeId) {
         Specification<PerformanceEvaluation> hasEmpId = performanceSpecification.hasEmployeeId(employeeId);
-        Specification<PerformanceEvaluation> hasCycleIds = performanceSpecification.hasCycleId(latestPerformCycle.getPerformanceCycleId());
+        Specification<PerformanceEvaluation> hasCycleIds = performanceSpecification.hasCycleId(latestPerformCycle.getId());
         PerformanceEvaluation perfEval = performanceEvaluationRepository
                 .findOne(hasEmpId.and(hasCycleIds))
                 .orElse(null);
@@ -639,7 +640,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private List<HistoryEvaluationDTO> getPerformEvalHistory(Integer employeeId) {
         List<Integer> performCycleIds = performanceCycleRepository.findAll()
                 .stream()
-                .map(PerformanceCycle::getPerformanceCycleId)
+                .map(PerformanceCycle::getId)
                 .toList();
 
         Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
@@ -973,18 +974,18 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
+    public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesIds, Integer departmentId) {
         List<Competency> competencies = competencyRepository.findAll();
         List<CompetencyCycle> competencyCycles = competencyCycleRepository.findAll();
-        List<CompetencyEvaluation> competencyEvaluates = findByCyclesAndDepartment(competencyCyclesId, departmentId);
+        List<CompetencyEvaluation> competencyEvaluates = findByCyclesAndDepartment(competencyCyclesIds, departmentId);
         if(competencyEvaluates.isEmpty()) return null;
         proficiencyLevelRepository.findAll();
 
-        List<Pair<Integer, Integer>> pairItems = createPairItems(competencyCyclesId, competencies);
+        List<Pair<Integer, Integer>> pairItems = createPairItems(competencyCyclesIds, competencies);
 
         List<RadarValueDTO> avgCompetencies = calculateAverageCompetencies(pairItems, competencyEvaluates);
 
-        List<RadarDatasetDTO> listDataset = createRadarDataset(competencyCyclesId,
+        List<RadarDatasetDTO> listDataset = createRadarDataset(competencyCyclesIds,
                 competencies,
                 avgCompetencies,
                 competencyCycles);
@@ -1272,7 +1273,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private List<EvaluationCycleDTO> getPerformEval() {
         return performanceCycleRepository.findAll()
                 .stream()
-                .map(cycle -> new EvaluationCycleDTO(cycle.getPerformanceCycleId(),
+                .map(cycle -> new EvaluationCycleDTO(cycle.getId(),
                         cycle.getPerformanceCycleName(),
                         cycle.getStatus(),
                         String.format("%s - %s", cycle.getPerformanceCycleStartDate(),

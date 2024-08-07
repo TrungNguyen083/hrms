@@ -1,7 +1,8 @@
 package com.hrms.performancemanagement.model;
 
-import com.hrms.careerpathmanagement.models.CategoryQuestion;
+import com.hrms.global.models.CategoryQuestion;
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.global.models.PerformanceCycle;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Entity
 @Getter

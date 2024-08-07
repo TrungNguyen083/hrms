@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement.models;
+package com.hrms.global.models;
 
 import com.hrms.employeemanagement.models.Employee;
 import jakarta.persistence.*;

@@ -1,8 +1,5 @@
-package com.hrms.careerpathmanagement.models;
+package com.hrms.global.models;
 
-import com.hrms.employeemanagement.models.JobLevel;
-import com.hrms.employeemanagement.models.Position;
-import com.hrms.employeemanagement.models.Skill;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

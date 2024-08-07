@@ -1,7 +1,7 @@
 package com.hrms.performancemanagement.repositories;
 
 import com.hrms.performancemanagement.dto.FeedbackDTO;
-import com.hrms.performancemanagement.model.FeedbackRequest;
+import com.hrms.global.models.FeedbackRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +13,6 @@ public interface FeedbackRequestRepository extends JpaRepository<FeedbackRequest
 
     @Query(value = "SELECT new com.hrms.performancemanagement.dto.FeedbackDTO(f.id, fr.feedbackReceiver.id, fr.feedbackReceiver.firstName, f.feedbackContent, f.createdAt)" +
             " FROM FeedbackRequest fr JOIN Feedback f ON fr.id = f.feedbackRequest.id " +
-            "WHERE fr.feedbackReceiver.id = ?1 AND fr.cycle.performanceCycleId = ?2")
+            "WHERE fr.feedbackReceiver.id = ?1 AND fr.cycle.id = ?2")
     public List<FeedbackDTO> findByFeedbackReceiverIdAndPerformanceCycleId(Integer feedbackReceiverId, Integer performanceCycleId);
 }
