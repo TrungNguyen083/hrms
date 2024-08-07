@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
         "com.hrms.careerpathmanagement.models",
         "com.hrms.damservice.models",
         "com.hrms.digitalassetmanagement.model",
-        "com.hrms.performancemanagement.model"
+        "com.hrms.performancemanagement.model",
+        "com.hrms.global.models"
 })
 @SpringBootApplication
 @Configuration
