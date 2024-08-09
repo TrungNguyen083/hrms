@@ -15,8 +15,6 @@ public class EmployeeInputDTO {
     private String firstName;
     private String lastName;
     private String gender;
-    private String email;
-    private String joinedDate;
     private String dateOfBirth;
     private String phoneNumber;
     private String address;
