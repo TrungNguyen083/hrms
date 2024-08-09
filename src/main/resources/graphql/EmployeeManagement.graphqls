@@ -50,8 +50,6 @@ input EmployeeInput {
     firstName: String
     lastName: String
     gender: String
-    email: String
-    joinedDate: String
     dateOfBirth: String
     phoneNumber: String
     address: String

@@ -27,8 +27,7 @@ type Query {
     competencies: [Competency]
     proficiencyLevels: [ProficiencyLevel]
     evaluateCycles: [EvaluateCycle]
-    competencyTimeLine(evaluateCycleId: Int!): [TimeLine]
-    performanceTimeLine(evaluateCycleId: Int!): [TimeLine]
+    evaluateTimeLine(evaluateCycleId: Int!): [TimeLine]
     positionLevelSkills(positionId: Int!, jobLevelId: Int!): [SimpleItemDTO] #old name: skills(positionId: Int!): [SimpleItemDTO]
     templates: [TemplateDTO]
 

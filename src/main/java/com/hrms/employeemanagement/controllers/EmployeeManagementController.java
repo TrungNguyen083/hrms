@@ -78,7 +78,7 @@ public class EmployeeManagementController {
     }
 
     @MutationMapping
-    public Employee createProfile(@Argument EmployeeInputDTO input) throws Exception {
+    public Employee createProfile(@Argument EmployeeInputDTO input) {
         return employeeManagementService.createEmployee(input);
     }
 

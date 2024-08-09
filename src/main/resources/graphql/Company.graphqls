@@ -6,7 +6,7 @@ type Department {
 
 type EvaluateCycle {
     id: Int!
-    competencyCycleName: String
+    evaluateCycleName: String
     description: String
     startDate: String
     dueDate: String
