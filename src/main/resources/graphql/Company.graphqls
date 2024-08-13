@@ -12,7 +12,7 @@ type EvaluateCycle {
     dueDate: String
     year: String
     status: String
-    evaluatorType: String
+    initialDate: String
 }
 
 type TimeLine {

@@ -23,8 +23,8 @@ input ProficiencyLevelInput {
 }
 
 input PerformanceRangeInput {
-    minValue: Int
-    maxValue: Int
+    minValue: Float
+    maxValue: Float
     text: String
 }
 

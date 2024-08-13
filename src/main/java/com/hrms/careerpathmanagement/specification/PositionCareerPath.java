@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement;
+package com.hrms.careerpathmanagement.specification;
 
 public enum PositionCareerPath {
     SOFTWARE_ENGINEER(1, "Software Engineer"),

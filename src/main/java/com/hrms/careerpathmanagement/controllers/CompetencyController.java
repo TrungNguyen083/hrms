@@ -109,7 +109,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "topSkill")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public DataItemPagingDTO getTopSkill(@Argument @Nullable Integer departmentId,
                                                 @Argument @Nullable Integer employeeId,
                                                 @Argument @Nullable Integer evaluateCycleId,
@@ -196,7 +196,7 @@ public class CompetencyController {
      * @return List Employees (name, profileImg) with their competency rating
      */
     @QueryMapping(name = "topCompetencyRating")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument @Nullable Integer departmentId,
                                                                @Argument Integer cycleId,
                                                                @Argument Integer pageNo,
