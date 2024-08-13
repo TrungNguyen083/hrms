@@ -1,7 +1,5 @@
 package com.hrms.careerpathmanagement.controllers;
 
-import com.hrms.careerpathmanagement.PositionCareerPath;
-import com.hrms.careerpathmanagement.dto.CareerPathTreeDTO;
 import com.hrms.careerpathmanagement.services.CareerManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

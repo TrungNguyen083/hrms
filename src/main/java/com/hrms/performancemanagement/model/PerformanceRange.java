@@ -18,10 +18,10 @@ public class PerformanceRange {
     private Integer id;
 
     @Column(name = "min_value")
-    private Integer minValue;
+    private Float minValue;
 
     @Column(name = "max_value")
-    private Integer maxValue;
+    private Float maxValue;
 
     @Column(name = "order_number")
     private Integer ordered;

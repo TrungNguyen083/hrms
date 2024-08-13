@@ -36,15 +36,9 @@ public interface PerformanceService {
     DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId, Integer pageNo, Integer pageSize);
     MultiBarChartDTO getDepartmentInCompletePerform(Integer cycleId);
     PieChartDTO getPerformanceEvalProgress(Integer performanceCycleId);
-
-    List<TimeLine> getPerformanceTimeLine(Integer cycleId);
-
     EvaluateCycle createPerformanceCycle(PerformanceCycleInput input);
-
     ProficiencyLevel updateProficiencyLevel(Integer id, ProficiencyLevelInput input);
-
     PerformanceRange updatePerformanceRange(Integer id, PerformanceRangeInput input);
     String performanceCyclePeriod(Integer cycleId);
-
     List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) throws ParseException;
 }

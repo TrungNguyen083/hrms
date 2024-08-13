@@ -69,7 +69,7 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "performanceByJobLevel")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public StackedBarChart getPerformanceByJobLevel(@Argument Integer positionId,
                                                     @Argument Integer cycleId) {
         return performanceService.getPerformanceByJobLevel(positionId, cycleId);
@@ -81,7 +81,7 @@ public class PerformanceController {
      * @return Descartes coordinate, x-axis: performance, y-axis: potential
      */
     @QueryMapping(name = "employeesPotentialPerformance")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(@Argument @Nullable Integer departmentId,
                                                                             @Argument Integer cycleId) {
         return performanceService.getPotentialAndPerformance(departmentId, cycleId);
@@ -95,7 +95,7 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "topPerformers")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public EmployeeRatingPagination getPerformanceRating(@Argument @Nullable Integer departmentId,
                                                          @Argument Integer cycleId,
                                                          @Argument Integer pageNo,
@@ -124,12 +124,6 @@ public class PerformanceController {
                                                                @Argument int pageNo,
                                                                @Argument int pageSize) {
         return performanceService.getEmployeePerformanceRatingScore(employeeId, pageNo, pageSize);
-    }
-
-    @QueryMapping(name = "performanceTimeLine")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<TimeLine> getPerformanceTimeLine(@Argument Integer performanceCycleId) {
-        return performanceService.getPerformanceTimeLine(performanceCycleId);
     }
 
     /***

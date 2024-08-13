@@ -6,12 +6,12 @@ import com.hrms.careerpathmanagement.dto.pagination.EmployeeGoalPagination;
 import com.hrms.careerpathmanagement.dto.pagination.GoalPagination;
 import com.hrms.careerpathmanagement.models.Goal;
 import com.hrms.careerpathmanagement.repositories.GoalRepository;
-import com.hrms.careerpathmanagement.specification.CompetencySpecification;
 import com.hrms.employeemanagement.projection.NameOnly;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.repositories.EmployeeDamInfoRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
+import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.PieChartDTO;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
@@ -37,7 +37,6 @@ public class GoalService {
     private final EmployeeRepository employeeRepository;
 
     private EmployeeSpecification employeeSpecification;
-    private CompetencySpecification competencySpecification;
 
     static final String PROFILE_IMAGE = "PROFILE_IMAGE";
     static final String STATUS_ONTRACK = "ONTRACK";
@@ -49,14 +48,12 @@ public class GoalService {
 
     @Autowired
     public GoalService(GoalRepository goalRepository, EmployeeDamInfoRepository employeeDamInfoRepository,
-                       EmployeeRepository employeeRepository, EmployeeSpecification employeeSpecification,
-                       CompetencySpecification competencySpecification)
+                       EmployeeRepository employeeRepository, EmployeeSpecification employeeSpecification)
     {
         this.goalRepository = goalRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
         this.employeeRepository = employeeRepository;
         this.employeeSpecification = employeeSpecification;
-        this.competencySpecification = competencySpecification;
     }
 
     public EmployeeGoalPagination getEmployeesGoals(Integer departmentId, Integer cycleId,
@@ -71,10 +68,10 @@ public class GoalService {
         var profileImages = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(employeeIds, PROFILE_IMAGE);
 
         var result = goals.stream().map(goal -> {
-            var emp = employees.stream().filter(e -> e.id() == goal.getEmployee().getId()).findFirst().orElse(null);
+            var emp = employees.stream().filter(e -> Objects.equals(e.id(), goal.getEmployee().getId())).findFirst().orElse(null);
 
             var profileImage = profileImages.stream()
-                    .filter(i -> i.getEmployeeId() == emp.id())
+                    .filter(i -> Objects.equals(i.getEmployeeId(), emp.id()))
                     .findFirst().orElse(new ProfileImageOnly(null, "default"))
                     .getUrl();
 
@@ -90,7 +87,7 @@ public class GoalService {
     public CountAndPercentDTO countGoalsCompleted(Integer departmentId, Integer cycleId)
     {
         Specification<Goal> hasDepSpec = employeeSpecification.hasDepartmentId(departmentId);
-        Specification<Goal> hasCycleSpec = competencySpecification.hasCycleId(cycleId);
+        Specification<Goal> hasCycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
         var totalGoals = goalRepository.count(hasDepSpec.and(hasCycleSpec));
 
         Specification<Goal> completedSpec = (root, query, cb) -> cb.equal(root.get("status"), STATUS_COMPLETED);
@@ -126,7 +123,7 @@ public class GoalService {
                                 Sort sort) {
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize, sort);
         Specification<Goal> hasDepartmentSpec = employeeSpecification.hasDepartmentId(departmentId);
-        Specification<Goal> hasCycleSpec = competencySpecification.hasCycleId(cycleId);
+        Specification<Goal> hasCycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
         return goalRepository.findAll(hasDepartmentSpec.and(hasCycleSpec), pageRequest);
     }
 

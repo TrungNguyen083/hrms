@@ -40,8 +40,8 @@ type EmployeePotentialPerformanceDTO {
     employeeId: Int!
     fullName: String!
     profileImgUri: String
-    potential: Int!
-    performance: Int!
+    potential: Float!
+    performance: Float!
 }
 
 type PerformanceByJobLevelChartDTO {
