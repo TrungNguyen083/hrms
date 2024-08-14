@@ -509,16 +509,17 @@ public class CompetencyServiceImpl implements CompetencyService {
         CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
 
         Root<SkillEvaluation> sseRoot = criteriaQuery.from(SkillEvaluation.class);
-        Join<SkillEvaluation, Skill> ssJoin = sseRoot.join("skill");
+        Join<SkillEvaluation, Skill> skillJoin = sseRoot.join("skill");
 
         criteriaQuery.multiselect(
-                ssJoin.get("skillName").alias("label"),
+                skillJoin.get("skillName").alias("label"),
                 sseRoot.get("finalScore").as(Float.class).alias("value"));
 
         criteriaQuery.where(
                 criteriaBuilder.and(
                         criteriaBuilder.equal(sseRoot.get("evaluateCycle").get("id"), evalLatestCycle.getId()),
-                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId)
+                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId),
+                        criteriaBuilder.equal(skillJoin.get("competency").get("id"), 7)
                 )
         );
 
@@ -542,16 +543,17 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         Root<SkillTarget> sseRoot = criteriaQuery.from(SkillTarget.class);
         Join<SkillTarget, ProficiencyLevel> plJoin = sseRoot.join("targetProficiencyLevel");
-        Join<SkillTarget, Skill> ssJoin = sseRoot.join("skill");
+        Join<SkillTarget, Skill> skillJoin = sseRoot.join("skill");
 
         criteriaQuery.multiselect(
-                ssJoin.get("skillName").alias("label"),
+                skillJoin.get("skillName").alias("label"),
                 plJoin.get("score").alias("value"));
 
         criteriaQuery.where(
                 criteriaBuilder.and(
                         criteriaBuilder.equal(sseRoot.get("evaluateCycle").get("id"), latestEvaluateCycle.getId()),
-                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId)
+                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId),
+                        criteriaBuilder.equal(skillJoin.get("competency").get("id"), 7)
                 )
         );
 
