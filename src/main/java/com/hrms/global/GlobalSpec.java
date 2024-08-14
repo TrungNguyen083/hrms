@@ -93,6 +93,10 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isNotNull(root.get("finalEvaluation"));
     }
 
+    public static <T> Specification<T> hasMainSkill() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("competency").get("id"), 7);
+    }
+
     private GlobalSpec() {
     }
 

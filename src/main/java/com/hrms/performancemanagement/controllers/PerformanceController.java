@@ -69,7 +69,7 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "performanceByJobLevel")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('HR')")
     public StackedBarChart getPerformanceByJobLevel(@Argument Integer positionId,
                                                     @Argument Integer cycleId) {
         return performanceService.getPerformanceByJobLevel(positionId, cycleId);
@@ -119,7 +119,7 @@ public class PerformanceController {
      * @return BarChart
      */
     @QueryMapping(name = "employeePerformanceRatingScore")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public DataItemPagingDTO getEmployeePerformanceRatingScore(@Argument Integer employeeId,
                                                                @Argument int pageNo,
                                                                @Argument int pageSize) {

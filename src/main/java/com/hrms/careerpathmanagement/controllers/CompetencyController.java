@@ -109,7 +109,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "topSkill")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('HR') or hasAuthority('EMPLOYEE')")
     public DataItemPagingDTO getTopSkill(@Argument @Nullable Integer departmentId,
                                                 @Argument @Nullable Integer employeeId,
                                                 @Argument @Nullable Integer evaluateCycleId,
@@ -123,14 +123,14 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "topKeenSkillEmployee")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public DataItemPagingDTO getTopKeenSkillEmployee(@Argument(name = "employeeId") Integer empId,
                                                         @Argument Integer pageNo, @Argument Integer pageSize) {
         return competencyService.getTopKeenSkillEmployee(empId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "topHighestSkillTargetEmployee")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public DataItemPagingDTO getTopHighestSkillTargetEmployee(@Argument(name = "employeeId") Integer empId,
                                                                  @Argument Integer pageNo,
                                                                  @Argument Integer pageSize) {

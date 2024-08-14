@@ -20,6 +20,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,6 +54,7 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "employeeOverview")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public EmployeeOverviewDTO getEmployeeOverview(@Argument Integer employeeId) {
         return employeeManagementService.getProfileOverview(employeeId);
     }
