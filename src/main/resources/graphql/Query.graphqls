@@ -41,16 +41,15 @@ type Query {
     competencyRadarChart(evaluateCycleIds: [Int]!, departmentId: Int!): RadarChartDTO
     topSkill(departmentId: Int, employeeId: Int, evaluateCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
     topKeenSkillEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
-    topHighestSkillTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
+    topHighestSkillTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10, evaluateCycleId: Int!): DataItemPagingDTO
     employeeSkillMatrix(employeeId: Int!): [SkillMatrixTree]
     skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
     currentEvaluation(employeeId: Int!): [CurrentEvaluation]
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
-    getOverallCompetencyScore(employeeId: Int!): RadarChartDTO
+    overallCompetencyRadarChart(employeeId: Int!, evaluateCycleId: Int!): RadarChartDTO
     skillSummarization(employeeId: Int!, cycleId: Int!): SkillSummarization
     companyCompetencyDiffPercent(departmentId: Int): DiffPercentDTO
     competencyChart(departmentId: Int): BarChartDTO
-    overallCompetencyRadarChart(employeeId: Int!, cycleId: Int!): RadarChartDTO
     skillGapBarChart(employeeId: Int!, cycleId: Int!): BarChartDTO
     departmentEmployees(departmentId: Int!, positionId: Int!): [SimpleItemDTO]
     departmentSkillHeatMap(departmentId: Int!, cycleId: Int!, employeeIds: [Int]!, skillIds: [Int]): [HeatmapItemDTO]
