@@ -31,13 +31,13 @@ public interface CompetencyService {
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
     SkillMatrixOverallDTO getSkillMatrixOverall(Integer employeeId);
     DataItemPagingDTO getTopKeenSkillEmployee(Integer employeeId, int pageNo, int pageSize);
-    DataItemPagingDTO getTopSkillTargetEmployee(Integer employeeId, int pageNo, int pageSize);
+    DataItemPagingDTO getTopSkillTargetEmployee(Integer employeeId, int pageNo, int pageSize, Integer evaluateCycleId);
     List<CurrentEvaluationDTO> getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
     BarChartDTO getSkillGap(Integer employeeId, Integer cycleId);
     DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
     BarChartDTO getCompetencyChart(Integer departmentId);
-    RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer cycleId);
+    RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer evaluateCycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> evaluateCycleIds, Integer departmentId);
 
     List<EvaluateCycle> getEvaluateCycles();

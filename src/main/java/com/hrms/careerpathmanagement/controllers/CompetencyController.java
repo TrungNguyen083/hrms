@@ -86,7 +86,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "evaluateCycles")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR') or hasAnyAuthority('EMPLOYEE')")
     public List<EvaluateCycle> getEvaluateCycles() {
         try {
             return competencyService.getEvaluateCycles();
@@ -133,12 +133,12 @@ public class CompetencyController {
     @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public DataItemPagingDTO getTopHighestSkillTargetEmployee(@Argument(name = "employeeId") Integer empId,
                                                                  @Argument Integer pageNo,
-                                                                 @Argument Integer pageSize) {
-        return competencyService.getTopSkillTargetEmployee(empId, pageNo, pageSize);
+                                                                 @Argument Integer pageSize, @Argument Integer evaluateCycleId) {
+        return competencyService.getTopSkillTargetEmployee(empId, pageNo, pageSize, evaluateCycleId);
     }
 
     @QueryMapping(name = "employeeSkillMatrix")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('HR') or hasAuthority('EMPLOYEE')")
     public List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(@Argument(name = "employeeId") Integer empId) {
         try {
             return competencyService.getEmployeeSkillMatrix(empId);
@@ -207,9 +207,9 @@ public class CompetencyController {
 
     /*** Employee Dashboard - Component: Overall competency score ***/
     @QueryMapping(name = "overallCompetencyRadarChart")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer cycleId) {
-        return competencyService.getOverallCompetencyRadarChart(employeeId, cycleId);
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
+    public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer evaluateCycleId) {
+        return competencyService.getOverallCompetencyRadarChart(employeeId, evaluateCycleId);
     }
 
     /***
