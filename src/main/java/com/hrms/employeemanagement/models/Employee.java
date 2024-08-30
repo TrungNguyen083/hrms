@@ -73,6 +73,9 @@ public class Employee {
 	@Column(name = "left_date")
 	private Date leftDate;
 
+	@Column(name = "is_Evaluate")
+	private Boolean isEvaluate;
+
 	// For modification time
 	@Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
 	@Temporal(TemporalType.TIMESTAMP)

@@ -59,63 +59,87 @@ public class EmployeeManagementController {
         return employeeManagementService.getProfileOverview(employeeId);
     }
 
+    @QueryMapping(name = "employeeId")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR') or hasAuthority('ADMIN')")
+    public Integer getEmployeeIdByEmail(@Argument String email) {
+        return employeeManagementService.getEmployeeIdByEmail(email);
+    }
+
+    @QueryMapping(name = "profileImage")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR') or hasAuthority('ADMIN')")
+    public String getProfileImageByEmail(@Argument String email) {
+        return employeeManagementService.getProfileImageByEmail(email);
+    }
+
     @QueryMapping(name = "employee")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public EmployeeDTO findEmployeeById(@Argument int id) {
         return employeeManagementService.getEmployeeDetail(id);
     }
 
     @QueryMapping(name = "newEmployees")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<EmployeeDTO> findNewEmployees() {
         return employeeManagementService.getNewEmployees();
     }
 
     @QueryMapping(name = "currentHeadcounts")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public PercentageChangeDTO getHeadcounts() {
         return employeeManagementService.getHeadcountsStatistic();
     }
 
     @QueryMapping(name = "headcountChart")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public BarChartDTO getHeadcountChart() {
         return employeeManagementService.getHeadcountChartData();
     }
 
     @MutationMapping
+    @PreAuthorize("hasAuthority('HR')")
     public Employee createProfile(@Argument EmployeeInputDTO input) {
         return employeeManagementService.createEmployee(input);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public Employee updateEmployee(@Argument EmployeeInputDTO input) {
         return employeeManagementService.updateEmployee(input);
     }
 
     @QueryMapping(name = "departments")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<Department> getDepartments() {
         return departmentRepository.findAll();
     }
 
     @QueryMapping(name = "NumberOfDepartments")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public Long getNumberOfDepartments() {
         return departmentRepository.count();
     }
 
     @QueryMapping(name = "jobLevels")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<JobLevel> getJobLevels() {
         return jobLevelRepository.findAll();
     }
 
     @QueryMapping(name = "positions")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<Position> getPositions() {
         return positionRepository.findAll();
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/dam/upload/{employeeId}")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public ResponseEntity<String> uploadFile(@PathVariable Integer employeeId,
+                                             @RequestParam("title") @Nullable String title,
                                              @RequestParam("file") MultipartFile file,
                                              @RequestParam("type") String type) {
         try {
-            employeeManagementService.uploadPersonalFile(file, employeeId, type);
+            employeeManagementService.uploadPersonalFile(file, employeeId, type, title);
             return ResponseEntity.ok("Upload successful.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -123,38 +147,44 @@ public class EmployeeManagementController {
     }
 
     @GetMapping("/dam/retrieve/{employeeId}")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public ResponseEntity<String> getEmployeeProfilePictureUrl(@PathVariable Integer employeeId) {
         String url = employeeManagementService.getProfilePicture(employeeId);
         return ResponseEntity.ok(url);
     }
 
-    @GetMapping("/qualifications/{employeeId}/{type}")
-    public ResponseEntity<List<EmployeeDamInfoDTO>> getEmployeeQualifications(@PathVariable Integer employeeId,
-                                                                              @PathVariable String type) {
-        return ResponseEntity.ok(employeeManagementService.getQualifications(employeeId));
-    }
-
     @QueryMapping(name = "departmentEmployees")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<SimpleItemDTO> getDepartmentEmployees(@Argument Integer departmentId, @Argument Integer positionId) {
         return employeeManagementService.getDepartmentEmployees(departmentId, positionId);
     }
       
     @GetMapping("/dam/profile-images")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public ResponseEntity<List<ProfileImageOnly>> getEmployeeProfileImg(@RequestParam List<Integer> employeeIds) {
         return ResponseEntity.ok(employeeManagementService.getEmployeesNameAndAvatar(employeeIds));
     }
 
+    @QueryMapping(name="qualifications")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
+    public List<QualificationDTO> getQualifications(@Argument Integer employeeId) {
+        return employeeManagementService.getQualifications(employeeId);
+    }
+
     @QueryMapping(name = "employeesInDepartment")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<NameImageDTO> getEmployeesInDepartment(@Argument Integer departmentId) {
         return employeeManagementService.getNameImagesInDepartment(departmentId);
     }
 
     @QueryMapping(name = "departmentHeadcount")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public PercentageChangeDTO getDepartmentHeadcount(@Argument Integer departmentId) {
         return employeeManagementService.getDepartmentHeadcount(departmentId);
     }
 
     @QueryMapping(name = "departmentHeadcountChart")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public BarChartDTO getDepartmentHeadcountChart(@Argument Integer departmentId) {
         return employeeManagementService.getDepartmentHeadcountChart(departmentId);
     }

@@ -41,4 +41,5 @@ public interface PerformanceService {
     PerformanceRange updatePerformanceRange(Integer id, PerformanceRangeInput input);
     String performanceCyclePeriod(Integer cycleId);
     List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) throws ParseException;
+    PieChartDTO getPerformancePieChartOverall(Integer cycleId);
 }

@@ -3,6 +3,7 @@ package com.hrms.performancemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.careerpathmanagement.models.CompetencyEvaluation;
 import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.global.models.*;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
@@ -502,6 +503,40 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         return mapper.map(performTimeLines, new TypeToken<List<TimeLine>>() {
         }.getType());
+    }
+
+    @Override
+    public PieChartDTO getPerformancePieChartOverall(Integer cycleId) {
+        List<PerformanceRange> ranges = performanceRangeRepository.findAll();
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> pes = performanceEvaluationRepository.findAll(hasCycleId);
+
+        List<String> labels = new ArrayList<>(ranges.stream().map(PerformanceRange::getText).toList());
+        List<Float> datasets = new ArrayList<>(ranges.stream()
+                .map(r -> {
+                    long count = pes.stream()
+                            .filter(pe ->
+                                    pe.getFinalAssessment() != null &&
+                                            pe.getFinalAssessment() >= r.getMinValue() &&
+                                            pe.getFinalAssessment() <= r.getMaxValue()
+                            )
+                            .count();
+
+                    return calculatePercent((int) count, pes.size());
+                })
+                .toList());
+
+        long notEval = pes.stream().filter(pe -> pe.getFinalAssessment() == null).count();
+        float percentNotEval = calculatePercent((int) notEval, pes.size());
+
+        labels.add(0, "Not evaluate yet");
+        datasets.add(0, percentNotEval);
+
+        return new PieChartDTO(labels, datasets);
+    }
+
+    private float calculatePercent(int number, int total) {
+        return ((float) number / total) * 100;
     }
 
 }

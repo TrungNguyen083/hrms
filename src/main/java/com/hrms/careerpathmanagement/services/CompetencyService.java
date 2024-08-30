@@ -29,10 +29,9 @@ public interface CompetencyService {
     DataItemPagingDTO getTopSkill(@Nullable Integer departmentId, @Nullable Integer empId,
                                   @Nullable Integer evaluateCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
-    SkillMatrixOverallDTO getSkillMatrixOverall(Integer employeeId);
     DataItemPagingDTO getTopKeenSkillEmployee(Integer employeeId, int pageNo, int pageSize);
     DataItemPagingDTO getTopSkillTargetEmployee(Integer employeeId, int pageNo, int pageSize, Integer evaluateCycleId);
-    List<CurrentEvaluationDTO> getCurrentEvaluation(Integer employeeId);
+    CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
     BarChartDTO getSkillGap(Integer employeeId, Integer cycleId);
     DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
@@ -56,8 +55,6 @@ public interface CompetencyService {
                                                    List<Integer> employeeIds, List<Integer> skillIds);
 
     RadarChartDTO getDepartmentCompetencyGap(Integer evaluateCycleId, List<Integer> employeeIds);
-
-    List<EvaluationCycleDTO> getEvaluationCycles();
 
     EvaluateCycle createEvaluateCycle(EvaluateCycleInput input);
 
@@ -83,4 +80,5 @@ public interface CompetencyService {
 
     Boolean createFinalCompetencyEvaluation(CompetencyEvaluationInput input);
 
+    List<CycleOverallDTO> getCyclesOverall();
 }

@@ -88,11 +88,6 @@ type Skill {
     description: String
 }
 
-type SkillSummarization {
-    currentRating: Float
-    targetRating: Float
-}
-
 type Template {
     id: Int!
     templateName: String
