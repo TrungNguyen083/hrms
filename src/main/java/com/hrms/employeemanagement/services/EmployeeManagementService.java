@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface EmployeeManagementService {
 	List<Employee> getAllEmployees();
+	List<Employee> getAllEmployeesEvaluate();
 	List<Employee> getAllEmployeesHaveDepartment();
 	Employee createEmployee(EmployeeInputDTO input);
 	Employee findEmployee(Integer id);
@@ -27,11 +28,10 @@ public interface EmployeeManagementService {
                                       Integer pageNo, Integer pageSize);
 	PercentageChangeDTO getHeadcountsStatistic();
 	BarChartDTO getHeadcountChartData();
-	void uploadPersonalFile(MultipartFile file, Integer employeeId, String type) throws IOException;
+	void uploadPersonalFile(MultipartFile file, Integer employeeId, String type, String title) throws IOException;
 	String getProfilePicture(Integer employeeId);
-	List<String> getProfilePictures(List<Integer> employeeIds);
 
-	List<EmployeeDamInfoDTO> getQualifications(Integer employeeId);
+	List<QualificationDTO> getQualifications(Integer employeeId);
 
     EmployeeOverviewDTO getProfileOverview(Integer employeeId);
 
@@ -46,4 +46,8 @@ public interface EmployeeManagementService {
 	PercentageChangeDTO getDepartmentHeadcount(Integer departmentId);
 
 	BarChartDTO getDepartmentHeadcountChart(Integer departmentId);
+
+	Integer getEmployeeIdByEmail(String email);
+
+	String getProfileImageByEmail(String email);
 }

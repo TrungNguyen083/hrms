@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.models;
 
-import com.hrms.digitalassetmanagement.model.DamExtension;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
@@ -21,15 +20,14 @@ public class EmployeeDamInfo {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "file_name")
     private String fileName;
 
     @Column(name = "type")
     private String type;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dam_extension_id")
-    private DamExtension extension;
 
     @Column(name = "uploaded_at")
     private Date uploadedAt;

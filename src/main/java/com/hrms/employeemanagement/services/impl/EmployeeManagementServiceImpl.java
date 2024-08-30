@@ -1,6 +1,7 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
+import com.hrms.careerpathmanagement.repositories.CompetencyRepository;
 import com.hrms.global.models.*;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
@@ -54,6 +55,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final SkillRepository skillRepository;
     private final PositionLevelSkillRepository positionLevelSkillRepository;
     private final EvaluateCycleRepository evaluateCycleRepository;
+    private final CompetencyRepository competencyRepository;
     private EvaluateCycle latestEvaluateCycle;
 
     private ModelMapper modelMapper;
@@ -77,7 +79,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                          PositionDepartmentRepository positionDepartmentRepository,
                                          SkillRepository skillRepository,
                                          EvaluateCycleRepository evaluateCycleRepository,
-                                         PositionLevelSkillRepository positionLevelSkillRepository) {
+                                         PositionLevelSkillRepository positionLevelSkillRepository,
+                                         CompetencyRepository competencyRepository) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.emergencyContactRepository = emergencyContactRepository;
@@ -89,6 +92,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         this.skillRepository = skillRepository;
         this.positionLevelSkillRepository = positionLevelSkillRepository;
         this.evaluateCycleRepository = evaluateCycleRepository;
+        this.competencyRepository = competencyRepository;
     }
 
     @PostConstruct
@@ -105,6 +109,11 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         //Find all employee have status not equal "Terminated"
         Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), false);
         return employeeRepository.findAll(spec);
+    }
+
+    @Override
+    public List<Employee> getAllEmployeesEvaluate() {
+        return employeeRepository.findAllByIsEvaluateAndStatus(true,true);
     }
 
     @Override
@@ -381,7 +390,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public void uploadPersonalFile(MultipartFile file, Integer employeeId, String type) throws IOException {
+    public void uploadPersonalFile(MultipartFile file, Integer employeeId, String type, String title) throws IOException {
         // Upload the image using the DamService with the original file name
         Map uploadResult = damService.uploadFile(file);
         // Get the file's extension like jpg, png, docx, ...
@@ -389,8 +398,10 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         // Update the employee's profile picture public ID in the database
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(
                 () -> new RuntimeException("EmployeeDocument not found with id: " + employeeId));
+
         EmployeeDamInfo employeeDamInfo = EmployeeDamInfo.builder()
                 .employee(employee)
+                .title(title)
                 .fileName(file.getOriginalFilename())
                 .type(type)
                 .url(url)
@@ -410,30 +421,21 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public List<String> getProfilePictures(List<Integer> employeeIds) {
-        Specification<EmployeeDamInfo> spec = (root, query, builder) -> builder.and(
-                builder.in(root.get("employee").get("id")).value(employeeIds),
-                builder.equal(root.get("type"), PROFILE_IMAGE)
-        );
-        List<EmployeeDamInfo> employeeDamInfos = employeeDamInfoRepository.findAll(spec);
-        return employeeDamInfos.stream().map(EmployeeDamInfo::getUrl).toList();
-    }
-
-    @Override
-    public List<EmployeeDamInfoDTO> getQualifications(Integer employeeId) {
+    public List<QualificationDTO> getQualifications(Integer employeeId) {
         var spec = EmployeeDamInfoSpec.hasEmployeeAndType(employeeId, QUALIFICATION);
         return employeeDamInfoRepository.findAll(spec)
-                .stream().map(e -> new EmployeeDamInfoDTO(e.getEmployee().getId(),
-                        e.getExtension().getName(),
+                .stream().map(e -> new QualificationDTO(
+                        e.getTitle(),
+                        e.getFileName(),
                         e.getUrl(),
-                        e.getExtension().getIconUri(),
-                        e.getUploadedAt()))
+                        e.getUploadedAt().toString()))
                 .toList();
     }
 
     @Override
     public EmployeeOverviewDTO getProfileOverview(Integer employeeId) {
         skillRepository.findAll();
+        competencyRepository.findAll();
 
         Employee employee = employeeRepository.findOne(GlobalSpec.hasId(employeeId)).orElseThrow(() ->
                 new RuntimeException("Employee not found with id: " + employeeId));
@@ -441,14 +443,20 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         Specification<SkillEvaluation> hasEmp = GlobalSpec.hasEmployeeId(employeeId);
         Specification<SkillEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(latestEvaluateCycle.getId());
 
-        List<String> skillSets = skillEvaluationRepository
+        List<String> skills = skillEvaluationRepository
                 .findAll(hasEmp.and(hasCycle))
                 .stream()
                 .map(SkillEvaluation::getSkill)
+                .filter(skill -> skill.getCompetency().getId().equals(7))
                 .toList()
                 .stream().map(Skill::getSkillName).toList();
 
         String profileImgUri = getProfilePicture(employeeId);
+
+        List<String> qualifications = getQualifications(employeeId)
+                .stream()
+                .map(QualificationDTO::getTitle)
+                .toList();
 
         return new EmployeeOverviewDTO(employee.getId(),
                 employee.getFirstName(),
@@ -456,8 +464,9 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 profileImgUri,
                 employee.getPosition().getPositionName(),
                 employee.getJobLevel().getJobLevelName(),
-                skillSets,
-                null);
+                employee.getAddress(),
+                skills,
+                qualifications);
     }
 
     @Override
@@ -541,5 +550,20 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         }).toList();
 
         return new BarChartDTO("Position's Employees", items);
+    }
+
+    @Override
+    public Integer getEmployeeIdByEmail(String email) {
+        return employeeRepository.findEmployeeByEmail(email).getId();
+    }
+
+    @Override
+    public String getProfileImageByEmail(String email) {
+        Integer employeeId = employeeRepository.findEmployeeByEmail(email).getId();
+        return employeeDamInfoRepository
+                .findAll(EmployeeDamInfoSpec.hasEmployeeAndType(employeeId, "PROFILE_IMAGE"))
+                .stream()
+                .max(Comparator.comparing(EmployeeDamInfo::getUploadedAt)).map(EmployeeDamInfo::getUrl)
+                .orElse(null);
     }
 }

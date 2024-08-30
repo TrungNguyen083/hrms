@@ -28,4 +28,10 @@ public class PerformanceRange {
 
     @Column(name = "text")
     private String text;
+
+    public PerformanceRange(Float minValue, Float maxValue, String text) {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.text = text;
+    }
 }

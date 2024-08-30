@@ -97,6 +97,18 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("competency").get("id"), 7);
     }
 
+    public static <T> Specification<T> selfCompleted() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employeeStatus"), "Completed");
+    }
+
+    public static <T> Specification<T> evaluatorCompleted() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("evaluatorStatus"), "Completed");
+    }
+
+    public static <T> Specification<T> finalCompleted() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("finalStatus"), "Completed");
+    }
+
     private GlobalSpec() {
     }
 

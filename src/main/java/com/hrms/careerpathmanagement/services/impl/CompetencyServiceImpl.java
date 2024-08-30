@@ -31,6 +31,7 @@ import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.hrms.performancemanagement.repositories.EvaluateTimeLineRepository;
+import com.hrms.performancemanagement.services.PerformanceService;
 import com.mysema.commons.lang.Pair;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
@@ -76,7 +77,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final EmployeeRepository employeeRepository;
     private final EvaluateTimeLineRepository evaluateTimeLineRepository;
     private final SkillEvaluationRepository skillEvaluationRepository;
-    private final SkillTargetRepository skillTargetRepository;
     private final PositionLevelSkillRepository positionLevelSkillRepository;
     private final CompetencyRepository competencyRepository;
     private final ProficiencyLevelRepository proficiencyLevelRepository;
@@ -85,12 +85,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeManagementService employeeManagementService;
     private final JobLevelRepository jobLevelRepository;
-    private final PerformanceEvaluationRepository performanceEvaluationRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
-    private final CareerSpecification careerSpecification;
     private final EmployeeSpecification employeeSpecification;
     private final EvaluateCycleRepository evaluateCycleRepository;
-    private final CareerManagementService careerManagementService;
     private final HrmsMapper modelMapper;
     private final TemplateRepository templateRepository;
     private final QuestionRepository questionRepository;
@@ -98,6 +95,8 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final CategoryQuestionRepository categoryQuestionRepository;
     private final TemplateCategoryRepository templateCategoryRepository;
     private final CompetencyGroupRepository competencyGroupRepository;
+    private final CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository;
+    private final PerformanceService performanceService;
     private EvaluateCycle latestEvaluateCycle;
 
     @Autowired
@@ -105,7 +104,6 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  EmployeeRepository employeeRepository,
                                  EvaluateTimeLineRepository evaluateTimeLineRepository,
                                  SkillEvaluationRepository skillEvaluationRepository,
-                                 SkillTargetRepository skillTargetRepository,
                                  CompetencyRepository competencyRepository,
                                  ProficiencyLevelRepository proficiencyLevelRepository,
                                  EvaluationOverallRepository evaluationOverallRepository,
@@ -115,23 +113,22 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  JobLevelRepository jobLevelRepository,
                                  PositionLevelSkillRepository positionLevelSkillRepository,
                                  EmployeeDamInfoRepository employeeDamInfoRepository,
-                                 CareerSpecification careerSpecification,
                                  EmployeeSpecification employeeSpecification,
                                  EvaluateCycleRepository evaluateCycleRepository,
-                                 PerformanceEvaluationRepository performanceEvaluationRepository,
-                                 CareerManagementService careerManagementService,
                                  HrmsMapper modelMapper,
                                  TemplateRepository templateRepository,
                                  QuestionRepository questionRepository,
                                  CategoryRepository categoryRepository,
                                  CategoryQuestionRepository categoryQuestionRepository,
                                  TemplateCategoryRepository templateCategoryRepository,
-                                 CompetencyGroupRepository competencyGroupRepository) {
+                                 CompetencyGroupRepository competencyGroupRepository,
+                                 CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository,
+                                 PerformanceService performanceService
+    ) {
         this.competencyEvaluationRepository = competencyEvaluationRepository;
         this.employeeRepository = employeeRepository;
         this.evaluateTimeLineRepository = evaluateTimeLineRepository;
         this.skillEvaluationRepository = skillEvaluationRepository;
-        this.skillTargetRepository = skillTargetRepository;
         this.positionLevelSkillRepository = positionLevelSkillRepository;
         this.competencyRepository = competencyRepository;
         this.proficiencyLevelRepository = proficiencyLevelRepository;
@@ -141,11 +138,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.employeeManagementService = employeeManagementService;
         this.jobLevelRepository = jobLevelRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
-        this.careerSpecification = careerSpecification;
         this.employeeSpecification = employeeSpecification;
         this.evaluateCycleRepository = evaluateCycleRepository;
-        this.performanceEvaluationRepository = performanceEvaluationRepository;
-        this.careerManagementService = careerManagementService;
         this.modelMapper = modelMapper;
         this.templateRepository = templateRepository;
         this.questionRepository = questionRepository;
@@ -153,6 +147,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.categoryQuestionRepository = categoryQuestionRepository;
         this.templateCategoryRepository = templateCategoryRepository;
         this.competencyGroupRepository = competencyGroupRepository;
+        this.competencyEvaluationOverallRepository = competencyEvaluationOverallRepository;
+        this.performanceService = performanceService;
     }
 
     @PostConstruct
@@ -164,51 +160,59 @@ public class CompetencyServiceImpl implements CompetencyService {
         return evaluateCycleRepository.findFirstByOrderByStartDateDesc();
     }
 
-    public List<Skill> getBaselineSkillsSet(Integer positionId, Integer levelId) {
-        Specification<PositionLevelSkill> posSpec = careerSpecification.hasPositionId(positionId);
-        Specification<PositionLevelSkill> levelSpec = careerSpecification.hasJobLevelId(levelId);
-        return positionLevelSkillRepository.findAll(posSpec.and(levelSpec))
-                .stream()
-                .map(PositionLevelSkill::getSkill)
-                .toList();  //Have not optimized yet
-    }
-
-    public List<Skill> getTargetSkillsSet(Integer employeeId, Integer cycleId) {
-        Specification<SkillTarget> empSpec = employeeSpecification.hasEmployeeId(employeeId);
-        Specification<SkillTarget> cycSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
-
-        return skillTargetRepository.findAll(empSpec.and(cycSpec))
-                .stream().map(SkillTarget::getSkill).toList();
-    }
-
     /**
      * if skillEval is null, currentScore will be null
      * if targetSkill is null, targetScore will be null
      *
      * @return SkillSummarization (DTO)
      */
+
+    private double getSkillTargetAvgScore(Employee employee, Integer cycleId) {
+        List<SkillEvaluation> ssEvaluates = getSkillEvaluations(employee.getId(), cycleId);
+        List<PositionLevelSkill> skillsTargets = getSkillsTarget(employee, ssEvaluates);
+
+        return skillsTargets
+                .stream()
+                .mapToDouble(st -> st.getProficiencyLevel().getScore())
+                .average()
+                .orElse(0.0);
+    }
+
+
     public BarChartDTO getSkillGap(Integer employeeId, Integer cycleId) {
-        //1. Skill Set Average Score
-        var skillAvgScore = getAverageSkill(employeeId, cycleId).orElse(null);
+        //1. Skill Average Score
+        double skillAvgScore = getSelfSkillAvgScore(employeeId, cycleId);
 
-        //2. Skill Set Target Score
-        var position = getPosition(employeeId);
-        var level = getLevel(employeeId);
-        var skillBaselineScore = careerManagementService.getBaselineSkillAvgScore(position.getId(), level.getId())
-                .orElse(null);
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow();
 
-        DataItemDTO current = new DataItemDTO("Current", skillAvgScore.floatValue());
-        DataItemDTO target = new DataItemDTO("Target", skillBaselineScore.floatValue());
-        return new BarChartDTO("Skill Gap Chart", List.of(current, target));
+        double skillTargetAvgScore = getSkillTargetAvgScore(employee, cycleId);
+
+        DataItemDTO current = new DataItemDTO("Current", (float) skillAvgScore);
+        DataItemDTO target = new DataItemDTO("Target", (float) skillTargetAvgScore);
+        return new BarChartDTO("Skill Gap", List.of(current, target));
     }
 
     public PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId) {
-        var currentScore = getAverageSkill(employeeId, cycleId);
-        var targetScore = careerManagementService.getBaselineSkillAvgScore(getPosition(employeeId).getId(),
-                getLevel(employeeId).getId());
+        Specification<CompetencyEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<CompetencyEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<CompetencyEvaluationOverall> totalSpec = hasCycleId.and(hasEmployeeId);
 
-        return new PieChartDTO(List.of("Current Score", "Target Score"),
-                List.of(currentScore.orElse(null).floatValue(), targetScore.orElse(null).floatValue()));
+        Specification<CompetencyEvaluationOverall> selfCompleted = GlobalSpec.selfCompleted();
+        int selfOverall = competencyEvaluationOverallRepository
+                .findAll(totalSpec.and(selfCompleted)).size();
+
+        Specification<CompetencyEvaluationOverall> evaluatorCompleted = GlobalSpec.evaluatorCompleted();
+        int evaluatorOverall = competencyEvaluationOverallRepository
+                .findAll(totalSpec.and(evaluatorCompleted)).size();
+
+        Specification<CompetencyEvaluationOverall> finalCompleted = GlobalSpec.finalCompleted();
+        int finalOverall = competencyEvaluationOverallRepository
+                .findAll(totalSpec.and(finalCompleted)).size();
+
+        float completedPercent = ((float) (selfOverall + evaluatorOverall + finalOverall) / 3) * 100;
+
+        return new PieChartDTO(List.of("Completed", "Uncompleted"),
+                List.of(completedPercent, (100 - completedPercent)));
     }
 
     @Override
@@ -284,27 +288,16 @@ public class CompetencyServiceImpl implements CompetencyService {
         return new EmployeeStatusPagination(result, pagination);
     }
 
-    public Optional<Double> getAverageSkill(Integer empId, Integer cycleId) {
+    public double getSelfSkillAvgScore(Integer empId, Integer cycleId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Double> query = cb.createQuery(Double.class);
         Root<SkillEvaluation> root = query.from(SkillEvaluation.class);
-        Join<SkillEvaluation, ProficiencyLevel> proficencyJoin = root.join("employeeProficiencyLevel");
 
-        query.select(cb.avg(proficencyJoin.get("score")));
+        query.select(cb.avg(root.get("selfScore")));
         query.where(cb.equal(root.get("employee").get("id"), empId),
                 cb.equal(root.get("evaluateCycle").get("id"), cycleId));
 
-        return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
-    }
-
-    private Position getPosition(Integer employeeId) {
-        return employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"))
-                .getPosition();
-    }
-
-    private JobLevel getLevel(Integer employeeId) {
-        return employeeRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("Employee not found"))
-                .getJobLevel();
+        return Optional.ofNullable(entityManager.createQuery(query).getSingleResult()).orElse(0.0);
     }
 
 
@@ -381,7 +374,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public PieChartDTO getCompetencyEvalProgress(Integer evaluateCycleId) {
 
-        List<Integer> empIdSet = employeeManagementService.getAllEmployees()
+        List<Integer> empIdSet = employeeManagementService.getAllEmployeesEvaluate()
                 .stream()
                 .map(Employee::getId)
                 .toList();
@@ -537,105 +530,76 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public DataItemPagingDTO getTopSkillTargetEmployee(Integer employeeId, int pageNo, int pageSize, Integer evaluateCycleId) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
-
-        Root<SkillTarget> sseRoot = criteriaQuery.from(SkillTarget.class);
-        Join<SkillTarget, ProficiencyLevel> plJoin = sseRoot.join("targetProficiencyLevel");
-        Join<SkillTarget, Skill> skillJoin = sseRoot.join("skill");
-
-        criteriaQuery.multiselect(
-                skillJoin.get("skillName").alias("label"),
-                plJoin.get("score").alias("value"));
-
-        criteriaQuery.where(
-                criteriaBuilder.and(
-                        criteriaBuilder.equal(sseRoot.get("evaluateCycle").get("id"), evaluateCycleId),
-                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId),
-                        criteriaBuilder.equal(skillJoin.get("competency").get("id"), 7)
-                )
-        );
-
-        criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
-
-        TypedQuery<DataItemDTO> query = entityManager.createQuery(criteriaQuery);
-
-        var totalItems = query.getResultList().size();
+        Employee employee = employeeManagementService.findEmployee(employeeId);
+        skillRepository.findAll();
+        proficiencyLevelRepository.findAll();
+        EvaluateCycle cc = evaluationOverallRepository.latestEvalOByEvalCycle(employeeId);
+        if (cc == null) return null;
+        Integer latestCompEvaId = cc.getId();
 
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        List<DataItemDTO> results = paginateQuery(query, pageable).getResultList();
 
-        Pagination pagination = setupPaging(totalItems, pageNo, pageSize);
+        List<SkillEvaluation> ssEvaluates = getSkillEvaluations(employeeId, latestCompEvaId);
+        Page<PositionLevelSkill> skillsTargets = getSkillsTargetPage(employee, ssEvaluates, pageable);
+        List<DataItemDTO> results = mapToDataItemDTO(skillsTargets);
+
+        Pagination pagination = setupPaging(results.size(), pageNo, pageSize);
         return new DataItemPagingDTO(results, pagination);
     }
 
+    private Page<PositionLevelSkill> getSkillsTargetPage(Employee employee, List<SkillEvaluation> ssEvaluates, Pageable pageable) {
+        int newJobLevel = (employee.getJobLevel().getId() + 1) < 4 ? employee.getJobLevel().getId() + 1 : 1;
+        int position = (newJobLevel == 1)
+                ? ssEvaluates.stream()
+                .collect(Collectors.teeing(
+                        Collectors.filtering(se -> se.getSkill().getId() >= 1 && se.getSkill().getId() <= 30,
+                                Collectors.averagingDouble(SkillEvaluation::getFinalScore)),
+                        Collectors.filtering(se -> se.getSkill().getId() > 30,
+                                Collectors.averagingDouble(SkillEvaluation::getFinalScore)),
+                        (avgSoftSkills, avgHardSkills) -> avgHardSkills > avgSoftSkills ? 12 : 6))
+                : employee.getPosition().getId();
+
+        Specification<PositionLevelSkill> hasPosition = GlobalSpec.hasPositionId(position);
+        Specification<PositionLevelSkill> hasJobLevel = GlobalSpec.hasJobLevelId(newJobLevel);
+
+        Sort sort = Sort.by(Sort.Order.desc("proficiencyLevel.score"));
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        return positionLevelSkillRepository.findAll(hasPosition.and(hasJobLevel), sortedPageable);
+    }
+
+    public List<DataItemDTO> mapToDataItemDTO(Page<PositionLevelSkill> positionLevelSkills) {
+        return positionLevelSkills.stream()
+                .map(pls -> {
+                    DataItemDTO dto = new DataItemDTO();
+                    dto.setLabel(pls.getSkill().getSkillName());
+                    dto.setValue(pls.getProficiencyLevel().getScore());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     @Override
-    public List<CurrentEvaluationDTO> getCurrentEvaluation(Integer employeeId) {
-        CurrentEvaluationDTO compEval = getCurrentCompEval(employeeId);
-
-        CurrentEvaluationDTO perfEvalDTO = getCurrentPerformEval(employeeId);
-
-        return List.of(compEval, perfEvalDTO);
-    }
-
-    @NotNull
-    private CurrentEvaluationDTO getCurrentPerformEval(Integer employeeId) {
-        Specification<PerformanceEvaluation> hasEmpId = GlobalSpec.hasEmployeeId(employeeId);
-        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(latestEvaluateCycle.getId());
-        PerformanceEvaluation perfEval = performanceEvaluationRepository
-                .findOne(hasEmpId.and(hasCycleId))
-                .orElse(null);
-        return perfEval == null
-                ? new CurrentEvaluationDTO(latestEvaluateCycle.getEvaluateCycleName(), "Not Started", null)
-                : new CurrentEvaluationDTO(perfEval.getEvaluateCycle().getEvaluateCycleName(),
-                perfEval.getStatus(), perfEval.getLastUpdated().toString());
-    }
-
-    @NotNull
-    private CurrentEvaluationDTO getCurrentCompEval(Integer employeeId) {
+    public CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId) {
         Specification<CompetencyEvaluationOverall> hasEmpId = employeeSpecification.hasEmployeeId(employeeId);
-        Specification<CompetencyEvaluationOverall> hasEvalCycleIds = GlobalSpec.hasEvaluateCycleId(latestEvaluateCycle.getId());
+        Specification<CompetencyEvaluationOverall> hasEvalCycleIds = GlobalSpec
+                .hasEvaluateCycleId(latestEvaluateCycle.getId());
+
         CompetencyEvaluationOverall evalOvr = evaluationOverallRepository
                 .findOne(hasEmpId.and(hasEvalCycleIds))
                 .orElse(null);
         return evalOvr == null
-                ? new CurrentEvaluationDTO(latestEvaluateCycle.getEvaluateCycleName(), "Not Started", null)
+                ? new CurrentEvaluationDTO(
+                latestEvaluateCycle.getEvaluateCycleName(),
+                "Not Started",
+                null)
                 : new CurrentEvaluationDTO(evalOvr.getEvaluateCycle().getEvaluateCycleName(),
                 evalOvr.getFinalStatus(), evalOvr.getLastUpdated().toString());
     }
 
     @Override
     public List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId) {
-        List<HistoryEvaluationDTO> compEvaluates = getCompetencyEvalHistory(employeeId);
-
-        List<HistoryEvaluationDTO> performEvaluates = getPerformEvalHistory(employeeId);
-
-        return Stream.of(compEvaluates, performEvaluates)
-                .flatMap(Collection::stream)
-                .toList();
-    }
-
-    @NotNull
-    private List<HistoryEvaluationDTO> getPerformEvalHistory(Integer employeeId) {
-        List<Integer> performCycleIds = evaluateCycleRepository.findAll()
-                .stream()
-                .map(EvaluateCycle::getId)
-                .toList();
-
-        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
-        Specification<PerformanceEvaluation> hasCycleIds = GlobalSpec.hasEvaluateCycleIds(performCycleIds);
-
-        return performanceEvaluationRepository
-                .findAll(hasEmployeeId.and(hasCycleIds))
-                .stream()
-                .map(eval -> new HistoryEvaluationDTO(eval.getCompletedDate().toString(),
-                        eval.getEvaluateCycle().getEvaluateCycleName(),
-                        eval.getStatus(), eval.getFinalAssessment()))
-                .toList();
-    }
-
-    @NotNull
-    private List<HistoryEvaluationDTO> getCompetencyEvalHistory(Integer employeeId) {
         List<Integer> evalCycleIds = evaluateCycleRepository.findAll()
                 .stream()
                 .map(EvaluateCycle::getId)
@@ -800,7 +764,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         skillRepository.findAll();
         proficiencyLevelRepository.findAll();
         EvaluateCycle cc = evaluationOverallRepository.latestEvalOByEvalCycle(empId);
-        if(cc == null) return Collections.emptyList();
+        if (cc == null) return Collections.emptyList();
         Integer latestCompEvaId = cc.getId();
 
         List<Competency> competencies = competencyRepository.findAll();
@@ -808,7 +772,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         //Setup data:
         List<PositionLevelSkill> listPoLSs = getPositionLSkills(employee.getPosition().getId(), employee.getJobLevel().getId());
         List<SkillEvaluation> ssEvaluates = getSkillEvaluations(empId, latestCompEvaId);
-//        List<SkillTarget> ssTargets = getSkillTargets(employee.getId(), latestCompEvaId);
         List<PositionLevelSkill> skillsTargets = getSkillsTarget(employee, ssEvaluates);
 
         return competencies.stream()
@@ -837,12 +800,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<PositionLevelSkill> hasJobLevel = GlobalSpec.hasJobLevelId(newJobLevel);
 
         return positionLevelSkillRepository.findAll(hasPosition.and(hasJobLevel));
-    }
-
-    private List<SkillTarget> getSkillTargets(Integer employeeId, Integer latestEvalId) {
-        Specification<SkillTarget> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
-        Specification<SkillTarget> hasEvalCycleId = GlobalSpec.hasEvaluateCycleId(latestEvalId);
-        return skillTargetRepository.findAll(hasEmployeeId.and(hasEvalCycleId));
     }
 
     private List<PositionLevelSkill> getPositionLSkills(Integer positionId, Integer jobLevelId) {
@@ -951,27 +908,12 @@ public class CompetencyServiceImpl implements CompetencyService {
         );
     }
 
-
-    @Override
-    public SkillMatrixOverallDTO getSkillMatrixOverall(Integer empId) {
-        EvaluateCycle latestCompEva = evaluationOverallRepository.latestEvalOByEvalCycle(empId);
-        if(latestCompEva == null) return null;
-        Specification<CompetencyEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(empId);
-        Specification<CompetencyEvaluationOverall> hasEvalCycleId = GlobalSpec.hasEvaluateCycleId(latestCompEva.getId());
-
-        CompetencyEvaluationOverall eval = evaluationOverallRepository.findOne(hasEmployeeId.and(hasEvalCycleId)).orElse(null);
-        Employee employee = employeeManagementService.findEmployee(empId);
-        return SkillMatrixOverallDTO.builder()
-                .managerName(employee.getDepartment().getSum().getFullName())
-                .status(Objects.requireNonNull(eval).getFinalStatus()).build();
-    }
-
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> evaluateCycleIds, Integer departmentId) {
         List<Competency> competencies = competencyRepository.findAll();
         List<EvaluateCycle> evaluateCycles = evaluateCycleRepository.findAll();
         List<CompetencyEvaluation> competencyEvaluates = findByCyclesAndDepartment(evaluateCycleIds, departmentId);
-        if(competencyEvaluates.isEmpty()) return null;
+        if (competencyEvaluates.isEmpty()) return null;
         proficiencyLevelRepository.findAll();
 
         List<Pair<Integer, Integer>> pairItems = createPairItems(evaluateCycleIds, competencies);
@@ -1249,17 +1191,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<CompetencyEvaluation> hasEvaluateCycle = GlobalSpec.hasEvaluateCycleId(evaluateCycleId);
         Specification<CompetencyEvaluation> hasEmployeeDepartment = GlobalSpec.hasEmployeeIds(employeeIds);
         return competencyEvaluationRepository.findAll(hasEvaluateCycle.and(hasEmployeeDepartment));
-    }
-
-    @Override
-    public List<EvaluationCycleDTO> getEvaluationCycles() {
-        List<EvaluationCycleDTO> compEvaluates = getCompetencyEval();
-
-        List<EvaluationCycleDTO> performEvaluates = getPerformEval();
-
-        return Stream.of(compEvaluates, performEvaluates)
-                .flatMap(Collection::stream)
-                .toList();
     }
 
     @NotNull
@@ -1612,4 +1543,48 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         evaluationOverallRepository.save(ceo);
     }
+
+    @Override
+    public List<CycleOverallDTO> getCyclesOverall() {
+        List<EvaluateCycle> cycles = getEvaluateCycles();
+        return cycles.stream().map(c -> {
+            PieChartDTO completedEvaluate = getCompetencyEvalProgress(c.getId());
+            PieChartDTO competencyOverall = getCompetencyPieChartOverall(c.getId());
+            PieChartDTO performanceOverall = performanceService.getPerformancePieChartOverall(c.getId());
+            return CycleOverallDTO.builder()
+                    .name(c.getEvaluateCycleName())
+                    .status(c.getStatus())
+                    .startDate(c.getStartDate().toString())
+                    .dueDate(c.getDueDate().toString())
+                    .completedEvaluate(completedEvaluate)
+                    .competencyOverall(competencyOverall)
+                    .performanceOverall(performanceOverall)
+                    .build();
+        }).toList();
+    }
+
+    private PieChartDTO getCompetencyPieChartOverall(Integer cycleId) {
+        List<Competency> competencies = competencyRepository.findAll();
+        Specification<CompetencyEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<CompetencyEvaluation> ces = competencyEvaluationRepository.findAll(hasCycleId);
+
+        List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
+        List<Float> datasets = competencies.stream()
+                .map(c -> {
+                    long count = ces.stream()
+                            .filter(ce -> ce.getCompetency().getId().equals(c.getId()))
+                            .count();
+
+                    return calculatePercent((int) count, ces.size());
+                })
+                .toList();
+
+        return new PieChartDTO(labels,datasets);
+    }
+
+    private float calculatePercent(int number, int total) {
+        return ((float) number / total) * 100;
+    }
+
+
 }

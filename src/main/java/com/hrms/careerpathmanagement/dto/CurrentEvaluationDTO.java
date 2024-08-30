@@ -1,4 +1,4 @@
 package com.hrms.careerpathmanagement.dto;
 
-public record CurrentEvaluationDTO(String competencyCycleName, String status, String lastUpdated) {
+public record CurrentEvaluationDTO(String cycleName, String status, String lastUpdated) {
 }

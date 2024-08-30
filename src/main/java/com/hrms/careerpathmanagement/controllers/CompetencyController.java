@@ -40,6 +40,10 @@ public class CompetencyController {
         this.competencyService = competencyService;
     }
 
+    /***
+     ********************************************** HR Dashboard ****************************************
+     */
+
     @QueryMapping(name = "evaluateTimeLine")
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public List<TimeLine> getEvaluateTimeLine(@Argument Integer evaluateCycleId) {
@@ -121,6 +125,31 @@ public class CompetencyController {
             return null;
         }
     }
+    @QueryMapping(name = "topCompetencyRating")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument @Nullable Integer departmentId,
+                                                               @Argument Integer cycleId,
+                                                               @Argument Integer pageNo,
+                                                               @Argument Integer pageSize)
+    {
+        return competencyService.getCompetencyRating(departmentId, cycleId, pageNo, pageSize);
+    }
+
+    @QueryMapping(name = "competencyChart")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public BarChartDTO getCompetencyChart(@Argument @Nullable Integer departmentId) {
+        return competencyService.getCompetencyChart(departmentId);
+    }
+
+    @QueryMapping(name = "companyCompetencyDiffPercent")
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public DiffPercentDTO getCompanyCompetencyDiffPercent(@Argument @Nullable Integer departmentId) {
+        return competencyService.getCompanyCompetencyDiffPercent(departmentId);
+    }
+
+    /***
+     ********************************************** Employee Dashboard ****************************************
+     */
 
     @QueryMapping(name = "topKeenSkillEmployee")
     @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
@@ -148,82 +177,52 @@ public class CompetencyController {
         }
     }
 
-    @QueryMapping(name = "skillMatrixOverall")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public SkillMatrixOverallDTO getEmpSkillMatrixOverall(@Argument(name = "employeeId") Integer empId) {
-        return competencyService.getSkillMatrixOverall(empId);
-    }
-
     @QueryMapping(name = "currentEvaluation")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<CurrentEvaluationDTO> getCurrentEvaluation(@Argument("employeeId") Integer empId) {
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
+    public CurrentEvaluationDTO getCurrentEvaluation(@Argument("employeeId") Integer empId) {
         return competencyService.getCurrentEvaluation(empId);
     }
 
     @QueryMapping(name = "historyEvaluation")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument Integer employeeId) {
         return competencyService.getHistoryEvaluations(employeeId);
     }
 
     @QueryMapping(name = "skillGapBarChart")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public BarChartDTO getSkillGap(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getSkillGap(employeeId, cycleId);
     }
 
-    @QueryMapping(name = "competencyLevelPieChart")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
+    @QueryMapping(name = "competencyPieChart")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public PieChartDTO getCompetencyLevelPieChart(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getCompetencyLevelPieChart(employeeId, cycleId);
     }
 
-    @QueryMapping(name = "companyCompetencyDiffPercent")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public DiffPercentDTO getCompanyCompetencyDiffPercent(@Argument @Nullable Integer departmentId) {
-        return competencyService.getCompanyCompetencyDiffPercent(departmentId);
-    }
-
-    @QueryMapping(name = "competencyChart")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public BarChartDTO getCompetencyChart(@Argument @Nullable Integer departmentId) {
-        return competencyService.getCompetencyChart(departmentId);
-    }
-
-
-    /**
-     * HR Dashboard - Top Competencies Component
-     * @return List Employees (name, profileImg) with their competency rating
-     */
-    @QueryMapping(name = "topCompetencyRating")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
-    public EmployeeRatingPagination getTopEmployeeCompetencies(@Argument @Nullable Integer departmentId,
-                                                               @Argument Integer cycleId,
-                                                               @Argument Integer pageNo,
-                                                               @Argument Integer pageSize)
-    {
-        return competencyService.getCompetencyRating(departmentId, cycleId, pageNo, pageSize);
-    }
-
-    /*** Employee Dashboard - Component: Overall competency score ***/
     @QueryMapping(name = "overallCompetencyRadarChart")
     @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE')")
     public RadarChartDTO getOverallCompetencyRadarChart(@Argument Integer employeeId, @Argument Integer evaluateCycleId) {
         return competencyService.getOverallCompetencyRadarChart(employeeId, evaluateCycleId);
     }
 
+
+
+
+
+
     /***
      ********************************************** SUM Dashboard ****************************************
      * Global filter: CycleId
      */
-    @QueryMapping(name = "incompletedEvaluationByPosition")
+    @QueryMapping(name = "inCompletedEvaluationByPosition")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public MultiBarChartDTO getIncompletedEvaluationByPosition(@Argument Integer cycleId, @Argument Integer departmentId) {
+    public MultiBarChartDTO getInCompletedEvaluationByPosition(@Argument Integer cycleId, @Argument Integer departmentId) {
         return competencyService.getSumDepartmentIncompletePercent(cycleId, departmentId);
     }
 
 
-    //COMPONENT: Competency Evaluation Status
     @QueryMapping(name = "competencyEvaluationStatus")
     @PreAuthorize("hasAuthority('MANAGER')")
     public EmployeeStatusPagination getCompetencyEvaluationsStatus(@Argument Integer cycleId,
@@ -254,11 +253,24 @@ public class CompetencyController {
         return competencyService.getDepartmentCompetencyGap(evaluateCycleId, employeeIds);
     }
 
-    @QueryMapping(name = "evaluationCycles")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<EvaluationCycleDTO> getEvaluationCycles() {
-        return competencyService.getEvaluationCycles();
+    /***
+     ********************************************** HR - Cycle, Template, Rating Control ****************************************
+     */
+
+    @QueryMapping(name = "cyclesOverall")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<CycleOverallDTO> getCyclesOverall() {
+        return competencyService.getCyclesOverall();
     }
+
+
+
+
+
+
+
+
+
 
     @Transactional
     @MutationMapping(name = "createEvaluateCycle")
@@ -336,4 +348,7 @@ public class CompetencyController {
     public Boolean createFinalCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
         return competencyService.createFinalCompetencyEvaluation(input);
     }
+
+
+    //
 }

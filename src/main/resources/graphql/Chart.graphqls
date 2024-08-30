@@ -63,11 +63,6 @@ type SkillMatrixData {
     competencyLevel: Float
 }
 
-type SkillMatrixOverall{
-    managerName: String
-    status: String
-}
-
 
 type StackedBarChart {
     labels: [JobLevel!]!

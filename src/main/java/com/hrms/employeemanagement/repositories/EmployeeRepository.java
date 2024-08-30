@@ -13,4 +13,6 @@ import java.util.List;
 public interface EmployeeRepository extends JpaRepository<Employee, Integer>, JpaSpecificationExecutor<Employee>{
     <T> Collection<T> findAllByDepartmentId(Integer departmentId, Class<T> type);
     <T> Collection<T> findAllByIdIn(List<Integer> ids, Class<T> type);
+    Employee findEmployeeByEmail(String email);
+    List<Employee> findAllByIsEvaluateAndStatus(boolean evaluate, boolean status);
 }

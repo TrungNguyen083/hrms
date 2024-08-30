@@ -86,8 +86,9 @@ type EmployeeOverviewDTO {
     profileImgUri: String
     position: String!
     level: String!
+    address: String!
     skills: [String]
-    certifications: [String]
+    qualifications: [String]
 }
 
 type NameImageDTO {
@@ -139,4 +140,11 @@ type EmployeeGoalDTO {
 type EmployeeGoalPagination {
     data: [EmployeeGoalDTO!]
     pagination: Pagination
+}
+
+type Qualification {
+    title: String
+    fileName: String
+    url: String
+    uploadAt: String
 }
