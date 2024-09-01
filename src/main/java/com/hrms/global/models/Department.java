@@ -25,4 +25,6 @@ public class Department {
     @JoinColumn(name = "sum_id")
     private Employee sum;
 
+    @Column(name = "is_Evaluate")
+    private Boolean isEvaluate;
 }

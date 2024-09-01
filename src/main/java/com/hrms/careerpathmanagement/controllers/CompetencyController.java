@@ -55,11 +55,11 @@ public class CompetencyController {
         }
     }
 
-    @QueryMapping(name = "departmentInCompleteComp")
+    @QueryMapping(name = "departmentCompleteComp")
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
-    public MultiBarChartDTO getDepartmentInCompleteComp(@Argument Integer evaluateCycleId) {
+    public MultiBarChartDTO getDepartmentCompleteComp(@Argument Integer evaluateCycleId) {
         try {
-            return competencyService.getDepartmentInCompleteComp(evaluateCycleId);
+            return competencyService.getDepartmentCompleteComp(evaluateCycleId);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
@@ -136,15 +136,18 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyChart")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public BarChartDTO getCompetencyChart(@Argument @Nullable Integer departmentId) {
-        return competencyService.getCompetencyChart(departmentId);
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
+    public BarChartDTO getCompetencyChart(@Argument @Nullable Integer departmentId,
+                                          @Argument Integer cycleId)
+    {
+        return competencyService.getCompetencyChart(departmentId, cycleId);
     }
 
     @QueryMapping(name = "companyCompetencyDiffPercent")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public DiffPercentDTO getCompanyCompetencyDiffPercent(@Argument @Nullable Integer departmentId) {
-        return competencyService.getCompanyCompetencyDiffPercent(departmentId);
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
+    public DiffPercentDTO getCompanyCompetencyDiffPercent(@Argument @Nullable Integer departmentId,
+                                                          @Argument Integer cycleId) {
+        return competencyService.getCompanyCompetencyDiffPercent(departmentId, cycleId);
     }
 
     /***

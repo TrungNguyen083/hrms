@@ -130,8 +130,9 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     @Override
     public List<Employee> getEmployeesInDepartment(Integer departmentId) {
         Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
+        Specification<Employee> hasEval = (root, query, builder) -> builder.equal(root.get("isEvaluate"), 1);
         Specification<Employee> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
-        return employeeRepository.findAll(spec.and(hasDepartment));
+        return employeeRepository.findAll(spec.and(hasEval).and(hasDepartment));
     }
 
     @Override
