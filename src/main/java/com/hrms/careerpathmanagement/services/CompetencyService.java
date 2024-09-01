@@ -23,7 +23,7 @@ public interface CompetencyService {
     @Scheduled(cron = "0 0 0 * * *")
     void updateIsDoneForOverdueItems();
     List<TimeLine> getEvaluateTimeline(Integer evaluateCycleId);
-    MultiBarChartDTO getDepartmentInCompleteComp(Integer evaluateCycleId);
+    MultiBarChartDTO getDepartmentCompleteComp(Integer evaluateCycleId);
     PieChartDTO getCompetencyEvalProgress(Integer evaluateCycleId);
     List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer evaluateCycleId);
     DataItemPagingDTO getTopSkill(@Nullable Integer departmentId, @Nullable Integer empId,
@@ -34,8 +34,8 @@ public interface CompetencyService {
     CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
     BarChartDTO getSkillGap(Integer employeeId, Integer cycleId);
-    DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId);
-    BarChartDTO getCompetencyChart(Integer departmentId);
+    DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId, Integer cycleId);
+    BarChartDTO getCompetencyChart(Integer departmentId, Integer cycleId);
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer evaluateCycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> evaluateCycleIds, Integer departmentId);
 

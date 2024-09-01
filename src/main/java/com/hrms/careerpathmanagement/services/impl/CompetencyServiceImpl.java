@@ -320,8 +320,8 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public MultiBarChartDTO getDepartmentInCompleteComp(Integer evaluateCycleId) {
-        List<Department> departments = departmentRepository.findAll();
+    public MultiBarChartDTO getDepartmentCompleteComp(Integer evaluateCycleId) {
+        List<Department> departments = departmentRepository.findAllByIsEvaluate(true);
         List<Employee> employees = employeeManagementService.getAllEmployeesHaveDepartment();
 
         //Get all CompetencyEvaluationOverall of all employees have final status is agreed and get the latest cycle
@@ -368,7 +368,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<CompetencyEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(evaluateCycleId);
 
         var completedCount = evaluationOverallRepository.count(hasTypeCompleted.and(hasEmployeeIds).and(hasCycleId));
-        return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
+        return (float) completedCount / empIdSet.size() * 100;
     }
 
     @Override
@@ -627,7 +627,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
 
     @Override
-    public DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId) {
+    public DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId, Integer cycleId) {
         List<Integer> employeeIds = departmentId != null
                 ? employeeManagementService.getEmployeesInDepartment(departmentId)
                 .stream()
@@ -635,26 +635,22 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .toList()
                 : new ArrayList<>();
 
-        //Find evaluateCycle has the latest due date and status is Completed
-        Specification<EvaluateCycle> cycleSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("status"), "Completed")
-        );
-        EvaluateCycle currentCycle = evaluateCycleRepository.findAll(cycleSpec)
-                .stream()
-                .max(Comparator.comparing(EvaluateCycle::getDueDate))
-                .orElseThrow(() -> new RuntimeException("No cycle found"));
+        //Get the highest score of proficiency level
+        float highestScore = proficiencyLevelRepository.findFirstByOrderByScoreDesc().getScore();
+
+        EvaluateCycle currentCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
 
         float avgCurrentEvalScore = getAvgEvalScore(currentCycle.getId(), employeeIds);
 
         //Get previous cycle by current year - 1
-        Integer previousYear = currentCycle.getYear() - 1;
-        Integer previousCycleId = evaluateCycleRepository.findByYear(previousYear).getId();
-        float avgPreviousEvalScore = getAvgEvalScore(previousCycleId, employeeIds);
+        EvaluateCycle previousCycle = evaluateCycleRepository.findByYear(currentCycle.getYear() - 1);
+
+        if(previousCycle == null)
+            return  new DiffPercentDTO(avgCurrentEvalScore, highestScore, (float) 100, true);
+
+        float avgPreviousEvalScore = getAvgEvalScore(previousCycle.getId(), employeeIds);
 
         float diffPercentage = ((avgCurrentEvalScore - avgPreviousEvalScore) / avgPreviousEvalScore) * 100;
-
-        //Get the highest score of proficiency level
-        float highestScore = proficiencyLevelRepository.findFirstByOrderByScoreDesc().getScore();
 
         return new DiffPercentDTO(avgCurrentEvalScore, highestScore, diffPercentage, diffPercentage > 0);
     }
@@ -678,18 +674,13 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public BarChartDTO getCompetencyChart(Integer departmentId) {
+    public BarChartDTO getCompetencyChart(Integer departmentId, Integer cycleId) {
         List<Integer> employeeIds = departmentId != null
                 ? employeeManagementService.getEmployeesInDepartment(departmentId)
                 .stream()
                 .map(Employee::getId)
                 .toList()
-                : new ArrayList<>();
-
-        int currentYear = latestEvaluateCycle.getDueDate().before(Calendar.getInstance().getTime())
-                ? latestEvaluateCycle.getYear()
-                : latestEvaluateCycle.getYear() - 1;
-        Integer currentCycleId = evaluateCycleRepository.findByYear(currentYear).getId();
+                : Collections.emptyList();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<DataItemDTO> criteriaQuery = criteriaBuilder.createQuery(DataItemDTO.class);
@@ -704,7 +695,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         );
 
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(criteriaBuilder.equal(ceRoot.get("evaluateCycle").get("id"), currentCycleId));
+        predicates.add(criteriaBuilder.equal(ceRoot.get("evaluateCycle").get("id"), cycleId));
 
         if (!employeeIds.isEmpty()) {
             predicates.add(eJoin.get("id").in(employeeIds));

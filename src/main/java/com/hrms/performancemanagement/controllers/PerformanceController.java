@@ -138,7 +138,7 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "performanceEvaluationOverview")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
     public DiffPercentDTO getPerformanceEvaOverview(@Argument Integer cycleId,
                                                  @Argument Integer departmentId)
     {
@@ -146,7 +146,7 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "performanceRatingScheme")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
     public BarChartDTO getPerformanceRatingScheme(@Argument @Nullable Integer departmentId,
                                                   @Argument Integer cycleId)
     {

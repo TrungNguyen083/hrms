@@ -155,25 +155,30 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         var ratingScheme = performanceRangeRepository.findAll();
 
-        var data = new ArrayList();
-
-        ratingScheme.forEach(item -> {
+        var data = ratingScheme.stream().map(item -> {
             var count = evaluations.stream().filter(e -> e.getFinalAssessment() >= item.getMinValue())
                     .filter(e -> e.getFinalAssessment() <= item.getMaxValue())
                     .count();
-            data.add(new DataItemDTO(item.getText(), (float) count));
-        });
+            return new DataItemDTO(item.getText(), (float) count);
+        }).toList();
 
         return new BarChartDTO("Performance Rating Scheme", data);
     }
 
     @Override
     public DiffPercentDTO getPerformanceOverview(Integer cycleId, Integer departmentId) {
-        var averageScore = averagePerformanceScore(cycleId, departmentId);
-        var averageScoreLastCycle = averagePerformanceScore(cycleId - 1, departmentId);
-        var diffPercent = (averageScoreLastCycle == 0) ? 0 : (averageScore - averageScoreLastCycle) / averageScoreLastCycle * 100;
         var maxScore = 5.0f;
-        return new DiffPercentDTO(averageScore, maxScore, diffPercent, averageScore > averageScoreLastCycle);
+
+        var averageScore = averagePerformanceScore(cycleId, departmentId);
+        EvaluateCycle currentCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+        EvaluateCycle previousCycle = evaluateCycleRepository.findByYear(currentCycle.getYear() - 1);
+
+        if(previousCycle == null)
+            return  new DiffPercentDTO(averageScore, maxScore, (float) 100, true);
+
+        var averageScoreLastCycle = averagePerformanceScore(previousCycle.getId(), departmentId);
+        var diffPercent = (averageScore - averageScoreLastCycle) / averageScoreLastCycle * 100;
+        return new DiffPercentDTO(averageScore, maxScore, diffPercent, diffPercent > 0);
     }
 
     private Float averagePerformanceScore(Integer cycleId, Integer departmentId) {
@@ -181,7 +186,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         CriteriaQuery<Float> query = cb.createQuery(Float.class);
         Root<PerformanceEvaluation> root = query.from(PerformanceEvaluation.class);
 
-        Predicate cyclePredicate = cycleId == null ? null : cb.equal(root.get("performanceCycle").get("id"), cycleId);
+        Predicate cyclePredicate = cb.equal(root.get("evaluateCycle").get("id"), cycleId);
         Predicate departmentPredicate = departmentId == null ? null : cb.equal(root.get("employee").get("department").get("id"), departmentId);
         Predicate[] predicates = Arrays.stream(new Predicate[]{cyclePredicate, departmentPredicate})
                 .filter(Objects::nonNull)
