@@ -147,7 +147,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         return new StackedBarChart(labels, datasets);
     }
 
-    public BarChartDTO getPerformanceRatingScheme(Integer cycleId, Integer departmentId) {
+    public BarChartDTO performanceOverviewChart(Integer cycleId, Integer departmentId) {
         Specification<PerformanceEvaluation> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
         Specification<PerformanceEvaluation> depSpec = departmentId == null ? null : employeeSpecification.hasDepartmentId(departmentId);
 
@@ -166,7 +166,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public DiffPercentDTO getPerformanceOverview(Integer cycleId, Integer departmentId) {
+    public DiffPercentDTO performanceDiffPercent(Integer cycleId, Integer departmentId) {
         var maxScore = 5.0f;
 
         var averageScore = averagePerformanceScore(cycleId, departmentId);

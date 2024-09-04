@@ -12,7 +12,6 @@ import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
 import com.hrms.global.models.EvaluateCycle;
-import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import jakarta.annotation.Nullable;
 
 import java.text.ParseException;
@@ -135,19 +134,19 @@ public class CompetencyController {
         return competencyService.getCompetencyRating(departmentId, cycleId, pageNo, pageSize);
     }
 
-    @QueryMapping(name = "competencyChart")
+    @QueryMapping(name = "competencyOverviewChart")
     @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
-    public BarChartDTO getCompetencyChart(@Argument @Nullable Integer departmentId,
+    public BarChartDTO getCompetencyOverviewChart(@Argument @Nullable Integer departmentId,
                                           @Argument Integer cycleId)
     {
-        return competencyService.getCompetencyChart(departmentId, cycleId);
+        return competencyService.getCompetencyOverviewChart(departmentId, cycleId);
     }
 
-    @QueryMapping(name = "companyCompetencyDiffPercent")
+    @QueryMapping(name = "competencyDiffPercent")
     @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
-    public DiffPercentDTO getCompanyCompetencyDiffPercent(@Argument @Nullable Integer departmentId,
+    public DiffPercentDTO getCompetencyDiffPercent(@Argument @Nullable Integer departmentId,
                                                           @Argument Integer cycleId) {
-        return competencyService.getCompanyCompetencyDiffPercent(departmentId, cycleId);
+        return competencyService.getCompetencyDiffPercent(departmentId, cycleId);
     }
 
     /***

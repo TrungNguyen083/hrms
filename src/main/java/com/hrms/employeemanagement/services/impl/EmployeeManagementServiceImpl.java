@@ -113,7 +113,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public List<Employee> getAllEmployeesEvaluate() {
-        return employeeRepository.findAllByIsEvaluateAndStatus(true,true);
+        return employeeRepository.findAllByIsEvaluateAndStatus(true, true);
     }
 
     @Override
@@ -275,20 +275,33 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public PercentageChangeDTO getHeadcountsStatistic() {
-        //Get all new employees have joinedDate between 2 years ago and 1 year ago
-        LocalDate datePrevious = LocalDate.now().minusYears(1);
-        var countPreviousYearEmployees = countEmployeesByYear(datePrevious);
-
-        //Get all new employees have joinedDate between today and 1 year ago
-        LocalDate dateCurrent = LocalDate.now();
-        var countCurrentYearEmployees = countEmployeesByYear(dateCurrent);
-
+    public PercentageChangeDTO getHeadcountsStatistic(Integer cycleId) {
         Integer countAllEmployee = getAllEmployees().size();
+
+        EvaluateCycle currentCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+        EvaluateCycle previousCycle = evaluateCycleRepository.findByYear(currentCycle.getYear() - 1);
+
+        if (previousCycle == null)
+            return new PercentageChangeDTO(countAllEmployee, (float) 100, true);
+
+        var countPreviousYearEmployees = countEmployeesByYear(previousCycle.getDueDate());
+
+        var countCurrentYearEmployees = countEmployeesByYear(currentCycle.getDueDate());
+
 
         float diffPercent = ((float) (countCurrentYearEmployees - countPreviousYearEmployees) / countPreviousYearEmployees) * 100;
 
         return new PercentageChangeDTO(countAllEmployee, diffPercent, countPreviousYearEmployees <= countCurrentYearEmployees);
+    }
+
+    private long countEmployeesByYear(Date date) {
+        //Get all new employees have joinedDate before date and have status not equal to 0
+        Specification<Employee> spec = (root, query, builder) -> builder.and(
+                builder.lessThan(root.get("joinedDate"), date),
+                builder.notEqual(root.get("status"), false)
+        );
+
+        return employeeRepository.count(spec);
     }
 
     @Override
@@ -296,29 +309,19 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         List<Department> department = departmentRepository.findAll();
         List<Integer> departmentIds = department.stream().map(Department::getId).toList();
         //Find all employees in departmentIds and have status not equal to 0
-        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), false);
         Specification<Employee> hasDepartmentIds = GlobalSpec.hasDepartmentIds(departmentIds);
         List<Employee> employees = employeeRepository.findAll(spec.and(hasDepartmentIds));
 
         List<DataItemDTO> items = department.stream().map(item -> {
             Float countEmployee = (float) employees
                     .stream()
-                    .filter(employee -> employee.getDepartment().getId() == item.getId())
+                    .filter(employee -> employee.getDepartment().getId().equals(item.getId()))
                     .count();
             return new DataItemDTO(item.getDepartmentName(), countEmployee);
         }).toList();
 
         return new BarChartDTO("Department's Employees", items);
-    }
-
-    private long countEmployeesByYear(LocalDate date) {
-        //Get all new employees have joinedDate before date and have status not equal to 0
-        Specification<Employee> spec = (root, query, builder) -> builder.and(
-                builder.lessThan(root.get("joinedDate"), date),
-                builder.notEqual(root.get("status"), 0)
-        );
-
-        return employeeRepository.count(spec);
     }
 
     @Override

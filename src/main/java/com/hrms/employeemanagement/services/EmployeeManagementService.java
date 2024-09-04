@@ -26,7 +26,7 @@ public interface EmployeeManagementService {
                                       Boolean status,
                                       String name,
                                       Integer pageNo, Integer pageSize);
-	PercentageChangeDTO getHeadcountsStatistic();
+	PercentageChangeDTO getHeadcountsStatistic(Integer cycleId);
 	BarChartDTO getHeadcountChartData();
 	void uploadPersonalFile(MultipartFile file, Integer employeeId, String type, String title) throws IOException;
 	String getProfilePicture(Integer employeeId);

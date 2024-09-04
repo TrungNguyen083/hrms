@@ -627,7 +627,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
 
     @Override
-    public DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId, Integer cycleId) {
+    public DiffPercentDTO getCompetencyDiffPercent(Integer departmentId, Integer cycleId) {
         List<Integer> employeeIds = departmentId != null
                 ? employeeManagementService.getEmployeesInDepartment(departmentId)
                 .stream()
@@ -674,7 +674,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public BarChartDTO getCompetencyChart(Integer departmentId, Integer cycleId) {
+    public BarChartDTO getCompetencyOverviewChart(Integer departmentId, Integer cycleId) {
         List<Integer> employeeIds = departmentId != null
                 ? employeeManagementService.getEmployeesInDepartment(departmentId)
                 .stream()
