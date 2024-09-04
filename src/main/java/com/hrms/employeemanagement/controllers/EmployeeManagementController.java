@@ -84,13 +84,13 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "currentHeadcounts")
-    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
-    public PercentageChangeDTO getHeadcounts() {
-        return employeeManagementService.getHeadcountsStatistic();
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
+    public PercentageChangeDTO getHeadcounts(@Argument Integer cycleId) {
+        return employeeManagementService.getHeadcountsStatistic(cycleId);
     }
 
     @QueryMapping(name = "headcountChart")
-    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
     public BarChartDTO getHeadcountChart() {
         return employeeManagementService.getHeadcountChartData();
     }

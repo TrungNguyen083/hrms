@@ -11,7 +11,6 @@ import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
-import com.hrms.performancemanagement.dto.EvaluationCycleDTO;
 import jakarta.annotation.Nullable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,8 +33,8 @@ public interface CompetencyService {
     CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
     BarChartDTO getSkillGap(Integer employeeId, Integer cycleId);
-    DiffPercentDTO getCompanyCompetencyDiffPercent(Integer departmentId, Integer cycleId);
-    BarChartDTO getCompetencyChart(Integer departmentId, Integer cycleId);
+    DiffPercentDTO getCompetencyDiffPercent(Integer departmentId, Integer cycleId);
+    BarChartDTO getCompetencyOverviewChart(Integer departmentId, Integer cycleId);
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer evaluateCycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> evaluateCycleIds, Integer departmentId);
 

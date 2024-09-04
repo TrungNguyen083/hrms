@@ -137,20 +137,20 @@ public class PerformanceController {
         return performanceService.getPotentialAndPerformanceByPosition(departmentId, cycleId, positionId);
     }
 
-    @QueryMapping(name = "performanceEvaluationOverview")
+    @QueryMapping(name = "performanceDiffPercent")
     @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
-    public DiffPercentDTO getPerformanceEvaOverview(@Argument Integer cycleId,
+    public DiffPercentDTO performanceDiffPercent(@Argument Integer cycleId,
                                                  @Argument Integer departmentId)
     {
-        return performanceService.getPerformanceOverview(cycleId, departmentId);
+        return performanceService.performanceDiffPercent(cycleId, departmentId);
     }
 
-    @QueryMapping(name = "performanceRatingScheme")
+    @QueryMapping(name = "performanceOverviewChart")
     @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
-    public BarChartDTO getPerformanceRatingScheme(@Argument @Nullable Integer departmentId,
+    public BarChartDTO performanceOverviewChart(@Argument @Nullable Integer departmentId,
                                                   @Argument Integer cycleId)
     {
-        return performanceService.getPerformanceRatingScheme(cycleId, departmentId);
+        return performanceService.performanceOverviewChart(cycleId, departmentId);
     }
   
     @MutationMapping(name = "createPerformanceCycle")

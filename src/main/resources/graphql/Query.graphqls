@@ -4,7 +4,7 @@ type Query {
     employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pageNo: Int = 1, pageSize: Int = 10): EmployeePaging!
     employee(id: Int!): EmployeeDTO
     newEmployees: [EmployeeDTO]
-    currentHeadcounts: PercentageChangeDTO
+    currentHeadcounts(cycleId: Int!): PercentageChangeDTO
     headcountChart: BarChartDTO
     departmentHeadcount(departmentId: Int!): PercentageChangeDTO
     departmentHeadcountChart(departmentId: Int!): BarChartDTO
@@ -42,10 +42,10 @@ type Query {
     employeesPotentialPerformance(departmentId: Int, cycleId: Int): [EmployeePotentialPerformanceDTO]
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : StackedBarChart
     topSkill(departmentId: Int, employeeId: Int, evaluateCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): DataItemPagingDTO
-    companyCompetencyDiffPercent(departmentId: Int, cycleId: Int!): DiffPercentDTO
-    competencyChart(departmentId: Int, cycleId: Int!): BarChartDTO
-    performanceEvaluationOverview(departmentId: Int, cycleId: Int!) : DiffPercentDTO
-    performanceRatingScheme(departmentId: Int, cycleId: Int!) : BarChartDTO
+    competencyOverviewChart(departmentId: Int, cycleId: Int!): BarChartDTO
+    competencyDiffPercent(departmentId: Int, cycleId: Int!): DiffPercentDTO
+    performanceOverviewChart(departmentId: Int, cycleId: Int!) : BarChartDTO
+    performanceDiffPercent(departmentId: Int, cycleId: Int!) : DiffPercentDTO
 
 
     #Employee Dashboard:

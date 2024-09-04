@@ -27,9 +27,9 @@ import java.util.List;
 public interface PerformanceService {
     Page<PerformanceEvaluation> getPerformanceEvaluations(Integer cycleId, Pageable pageable);
     Float getAveragePerformanceScore(Integer cycleId);
-    BarChartDTO getPerformanceRatingScheme(Integer cycleId, Integer departmentId);
+    BarChartDTO performanceOverviewChart(Integer cycleId, Integer departmentId);
     StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId);
-    DiffPercentDTO getPerformanceOverview(Integer cycleId, Integer departmentId);
+    DiffPercentDTO performanceDiffPercent(Integer cycleId, Integer departmentId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId, Integer cycleId, Integer positionId);
     EmployeeRatingPagination getPerformanceRating(Integer departmentId, Integer cycleId, PageRequest pageable);
