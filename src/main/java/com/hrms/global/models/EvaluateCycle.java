@@ -41,10 +41,6 @@ public class EvaluateCycle {
     @Column(name = "initial_date")
     private Date initialDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id")
-    private Template template;
-
     // For modification time
     @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     @Temporal(TemporalType.TIMESTAMP)

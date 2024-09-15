@@ -47,11 +47,12 @@ type PerformanceCycle {
 }
 
 type PerformanceRange {
-    performanceRangeId: Int!
-    minValue: Int
-    maxValue: Int
-    order: Int
+    id: Int!
     text: String
+    description: String
+    minValue: Float
+    maxValue: Float
+    order: Int
 }
 
 type Position {
@@ -76,8 +77,8 @@ type PositionLevelNodeDTO {
 
 type ProficiencyLevel {
     id: Int!
-    proficiencyLevelDescription: String
     proficiencyLevelName: String
+    proficiencyLevelDescription: String
     score: Int
 }
 
@@ -94,15 +95,6 @@ type Template {
     templateDescription: String
     createdAt: String
     createdBy: Employee
-}
-
-type TemplateDTO {
-    id: Int
-    templateName: String
-    templateDescription: String!
-    createdAt: String
-    createdBy: String
-    createdById: Int
 }
 
 type TreeSimpleData {

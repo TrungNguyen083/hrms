@@ -15,7 +15,6 @@ type Mutation {
     #Company Management
     updateProficiencyLevel(id: Int!, input : ProficiencyLevelInput!): ProficiencyLevel
     updatePerformanceRange(id: Int!, input : PerformanceRangeInput!): PerformanceRange
-    createTemplate(input: TemplateInput!): Boolean
 
     #Competency Management
     createEvaluateCycle(input: EvaluateCycleInput!): EvaluateCycle
@@ -25,7 +24,6 @@ type Mutation {
     createFinalCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
 
     #Performance Management
-    createPerformanceCycle(input: PerformanceCycleInput!): PerformanceCycle
     createPerformanceProcess(input: EvaluationProcessInput!): [TimeLine]
 
     createFeedbackRequest(requestorId: Int!, requestReceiverIds: [Int]!, cycleId: Int!, feedbackReceiverId: Int!): String

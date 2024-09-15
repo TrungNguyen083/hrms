@@ -1,25 +1,22 @@
-package com.hrms.careerpathmanagement.models;
+package com.hrms.performancemanagement.model;
 
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.models.EvaluateCycle;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.Date;
-
+import java.sql.Date;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class CompetencyEvaluationOverall {
+@AllArgsConstructor
+@Builder
+public class PerformanceEvaluationOverall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "evaluation_overall_id")
+    @Column(name = "performance_evaluation_id")
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,6 +44,9 @@ public class CompetencyEvaluationOverall {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evaluate_cycle_id")
     private EvaluateCycle evaluateCycle;
+
+    @Column(name = "potential_score")
+    private Float potentialScore;
 
     @Column(name = "last_updated")
     private Date lastUpdated;

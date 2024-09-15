@@ -40,4 +40,13 @@ public class CompetencyEvaluation {
 
     @Column(name = "final_evaluation")
     private Float finalEvaluation;
+
+    @Column(name = "self_comment")
+    private String selfComment;
+
+    @Column(name = "supervisor_comment")
+    private String supervisorComment;
+
+    @Column(name = "final_comment")
+    private String finalComment;
 }

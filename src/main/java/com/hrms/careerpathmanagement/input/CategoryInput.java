@@ -13,5 +13,4 @@ public class CategoryInput {
     private String categoryName;
     private String categoryDescription;
     private Float weight;
-    private List<QuestionInput> questions;
 }

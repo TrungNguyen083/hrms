@@ -6,16 +6,6 @@ input EvaluateCycleInput{
     evaluatorType: String!
 }
 
-input PerformanceCycleInput{
-    cycleName: String!
-    description: String!
-    performanceCycleStartDate: String!
-    performanceCycleEndDate: String!
-    template: Int!
-    performanceWeightage: Float!
-    goalWeightage: Float!
-}
-
 input ProficiencyLevelInput {
     name: String
     description: String
@@ -40,18 +30,10 @@ input TimeLineInput {
     dueDate: String!
 }
 
-input TemplateInput {
-    templateName: String
-    templateDescription: String
-    createdById: Int
-    categories: [CategoryInput]
-}
-
 input CategoryInput {
     categoryName: String
     categoryDescription: String
     weight: Float
-    questions: [QuestionInput]
 }
 
 input QuestionInput {

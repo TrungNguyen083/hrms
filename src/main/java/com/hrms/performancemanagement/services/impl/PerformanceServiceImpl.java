@@ -3,16 +3,14 @@ package com.hrms.performancemanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.careerpathmanagement.models.CompetencyEvaluation;
 import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.global.models.*;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
-import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
-import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
+import com.hrms.performancemanagement.repositories.PerformanceEvaluationOverallRepository;
+import com.hrms.performancemanagement.repositories.PerformanceRangeRepository;
 import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
-import com.hrms.careerpathmanagement.repositories.TemplateRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Employee;
@@ -28,9 +26,8 @@ import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.DatasetDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
-import com.hrms.performancemanagement.input.PerformanceCycleInput;
 import com.hrms.performancemanagement.input.ProficiencyLevelInput;
-import com.hrms.performancemanagement.model.PerformanceEvaluation;
+import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.projection.IdOnly;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.hrms.performancemanagement.repositories.EvaluateTimeLineRepository;
@@ -61,7 +58,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     static String COMPLETED_LABEL_NAME = "Completed";
     static String IN_COMPLETED_LABEL_NAME = "InCompleted";
     private final EmployeeManagementService employeeService;
-    private final PerformanceEvaluationRepository performanceEvaluationRepository;
+    private final PerformanceEvaluationOverallRepository performanceEvaluationOverallRepository;
     private final EvaluateCycleRepository evaluateCycleRepository;
     private final JobLevelRepository jobLevelRepository;
     private final PerformanceRangeRepository performanceRangeRepository;
@@ -69,14 +66,13 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeManagementService employeeManagementService;
     private final EvaluateTimeLineRepository evaluateTimeLineRepository;
-    private final TemplateRepository templateRepository;
     private final EmployeeRepository employeeRepository;
     private final ProficiencyLevelRepository proficiencyLevelRepository;
     private HrmsMapper mapper;
 
     @Autowired
     public PerformanceServiceImpl(EmployeeManagementService employeeService,
-                                  PerformanceEvaluationRepository performanceEvaluationRepository,
+                                  PerformanceEvaluationOverallRepository performanceEvaluationOverallRepository,
                                   EvaluateCycleRepository evaluateCycleRepository,
                                   JobLevelRepository jobLevelRepository,
                                   PerformanceRangeRepository performanceRangeRepository,
@@ -85,11 +81,10 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   EmployeeManagementService employeeManagementService,
                                   EvaluateTimeLineRepository evaluateTimeLineRepository,
                                   EmployeeRepository employeeRepository,
-                                  TemplateRepository templateRepository,
                                   ProficiencyLevelRepository proficiencyLevelRepository,
                                   HrmsMapper mapper) {
         this.employeeService = employeeService;
-        this.performanceEvaluationRepository = performanceEvaluationRepository;
+        this.performanceEvaluationOverallRepository = performanceEvaluationOverallRepository;
         this.evaluateCycleRepository = evaluateCycleRepository;
         this.jobLevelRepository = jobLevelRepository;
         this.performanceRangeRepository = performanceRangeRepository;
@@ -98,24 +93,23 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.employeeManagementService = employeeManagementService;
         this.evaluateTimeLineRepository = evaluateTimeLineRepository;
         this.employeeRepository = employeeRepository;
-        this.templateRepository = templateRepository;
         this.proficiencyLevelRepository = proficiencyLevelRepository;
         this.mapper = mapper;
     }
 
 
     public Float getAveragePerformanceScore(Integer cycleId) {
-        var evalIds = performanceEvaluationRepository.findAllByCycleId(cycleId, IdOnly.class)
+        var evalIds = performanceEvaluationOverallRepository.findAllByCycleId(cycleId, IdOnly.class)
                 .stream()
                 .map(IdOnly::id)
                 .toList();
-        return performanceEvaluationRepository.avgEvalScoreByIdIn(evalIds).floatValue();
+        return performanceEvaluationOverallRepository.avgEvalScoreByIdIn(evalIds).floatValue();
     }
 
     @Override
-    public Page<PerformanceEvaluation> getPerformanceEvaluations(Integer empId, Pageable pageable) {
-        Specification<PerformanceEvaluation> spec = employeeSpecification.hasEmployeeId(empId);
-        return performanceEvaluationRepository.findAll(spec, pageable);
+    public Page<PerformanceEvaluationOverall> getPerformanceEvaluations(Integer empId, Pageable pageable) {
+        Specification<PerformanceEvaluationOverall> spec = employeeSpecification.hasEmployeeId(empId);
+        return performanceEvaluationOverallRepository.findAll(spec, pageable);
     }
 
 
@@ -131,12 +125,12 @@ public class PerformanceServiceImpl implements PerformanceService {
      */
     @Override
     public StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId) {
-        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
-        Specification<PerformanceEvaluation> hasPosition = GlobalSpec.hasPositionId(positionId);
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> hasPosition = GlobalSpec.hasPositionId(positionId);
 
-        List<PerformanceEvaluation> evaluations = (positionId == null || positionId == -1)
-                ? performanceEvaluationRepository.findAll(hasCycle)
-                : performanceEvaluationRepository.findAll(hasCycle.and(hasPosition));
+        List<PerformanceEvaluationOverall> evaluations = (positionId == null || positionId == -1)
+                ? performanceEvaluationOverallRepository.findAll(hasCycle)
+                : performanceEvaluationOverallRepository.findAll(hasCycle.and(hasPosition));
 
         var performanceRanges = performanceRangeRepository.findAll();
 
@@ -148,10 +142,10 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     public BarChartDTO performanceOverviewChart(Integer cycleId, Integer departmentId) {
-        Specification<PerformanceEvaluation> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
-        Specification<PerformanceEvaluation> depSpec = departmentId == null ? null : employeeSpecification.hasDepartmentId(departmentId);
+        Specification<PerformanceEvaluationOverall> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> depSpec = departmentId == null ? null : employeeSpecification.hasDepartmentId(departmentId);
 
-        var evaluations = performanceEvaluationRepository.findAll(cycleSpec.and(depSpec));
+        var evaluations = performanceEvaluationOverallRepository.findAll(cycleSpec.and(depSpec));
 
         var ratingScheme = performanceRangeRepository.findAll();
 
@@ -184,7 +178,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     private Float averagePerformanceScore(Integer cycleId, Integer departmentId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Float> query = cb.createQuery(Float.class);
-        Root<PerformanceEvaluation> root = query.from(PerformanceEvaluation.class);
+        Root<PerformanceEvaluationOverall> root = query.from(PerformanceEvaluationOverall.class);
 
         Predicate cyclePredicate = cb.equal(root.get("evaluateCycle").get("id"), cycleId);
         Predicate departmentPredicate = departmentId == null ? null : cb.equal(root.get("employee").get("department").get("id"), departmentId);
@@ -199,12 +193,12 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     @Override
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId) {
-        Specification<PerformanceEvaluation> empSpec = employeeSpecification.hasDepartmentId(departmentId);
-        Specification<PerformanceEvaluation> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> empSpec = employeeSpecification.hasDepartmentId(departmentId);
+        Specification<PerformanceEvaluationOverall> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
 
         var evaluations = (departmentId == null || departmentId == -1)
-                ? performanceEvaluationRepository.findAll(cycleSpec)
-                : performanceEvaluationRepository.findAll(empSpec.and(cycleSpec));
+                ? performanceEvaluationOverallRepository.findAll(cycleSpec)
+                : performanceEvaluationOverallRepository.findAll(empSpec.and(cycleSpec));
 
         var results = new ArrayList<EmployeePotentialPerformanceDTO>();
 
@@ -241,13 +235,13 @@ public class PerformanceServiceImpl implements PerformanceService {
                         .toList() :
                 Collections.emptyList();
 
-        Specification<PerformanceEvaluation> hasEmployeeIds = GlobalSpec.hasEmployeeIds(departmentEmployeeIds);
-        Specification<PerformanceEvaluation> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
-        Specification<PerformanceEvaluation> spec = (departmentId != null) ?
+        Specification<PerformanceEvaluationOverall> hasEmployeeIds = GlobalSpec.hasEmployeeIds(departmentEmployeeIds);
+        Specification<PerformanceEvaluationOverall> cycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> spec = (departmentId != null) ?
                 hasEmployeeIds.and(cycleSpec) :
                 cycleSpec;
 
-        Page<PerformanceEvaluation> evaluations = performanceEvaluationRepository.findAll(spec, pageable);
+        Page<PerformanceEvaluationOverall> evaluations = performanceEvaluationOverallRepository.findAll(spec, pageable);
 
         List<EmployeeRatingDTO> results = new ArrayList<>();
         evaluations.forEach(item ->
@@ -263,7 +257,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         return new EmployeeRatingPagination(results, pagination);
     }
 
-    private List<DatasetDTO> createDatasets(List<PerformanceEvaluation> evaluations,
+    private List<DatasetDTO> createDatasets(List<PerformanceEvaluationOverall> evaluations,
                                             List<PerformanceRange> performanceRanges,
                                             Integer positionId,
                                             List<JobLevel> labels, Integer cycleId) {
@@ -285,7 +279,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         return datasets;
     }
 
-    private DatasetDTO createDatasetForRange(List<PerformanceEvaluation> evaluations,
+    private DatasetDTO createDatasetForRange(List<PerformanceEvaluationOverall> evaluations,
                                              PerformanceRange range,
                                              List<JobLevel> labels, Integer positionId) {
         DatasetDTO datasetDTO = new DatasetDTO(range.getText(), new ArrayList<>());
@@ -309,7 +303,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     private long countRatingSchemeByJobLevel(JobLevel jobLevel, PerformanceRange range,
-                                             List<PerformanceEvaluation> evaluations, Integer positionId) {
+                                             List<PerformanceEvaluationOverall> evaluations, Integer positionId) {
         return (positionId == null || positionId == -1)
                 ? evaluations.stream()
                 .filter(eval -> Objects.equals(eval.getEmployee().getJobLevel().getId(), jobLevel.getId()))
@@ -331,12 +325,12 @@ public class PerformanceServiceImpl implements PerformanceService {
                 ? employeeRepository.count(hasJobLevel)
                 : employeeRepository.count(hasJobLevel.and(hasPosition));
 
-        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
-        Specification<PerformanceEvaluation> hasJobLevelEval = employeeSpecification.hasJobLevelId(jobLevel.getId());
-        Specification<PerformanceEvaluation> hasPositionEval = employeeSpecification.hasPositionId(positionId);
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> hasJobLevelEval = employeeSpecification.hasJobLevelId(jobLevel.getId());
+        Specification<PerformanceEvaluationOverall> hasPositionEval = employeeSpecification.hasPositionId(positionId);
         var countEval = (positionId == null || positionId == -1)
-                ? performanceEvaluationRepository.count(hasCycle.and(hasJobLevelEval))
-                : performanceEvaluationRepository.count(hasCycle.and(hasJobLevelEval).and(hasPositionEval));
+                ? performanceEvaluationOverallRepository.count(hasCycle.and(hasJobLevelEval))
+                : performanceEvaluationOverallRepository.count(hasCycle.and(hasJobLevelEval).and(hasPositionEval));
 
         return countEval == 0 ? 100 : (float) (countEmp - countEval) / countEmp * 100;
     }
@@ -350,9 +344,9 @@ public class PerformanceServiceImpl implements PerformanceService {
     public DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId,
                                                                Integer pageNo, Integer pageSize) {
 
-        Specification<PerformanceEvaluation> spec = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluationOverall> spec = GlobalSpec.hasEmployeeId(employeeId);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Page<PerformanceEvaluation> page = performanceEvaluationRepository.findAll(spec, pageable);
+        Page<PerformanceEvaluationOverall> page = performanceEvaluationOverallRepository.findAll(spec, pageable);
         List<DataItemDTO> data = page.map(item -> new DataItemDTO(
                 item.getEvaluateCycle().getEvaluateCycleName(),
                 item.getFinalAssessment()
@@ -408,13 +402,13 @@ public class PerformanceServiceImpl implements PerformanceService {
         if (empIdSet.isEmpty()) return null;
         //Get all performance evaluations
         //have employeeId in empIdSet and roleField is not null and performanceCycleId = cycleId
-        Specification<PerformanceEvaluation> spec = (root, query, criteriaBuilder) ->
+        Specification<PerformanceEvaluationOverall> spec = (root, query, criteriaBuilder) ->
                 criteriaBuilder.isNotNull(root.get(assessmentType));
 
-        Specification<PerformanceEvaluation> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
-        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
 
-        var completedCount = performanceEvaluationRepository.count(spec.and(hasEmployees).and(hasCycle));
+        var completedCount = performanceEvaluationOverallRepository.count(spec.and(hasEmployees).and(hasCycle));
         return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
     }
 
@@ -426,35 +420,19 @@ public class PerformanceServiceImpl implements PerformanceService {
                 .toList();
 
         //get all employees who have completed evaluation
-        Specification<PerformanceEvaluation> spec = (root, query, criteriaBuilder) ->
+        Specification<PerformanceEvaluationOverall> spec = (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("status"), "Completed");
 
-        Specification<PerformanceEvaluation> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
-        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(performanceCycleId);
+        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(performanceCycleId);
 
         List<Float> datasets = new ArrayList<>();
-        var completedPercent = (float) performanceEvaluationRepository
+        var completedPercent = (float) performanceEvaluationOverallRepository
                 .count(spec.and(hasEmployees).and(hasCycle)) / empIdSet.size() * 100;
         datasets.add(completedPercent);
         datasets.add(100 - completedPercent);
 
         return new PieChartDTO(List.of(COMPLETED_LABEL_NAME, IN_COMPLETED_LABEL_NAME), datasets);
-    }
-
-    @Override
-    public EvaluateCycle createPerformanceCycle(PerformanceCycleInput input) {
-        EvaluateCycle cycle = mapper.map(input, EvaluateCycle.class);
-        cycle.setInsertionTime(new Date());
-        cycle.setModificationTime(new Date());
-        Template template = templateRepository.findAll(GlobalSpec.hasId(input.getTemplate()))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Template not found"));
-        cycle.setTemplate(template);
-
-        evaluateCycleRepository.save(cycle);
-
-        return cycle;
     }
 
     @Override
@@ -513,8 +491,8 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Override
     public PieChartDTO getPerformancePieChartOverall(Integer cycleId) {
         List<PerformanceRange> ranges = performanceRangeRepository.findAll();
-        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
-        List<PerformanceEvaluation> pes = performanceEvaluationRepository.findAll(hasCycleId);
+        Specification<PerformanceEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluationOverall> pes = performanceEvaluationOverallRepository.findAll(hasCycleId);
 
         List<String> labels = new ArrayList<>(ranges.stream().map(PerformanceRange::getText).toList());
         List<Float> datasets = new ArrayList<>(ranges.stream()
@@ -538,6 +516,11 @@ public class PerformanceServiceImpl implements PerformanceService {
         datasets.add(0, percentNotEval);
 
         return new PieChartDTO(labels, datasets);
+    }
+
+    @Override
+    public List<PerformanceRange> getPerformanceRanges() {
+        return performanceRangeRepository.findAll();
     }
 
     private float calculatePercent(int number, int total) {

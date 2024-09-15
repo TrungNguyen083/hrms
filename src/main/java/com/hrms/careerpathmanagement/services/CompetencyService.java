@@ -5,7 +5,6 @@ import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
-import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.global.models.EvaluateCycle;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -21,7 +20,6 @@ import java.util.List;
 public interface CompetencyService {
     @Scheduled(cron = "0 0 0 * * *")
     void updateIsDoneForOverdueItems();
-    List<TimeLine> getEvaluateTimeline(Integer evaluateCycleId);
     MultiBarChartDTO getDepartmentCompleteComp(Integer evaluateCycleId);
     PieChartDTO getCompetencyEvalProgress(Integer evaluateCycleId);
     List<HeatmapItemDTO> getHeatmapCompetency(Integer positionId, Integer evaluateCycleId);
@@ -38,14 +36,10 @@ public interface CompetencyService {
     RadarChartDTO getOverallCompetencyRadarChart(Integer employeeId, Integer evaluateCycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> evaluateCycleIds, Integer departmentId);
 
-    List<EvaluateCycle> getEvaluateCycles();
-
     EmployeeRatingPagination getCompetencyRating(Integer departmentId, Integer cycleId, Integer pageNo, Integer pageSize);
 
     PieChartDTO getCompetencyLevelPieChart(Integer employeeId, Integer cycleId);
 
-    List<SimpleItemDTO> getPositionLevelSkills(Integer positionId, Integer jobLevelId);
-  
     MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId);
 
     EmployeeStatusPagination getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId, Pageable page);
@@ -60,10 +54,6 @@ public interface CompetencyService {
     String evaluateCyclePeriod(Integer evaluateCycleId);
 
     List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) throws ParseException;
-
-    List<TemplateDTO> getTemplates();
-
-    Boolean createTemplate(TemplateInput input);
 
     EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer evaluateCycleId, Integer pageNo, Integer pageSize);
 

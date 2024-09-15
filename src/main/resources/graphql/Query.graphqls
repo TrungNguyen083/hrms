@@ -24,11 +24,12 @@ type Query {
     NumberOfDepartments: Int
     positions: [Position]
     jobLevels: [JobLevel]
+    proficiencyLevels: [ProficiencyLevel]
     roles: [Role]
-    competencies: [Competency]
+    competencies: [Competency] #Dont have API yet
     evaluateCycles: [EvaluateCycle]
     evaluateTimeLine(evaluateCycleId: Int!): [TimeLine]
-    positionLevelSkills(positionId: Int!, jobLevelId: Int!): [SimpleItemDTO] #old name: skills(positionId: Int!): [SimpleItemDTO]
+    positionLevelSkills(positionId: Int!, jobLevelId: Int!): [SimpleItemDTO]
 
 
 
@@ -46,6 +47,7 @@ type Query {
     competencyDiffPercent(departmentId: Int, cycleId: Int!): DiffPercentDTO
     performanceOverviewChart(departmentId: Int, cycleId: Int!) : BarChartDTO
     performanceDiffPercent(departmentId: Int, cycleId: Int!) : DiffPercentDTO
+    performanceRanges: [PerformanceRange]
 
 
     #Employee Dashboard:
@@ -70,11 +72,11 @@ type Query {
     inCompletedEvaluationByPosition(cycleId: Int!, departmentId: Int!): MultiBarChartDTO
     employeesInDepartment(departmentId: Int!): [NameImageDTO] #Not yet
     departmentEmployees(departmentId: Int!, positionId: Int!): [SimpleItemDTO] #Not yet
+    potentialAndPerformanceByPosition(departmentId: Int, cycleId: Int, positionId: Int): [EmployeePotentialPerformanceDTO!]
+
 
     #cycle-template-rating control
     cyclesOverall: [CycleOverallDTO]
-    templates: [TemplateDTO]
-    proficiencyLevels: [ProficiencyLevel]
 
 
 
@@ -92,9 +94,7 @@ type Query {
     departmentInCompletePerform(evaluateCycleId: Int!): MultiBarChartDTO
     performanceEvalProgress(evaluateCycleId: Int!): PieChartDTO
     averagePerformanceScore(cycleId: Int!): Float
-    potentialAndPerformanceByPosition(departmentId: Int, cycleId: Int, positionId: Int): [EmployeePotentialPerformanceDTO!]
     performanceCyclePeriod(cycleId: Int!): String
-    templatedAndQuestion(cycleId: Int!): TemplateQuestionDTO
     feedbacks(feedbackReceiverId: Int!, cycleId: Int!) : [FeedbackDTO]
 
     #CarreerManagement:

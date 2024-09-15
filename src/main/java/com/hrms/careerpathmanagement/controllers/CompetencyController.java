@@ -5,7 +5,6 @@ import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
-import com.hrms.careerpathmanagement.input.TemplateInput;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -43,17 +42,6 @@ public class CompetencyController {
      ********************************************** HR Dashboard ****************************************
      */
 
-    @QueryMapping(name = "evaluateTimeLine")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
-    public List<TimeLine> getEvaluateTimeLine(@Argument Integer evaluateCycleId) {
-        try {
-            return competencyService.getEvaluateTimeline(evaluateCycleId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
     @QueryMapping(name = "departmentCompleteComp")
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
     public MultiBarChartDTO getDepartmentCompleteComp(@Argument Integer evaluateCycleId) {
@@ -82,17 +70,6 @@ public class CompetencyController {
                                                      @Argument Integer evaluateCycleId) {
         try {
             return competencyService.getHeatmapCompetency(positionId, evaluateCycleId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
-    @QueryMapping(name = "evaluateCycles")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR') or hasAnyAuthority('EMPLOYEE')")
-    public List<EvaluateCycle> getEvaluateCycles() {
-        try {
-            return competencyService.getEvaluateCycles();
         } catch (Exception e) {
             log.error(e.getMessage());
             return Collections.emptyList();
@@ -235,13 +212,6 @@ public class CompetencyController {
         return competencyService.getCompetencyEvaluationsStatus(cycleId, departmentId, PageRequest.of(pageNo - 1, pageSize));
     }
 
-
-    @QueryMapping(name = "positionLevelSkills")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<SimpleItemDTO> getPositionLevelSkills(@Argument Integer positionId, @Argument Integer jobLevelId) {
-        return competencyService.getPositionLevelSkills(positionId, jobLevelId);
-    }
-
     @QueryMapping(name = "departmentSkillHeatMap")
     @PreAuthorize("hasAuthority('MANAGER')")
     public List<HeatmapItemDTO> getDepartmentSkillHeatMap(@Argument Integer departmentId, @Argument Integer evaluateCycleId,
@@ -292,18 +262,6 @@ public class CompetencyController {
     @PreAuthorize("hasAuthority('MANAGER')")
     public List<TimeLine> createCompetencyProcess(@Argument EvaluationProcessInput input) throws ParseException {
         return competencyService.createCompetencyProcess(input);
-    }
-
-    @QueryMapping(name = "templates")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<TemplateDTO> getTemplates() {
-        return competencyService.getTemplates();
-    }
-
-    @MutationMapping(name = "createTemplate")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public Boolean createTemplate(@Argument TemplateInput input) {
-        return competencyService.createTemplate(input);
     }
 
     @QueryMapping(name = "trackEvaluationProgress")

@@ -71,11 +71,7 @@ public class UserController {
         return userService.assignUser(userId, employeeId);
     }
 
-    @QueryMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public List<Role> roles() {
-        return userService.getRoles();
-    }
+
 
     @MutationMapping(name = "updateUsernamePassword")
     @PreAuthorize("hasAuthority('ADMIN')")
