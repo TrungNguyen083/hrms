@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement.repositories;
+package com.hrms.performancemanagement.repositories;
 
 import com.hrms.performancemanagement.model.PerformanceRange;
 import org.springframework.data.jpa.repository.JpaRepository;

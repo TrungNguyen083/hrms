@@ -2,50 +2,51 @@ package com.hrms.performancemanagement.model;
 
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.models.EvaluateCycle;
+import com.hrms.global.models.Question;
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.sql.Date;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "performance_evaluation")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PerformanceEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "performance_evaluation_id")
+    @Column(name = "answer_result_id")
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @ManyToOne
+    @JoinColumn(name = "evaluate_cycle_id", referencedColumnName = "evaluate_cycle_id")
+    private EvaluateCycle cycle;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
 
-    @Column(name = "self_assessment")
-    private Float selfAssessment;
+    @ManyToOne
+    @JoinColumn(name = "question")
+    private Question question;
 
-    @Column(name = "supervisor_assessment")
-    private Float supervisorAssessment;
+    @Column(name = "self_evaluation")
+    private Float selfEvaluation;
 
-    @Column(name = "final_assessment")
-    private Float finalAssessment;
+    @Column(name = "supervisor_evaluation")
+    private Float supervisorEvaluation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evaluate_cycle_id")
-    private EvaluateCycle evaluateCycle;
+    @Column(name = "final_evaluation")
+    private Float finalEvaluation;
 
-    @Column(name = "potential_score")
-    private Float potentialScore;
+    @Column(name = "self_comment")
+    private String selfComment;
 
-    @Column(name = "status")
-    private String status;
+    @Column(name = "supervisor_comment")
+    private String supervisorComment;
 
-    @Column(name = "completed_date")
-    private Date completedDate;
-
-    @Column(name = "last_updated")
-    private Date lastUpdated;
+    @Column(name = "final_comment")
+    private String finalComment;
 }

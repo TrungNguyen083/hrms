@@ -1,7 +1,6 @@
 package com.hrms.performancemanagement.controllers;
 
 import com.hrms.performancemanagement.dto.FeedbackDTO;
-import com.hrms.performancemanagement.dto.PerformanceEvalTemplateDTO;
 import com.hrms.performancemanagement.services.PerformanceTemplateService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -17,12 +16,6 @@ public class EvaluationTemplateController {
 
     public EvaluationTemplateController(PerformanceTemplateService performanceTemplateService) {
         this.performanceTemplateService = performanceTemplateService;
-    }
-
-    @QueryMapping(name = "templatedAndQuestion")
-    @PreAuthorize("hasAnyAuthority('USER') or hasAuthority('MANAGER')")
-    public PerformanceEvalTemplateDTO getTemplateAndQuestion(@Argument Integer cycleId) {
-        return performanceTemplateService.getTemplateAndQuestion(cycleId);
     }
 
     @MutationMapping(name = "createFeedbackRequest")

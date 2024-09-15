@@ -107,29 +107,7 @@ public class EmployeeManagementController {
         return employeeManagementService.updateEmployee(input);
     }
 
-    @QueryMapping(name = "departments")
-    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
-    public List<Department> getDepartments() {
-        return departmentRepository.findAll();
-    }
 
-    @QueryMapping(name = "NumberOfDepartments")
-    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
-    public Long getNumberOfDepartments() {
-        return departmentRepository.count();
-    }
-
-    @QueryMapping(name = "jobLevels")
-    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
-    public List<JobLevel> getJobLevels() {
-        return jobLevelRepository.findAll();
-    }
-
-    @QueryMapping(name = "positions")
-    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
-    public List<Position> getPositions() {
-        return positionRepository.findAll();
-    }
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/dam/upload/{employeeId}")

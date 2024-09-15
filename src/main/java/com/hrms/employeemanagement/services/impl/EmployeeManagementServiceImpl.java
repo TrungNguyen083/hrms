@@ -6,7 +6,6 @@ import com.hrms.global.models.*;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
 import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
-import com.hrms.careerpathmanagement.specification.CareerSpecification;
 import com.hrms.digitalassetmanagement.service.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
@@ -50,7 +49,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
     private final SkillEvaluationRepository skillEvaluationRepository;
     private final DamService damService;
-    private final CareerSpecification careerSpecification;
     private final PositionDepartmentRepository positionDepartmentRepository;
     private final SkillRepository skillRepository;
     private final PositionLevelSkillRepository positionLevelSkillRepository;
@@ -75,7 +73,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                                          EmployeeDamInfoRepository employeeDamInfoRepository,
                                          SkillEvaluationRepository skillEvaluationRepository,
                                          DamService damService,
-                                         CareerSpecification careerSpecification,
                                          PositionDepartmentRepository positionDepartmentRepository,
                                          SkillRepository skillRepository,
                                          EvaluateCycleRepository evaluateCycleRepository,
@@ -87,7 +84,6 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         this.employeeDamInfoRepository = employeeDamInfoRepository;
         this.skillEvaluationRepository = skillEvaluationRepository;
         this.damService = damService;
-        this.careerSpecification = careerSpecification;
         this.positionDepartmentRepository = positionDepartmentRepository;
         this.skillRepository = skillRepository;
         this.positionLevelSkillRepository = positionLevelSkillRepository;
@@ -475,8 +471,8 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public List<SimpleItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId) {
-        Specification<Employee> hasDepartment = careerSpecification.hasDepartmentId(departmentId);
-        Specification<Employee> hasPosition = careerSpecification.hasPositionId(positionId);
+        Specification<Employee> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+        Specification<Employee> hasPosition = GlobalSpec.hasPositionId(positionId);
         return employeeRepository.findAll(hasDepartment.and(hasPosition))
                 .stream()
                 .map(e -> new SimpleItemDTO(e.getId(), e.getFirstName() + " " + e.getLastName()))

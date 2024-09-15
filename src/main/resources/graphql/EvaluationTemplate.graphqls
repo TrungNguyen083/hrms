@@ -11,11 +11,6 @@ type CategoryDTO {
     questions: [Question!]
 }
 
-type TemplateQuestionDTO {
-    template: TemplateDTO!
-    categories: [CategoryDTO!]
-}
-
 type FeedbackDTO {
     id: Int!
     giverId: Int!

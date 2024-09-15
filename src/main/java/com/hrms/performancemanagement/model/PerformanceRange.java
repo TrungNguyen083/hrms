@@ -17,6 +17,12 @@ public class PerformanceRange {
     @Column(name = "performance_range_id")
     private Integer id;
 
+    @Column(name = "text")
+    private String text;
+
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "min_value")
     private Float minValue;
 
@@ -25,9 +31,6 @@ public class PerformanceRange {
 
     @Column(name = "order_number")
     private Integer ordered;
-
-    @Column(name = "text")
-    private String text;
 
     public PerformanceRange(Float minValue, Float maxValue, String text) {
         this.minValue = minValue;

@@ -104,9 +104,7 @@ public class UserService {
         return new UserDtoPagination(userDtos, pagination, users.getTotalElements());
     }
 
-    public List<Role> getRoles() {
-        return roleRepository.findAll();
-    }
+
 
     public UserDto getUser(Integer userId) throws Exception {
         return modelMapper.map(userRepository
