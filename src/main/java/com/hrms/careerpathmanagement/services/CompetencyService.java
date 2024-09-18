@@ -6,7 +6,6 @@ import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.global.models.EvaluateCycle;
-import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
@@ -48,8 +47,6 @@ public interface CompetencyService {
                                                    List<Integer> employeeIds, List<Integer> skillIds);
 
     RadarChartDTO getDepartmentCompetencyGap(Integer evaluateCycleId, List<Integer> employeeIds);
-
-    EvaluateCycle createEvaluateCycle(EvaluateCycleInput input);
 
     String evaluateCyclePeriod(Integer evaluateCycleId);
 

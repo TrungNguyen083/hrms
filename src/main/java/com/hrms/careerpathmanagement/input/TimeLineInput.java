@@ -10,5 +10,5 @@ import lombok.*;
 public class TimeLineInput {
     private String timeLineName;
     private String startDate;
-    private String dueDate;
+    private String endDate;
 }

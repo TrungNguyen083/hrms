@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -13,6 +15,7 @@ public class EvaluateCycleInput {
     private String cycleName;
     private String description;
     private String startDate;
-    private String dueDate;
-    private String evaluatorType;
+    private String endDate;
+    private String initialDate;
+    private List<TimeLineInput> timeLines;
 }

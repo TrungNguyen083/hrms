@@ -1,4 +1,4 @@
-package com.hrms.digitalassetmanagement.service;
+package com.hrms.digitalassetmanagement.services;
 
 
 import com.cloudinary.Cloudinary;

@@ -41,16 +41,6 @@ public class EvaluateCycle {
     @Column(name = "initial_date")
     private Date initialDate;
 
-    // For modification time
-    @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modificationTime;
-
-    // For insertion time
-    @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date insertionTime;
-
     public EvaluateCycle(Integer id) {
         this.id = id;
     }

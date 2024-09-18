@@ -1,6 +1,8 @@
 package com.hrms.global.mapper;
 
+import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.TimeLineInput;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.EvaluateTimeLine;
 import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
@@ -37,16 +39,13 @@ public class HrmsMapper extends ModelMapper {
             mapper.map(ProficiencyLevelInput::getScore, ProficiencyLevel::setScore);
         });
 
-        this.typeMap(TimeLineInput.class, EvaluateTimeLine.class).addMappings(mapper -> {
-            mapper.map(TimeLineInput::getTimeLineName, EvaluateTimeLine::setEvaluateTimeLineName);
-            mapper.map(TimeLineInput::getStartDate, EvaluateTimeLine::setStartDate);
-            mapper.map(TimeLineInput::getDueDate, EvaluateTimeLine::setDueDate);
+        this.typeMap(EvaluateCycleInput.class, EvaluateCycle.class).addMappings(mapper -> {
+            mapper.map(EvaluateCycleInput::getEndDate, EvaluateCycle::setDueDate);
         });
 
         this.typeMap(TimeLineInput.class, EvaluateTimeLine.class).addMappings(mapper -> {
             mapper.map(TimeLineInput::getTimeLineName, EvaluateTimeLine::setEvaluateTimeLineName);
-            mapper.map(TimeLineInput::getStartDate, EvaluateTimeLine::setStartDate);
-            mapper.map(TimeLineInput::getDueDate, EvaluateTimeLine::setDueDate);
+            mapper.map(TimeLineInput::getEndDate, EvaluateTimeLine::setDueDate);
         });
     }
 }

@@ -13,18 +13,19 @@ type Mutation {
 
 
     #Company Management
-    updateProficiencyLevel(id: Int!, input : ProficiencyLevelInput!): ProficiencyLevel
-    updatePerformanceRange(id: Int!, input : PerformanceRangeInput!): PerformanceRange
+    createEvaluationCycle(input: EvaluateCycleInput!): Boolean
+    createProficiencyLevel(input : ProficiencyLevelInput!): Boolean
+    createPerformanceRange(input : PerformanceRangeInput!): Boolean
+    updateProficiencyLevel(id: Int!, input : ProficiencyLevelInput!): Boolean
+    updatePerformanceRange(id: Int!, input : PerformanceRangeInput!): Boolean
+    deleteProficiencyLevel(id: Int!): Boolean
+    deletePerformanceRange(id: Int!): Boolean
 
     #Competency Management
-    createEvaluateCycle(input: EvaluateCycleInput!): EvaluateCycle
-    createCompetencyProcess(input: EvaluationProcessInput!): [TimeLine]
     createSelfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
     createEvaluatorCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
     createFinalCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
 
-    #Performance Management
-    createPerformanceProcess(input: EvaluationProcessInput!): [TimeLine]
 
     createFeedbackRequest(requestorId: Int!, requestReceiverIds: [Int]!, cycleId: Int!, feedbackReceiverId: Int!): String
 }

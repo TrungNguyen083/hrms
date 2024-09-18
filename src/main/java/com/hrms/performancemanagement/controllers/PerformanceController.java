@@ -88,10 +88,6 @@ public class PerformanceController {
         return performanceService.performanceOverviewChart(cycleId, departmentId);
     }
 
-    @QueryMapping(name = "performanceRanges")
-    @PreAuthorize("hasAuthority('HR')")
-    public List<PerformanceRange> getPerformanceRanges() { return performanceService.getPerformanceRanges(); }
-
 
 
     /**
@@ -168,25 +164,5 @@ public class PerformanceController {
 
 
 
-    //Don't have API in graphql yet
-    @MutationMapping(name = "updateProficiencyLevel")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public ProficiencyLevel updateProficiencyLevel(@Argument Integer id, @Argument ProficiencyLevelInput input)
-    {
-        return performanceService.updateProficiencyLevel(id, input);
-    }
 
-    //Don't have API in graphql yet
-    @MutationMapping(name = "updatePerformanceRange")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public PerformanceRange updatePerformanceRage(@Argument Integer id, @Argument PerformanceRangeInput input) {
-        return performanceService.updatePerformanceRange(id, input);
-    }
-
-    //Don't have API in graphql yet
-    @MutationMapping(name = "createPerformanceProcess")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public List<TimeLine> createPerformanceProcess(@Argument EvaluationProcessInput input) throws ParseException {
-        return performanceService.createPerformanceProcess(input);
-    }
 }

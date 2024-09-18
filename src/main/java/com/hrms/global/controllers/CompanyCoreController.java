@@ -1,17 +1,24 @@
 package com.hrms.global.controllers;
 
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.global.models.*;
 import com.hrms.global.services.CompanyCoreService;
+import com.hrms.performancemanagement.input.PerformanceRangeInput;
+import com.hrms.performancemanagement.input.ProficiencyLevelInput;
+import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.usermanagement.model.Role;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,12 +30,6 @@ public class CompanyCoreController {
     @Autowired
     public CompanyCoreController(CompanyCoreService companyCoreService) {
         this.companyCoreService = companyCoreService;
-    }
-
-    @QueryMapping(name = "proficiencyLevels")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
-    public List<ProficiencyLevel> getProficiencyLevels() {
-        return companyCoreService.getProficiencyLevels();
     }
 
     @QueryMapping(name = "departments")
@@ -87,5 +88,60 @@ public class CompanyCoreController {
     @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
     public List<SimpleItemDTO> getPositionLevelSkills(@Argument Integer positionId, @Argument Integer jobLevelId) {
         return companyCoreService.getPositionLevelSkills(positionId, jobLevelId);
+    }
+
+    @Transactional
+    @MutationMapping(name = "createEvaluationCycle")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean createEvaluationCycle(@Argument EvaluateCycleInput input) {
+        return companyCoreService.createEvaluationCycle(input);
+    }
+
+    @QueryMapping(name = "proficiencyLevels")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    public List<ProficiencyLevel> getProficiencyLevels() {
+        return companyCoreService.getProficiencyLevels();
+    }
+
+    @QueryMapping(name = "performanceRanges")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<PerformanceRange> getPerformanceRanges() { return companyCoreService.getPerformanceRanges(); }
+
+    @MutationMapping(name = "createProficiencyLevel")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean createProficiencyLevel(@Argument ProficiencyLevelInput input)
+    {
+        return companyCoreService.createProficiencyLevel(input);
+    }
+
+    @MutationMapping(name = "createPerformanceRange")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean createPerformanceRange(@Argument PerformanceRangeInput input) {
+        return companyCoreService.createPerformanceRange(input);
+    }
+
+    @MutationMapping(name = "updateProficiencyLevel")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean updateProficiencyLevel(@Argument Integer id, @Argument ProficiencyLevelInput input)
+    {
+        return companyCoreService.updateProficiencyLevel(id, input);
+    }
+
+    @MutationMapping(name = "updatePerformanceRange")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean updatePerformanceRage(@Argument Integer id, @Argument PerformanceRangeInput input) {
+        return companyCoreService.updatePerformanceRange(id, input);
+    }
+
+    @MutationMapping(name = "deleteProficiencyLevel")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean deleteProficiencyLevel(@Argument Integer id) {
+        return companyCoreService.deleteProficiencyLevel(id);
+    }
+
+    @MutationMapping(name = "deletePerformanceRange")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean deletePerformanceRange(@Argument Integer id) {
+        return companyCoreService.deletePerformanceRange(id);
     }
 }

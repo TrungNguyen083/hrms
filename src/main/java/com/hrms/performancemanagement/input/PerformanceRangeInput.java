@@ -8,7 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PerformanceRangeInput {
+    private String text;
+    private String description;
     private Float minValue;
     private Float maxValue;
-    private String text;
+    private Integer ordered;
 }

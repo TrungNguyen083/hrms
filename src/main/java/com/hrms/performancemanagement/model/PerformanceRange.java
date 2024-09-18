@@ -1,16 +1,14 @@
 package com.hrms.performancemanagement.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PerformanceRange {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +27,7 @@ public class PerformanceRange {
     @Column(name = "max_value")
     private Float maxValue;
 
-    @Column(name = "order_number")
+    @Column(name = "ordered")
     private Integer ordered;
 
     public PerformanceRange(Float minValue, Float maxValue, String text) {
