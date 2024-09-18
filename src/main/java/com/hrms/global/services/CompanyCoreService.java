@@ -1,14 +1,20 @@
 package com.hrms.global.services;
 
 import com.hrms.careerpathmanagement.dto.TimeLine;
+import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.global.models.*;
+import com.hrms.performancemanagement.input.PerformanceRangeInput;
+import com.hrms.performancemanagement.input.ProficiencyLevelInput;
+import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.usermanagement.model.Role;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface CompanyCoreService {
     List<ProficiencyLevel> getProficiencyLevels();
+    List<PerformanceRange> getPerformanceRanges();
 
     List<Department> getDepartments();
 
@@ -25,4 +31,18 @@ public interface CompanyCoreService {
     List<TimeLine> getEvaluateTimeline(Integer evaluateCycleId);
 
     List<SimpleItemDTO> getPositionLevelSkills(Integer positionId, Integer jobLevelId);
+
+    Boolean createEvaluationCycle(EvaluateCycleInput input);
+
+    Boolean updateProficiencyLevel(Integer id, ProficiencyLevelInput input);
+
+    Boolean updatePerformanceRange(Integer id, PerformanceRangeInput input);
+
+    Boolean createProficiencyLevel(ProficiencyLevelInput input);
+
+    Boolean createPerformanceRange(PerformanceRangeInput input);
+
+    Boolean deleteProficiencyLevel(Integer id);
+
+    Boolean deletePerformanceRange(Integer id);
 }

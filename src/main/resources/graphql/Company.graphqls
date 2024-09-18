@@ -52,7 +52,7 @@ type PerformanceRange {
     description: String
     minValue: Float
     maxValue: Float
-    order: Int
+    ordered: Int
 }
 
 type Position {

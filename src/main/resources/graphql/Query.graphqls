@@ -25,6 +25,7 @@ type Query {
     positions: [Position]
     jobLevels: [JobLevel]
     proficiencyLevels: [ProficiencyLevel]
+    performanceRanges: [PerformanceRange]
     roles: [Role]
     competencies: [Competency] #Dont have API yet
     evaluateCycles: [EvaluateCycle]
@@ -47,7 +48,7 @@ type Query {
     competencyDiffPercent(departmentId: Int, cycleId: Int!): DiffPercentDTO
     performanceOverviewChart(departmentId: Int, cycleId: Int!) : BarChartDTO
     performanceDiffPercent(departmentId: Int, cycleId: Int!) : DiffPercentDTO
-    performanceRanges: [PerformanceRange]
+
 
 
     #Employee Dashboard:

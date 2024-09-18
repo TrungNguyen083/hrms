@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.ProficiencyLevel;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
@@ -34,10 +35,6 @@ public interface PerformanceService {
     DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId, Integer pageNo, Integer pageSize);
     MultiBarChartDTO getDepartmentInCompletePerform(Integer cycleId);
     PieChartDTO getPerformanceEvalProgress(Integer performanceCycleId);
-    ProficiencyLevel updateProficiencyLevel(Integer id, ProficiencyLevelInput input);
-    PerformanceRange updatePerformanceRange(Integer id, PerformanceRangeInput input);
     String performanceCyclePeriod(Integer cycleId);
-    List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) throws ParseException;
-    PieChartDTO getPerformancePieChartOverall(Integer cycleId);
-    List<PerformanceRange> getPerformanceRanges();
+    PieChartDTO getPerformancePieChartOverall(EvaluateCycle cycleId);
 }

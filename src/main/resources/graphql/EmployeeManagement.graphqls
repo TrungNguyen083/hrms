@@ -45,26 +45,6 @@ type EmployeePaging {
     pagination: Pagination!
 }
 
-input EmployeeInput {
-    id: Int
-    firstName: String
-    lastName: String
-    gender: String
-    dateOfBirth: String
-    phoneNumber: String
-    address: String
-    currentContract: Int
-    profileBio: String
-    facebookLink: String
-    twitterLink: String
-    linkedinLink: String
-    instagramLink: String
-    positionId: Int
-    jobLevelId: Int
-    departmentId: Int
-    emergencyContacts: [EmergencyContactInput!]!
-}
-
 type EmergencyContact {
     id: Int!
     firstName: String

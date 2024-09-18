@@ -1,9 +1,21 @@
-input EvaluateCycleInput{
-    cycleName: String!
-    description: String!
-    startDate: String!
-    dueDate: String!
-    evaluatorType: String!
+input EmployeeInput {
+    id: Int
+    firstName: String
+    lastName: String
+    gender: String
+    dateOfBirth: String
+    phoneNumber: String
+    address: String
+    currentContract: Int
+    profileBio: String
+    facebookLink: String
+    twitterLink: String
+    linkedinLink: String
+    instagramLink: String
+    positionId: Int
+    jobLevelId: Int
+    departmentId: Int
+    emergencyContacts: [EmergencyContactInput!]!
 }
 
 input ProficiencyLevelInput {
@@ -13,21 +25,26 @@ input ProficiencyLevelInput {
 }
 
 input PerformanceRangeInput {
+    text: String
+    description: String
     minValue: Float
     maxValue: Float
-    text: String
+    ordered: Int
 }
 
-input EvaluationProcessInput {
-    timeLines : [TimeLineInput]!
+input EvaluateCycleInput {
+    cycleName: String!
+    description: String!
+    startDate: String!
+    endDate: String!
     initialDate: String!
-    cycleId: Int!
+    timeLines : [TimeLineInput]!
 }
 
 input TimeLineInput {
     timeLineName: String!
     startDate: String!
-    dueDate: String!
+    endDate: String!
 }
 
 input CategoryInput {

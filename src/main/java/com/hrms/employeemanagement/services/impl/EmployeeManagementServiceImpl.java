@@ -6,7 +6,7 @@ import com.hrms.global.models.*;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
 import com.hrms.careerpathmanagement.repositories.PositionLevelSkillRepository;
 import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
-import com.hrms.digitalassetmanagement.service.DamService;
+import com.hrms.digitalassetmanagement.services.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
 import com.hrms.employeemanagement.models.*;

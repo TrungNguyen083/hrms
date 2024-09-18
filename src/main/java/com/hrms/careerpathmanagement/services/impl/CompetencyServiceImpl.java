@@ -1125,20 +1125,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         return competencyEvaluationRepository.findAll(hasEvaluateCycle.and(hasEmployeeDepartment));
     }
 
-    @Transactional
-    @Override
-    public EvaluateCycle createEvaluateCycle(EvaluateCycleInput input) {
-        EvaluateCycle cycle = modelMapper.map(input, EvaluateCycle.class);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(cycle.getStartDate());
-        int year = calendar.get(Calendar.YEAR);
-        cycle.setYear(year);
-        cycle.setInsertionTime(new Date());
-        cycle.setModificationTime(new Date());
-        evaluateCycleRepository.save(cycle);
-        return cycle;
-    }
-
     @Override
     public String evaluateCyclePeriod(Integer evaluateCycleId) {
         EvaluateCycle cycle = evaluateCycleRepository.findAll(GlobalSpec.hasId(evaluateCycleId))
@@ -1394,8 +1380,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         List<EvaluateCycle> cycles = getEvaluateCycles();
         return cycles.stream().map(c -> {
             PieChartDTO completedEvaluate = getCompetencyEvalProgress(c.getId());
-            PieChartDTO competencyOverall = getCompetencyPieChartOverall(c.getId());
-            PieChartDTO performanceOverall = performanceService.getPerformancePieChartOverall(c.getId());
+            PieChartDTO competencyOverall = getCompetencyPieChartOverall(c);
+            PieChartDTO performanceOverall = performanceService.getPerformancePieChartOverall(c);
             return CycleOverallDTO.builder()
                     .name(c.getEvaluateCycleName())
                     .status(c.getStatus())
@@ -1414,9 +1400,10 @@ public class CompetencyServiceImpl implements CompetencyService {
         return evaluateCycleRepository.findAll(sort);
     }
 
-    private PieChartDTO getCompetencyPieChartOverall(Integer cycleId) {
+    private PieChartDTO getCompetencyPieChartOverall(EvaluateCycle cycle) {
+        if (cycle.getStatus().equals("Not Start")) return null;
         List<Competency> competencies = competencyRepository.findAll();
-        Specification<CompetencyEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<CompetencyEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycle.getId());
         List<CompetencyEvaluation> ces = competencyEvaluationRepository.findAll(hasCycleId);
 
         List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();

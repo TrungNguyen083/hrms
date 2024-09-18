@@ -6,7 +6,6 @@ import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.services.CompetencyService;
-import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.global.dto.*;
@@ -244,12 +243,7 @@ public class CompetencyController {
 
 
 
-    @Transactional
-    @MutationMapping(name = "createEvaluateCycle")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public EvaluateCycle createEvaluateCycle(@Argument EvaluateCycleInput input) {
-        return competencyService.createEvaluateCycle(input);
-    }
+
 
     @QueryMapping(name = "evaluateCyclePeriod")
     @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('USER')")

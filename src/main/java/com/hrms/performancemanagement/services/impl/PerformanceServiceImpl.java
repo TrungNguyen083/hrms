@@ -435,26 +435,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         return new PieChartDTO(List.of(COMPLETED_LABEL_NAME, IN_COMPLETED_LABEL_NAME), datasets);
     }
 
-    @Override
-    public ProficiencyLevel updateProficiencyLevel(Integer id, ProficiencyLevelInput input) {
-        var proficiencyLevel = proficiencyLevelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Proficiency level not found"));
-        proficiencyLevel.setProficiencyLevelName(input.getName());
-        proficiencyLevel.setProficiencyLevelDescription(input.getDescription());
-        proficiencyLevel.setScore(input.getScore());
-        return proficiencyLevelRepository.save(proficiencyLevel);
-    }
-
-    @Override
-    public PerformanceRange updatePerformanceRange(Integer id, PerformanceRangeInput input) {
-        var performanceRange = performanceRangeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Performance range not found"));
-        performanceRange.setMinValue(input.getMinValue());
-        performanceRange.setMaxValue(input.getMaxValue());
-        performanceRange.setText(input.getText());
-        return performanceRangeRepository.save(performanceRange);
-    }
-
     public String performanceCyclePeriod(Integer cycleId) {
         EvaluateCycle cycle = evaluateCycleRepository.findAll(GlobalSpec.hasId(cycleId))
                 .stream()
@@ -464,34 +444,10 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public List<TimeLine> createPerformanceProcess(EvaluationProcessInput input) throws ParseException {
-        List<EvaluateTimeLine> performTimeLines = input.getTimeLines()
-                .stream()
-                .map(tl -> mapper.map(tl, EvaluateTimeLine.class))
-                .toList();
-
-        EvaluateCycle cycle = evaluateCycleRepository.findAll(GlobalSpec.hasId(input.getCycleId()))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cycle not found"));
-
-        performTimeLines.forEach(tl -> tl.setEvaluateCycle(cycle));
-
-        evaluateTimeLineRepository.saveAll(performTimeLines);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        cycle.setInitialDate(dateFormat.parse(input.getInitialDate()));
-        evaluateCycleRepository.save(cycle);
-
-        return mapper.map(performTimeLines, new TypeToken<List<TimeLine>>() {
-        }.getType());
-    }
-
-    @Override
-    public PieChartDTO getPerformancePieChartOverall(Integer cycleId) {
+    public PieChartDTO getPerformancePieChartOverall(EvaluateCycle cycle) {
+        if (cycle.getStatus().equals("Not Start")) return null;
         List<PerformanceRange> ranges = performanceRangeRepository.findAll();
-        Specification<PerformanceEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycle.getId());
         List<PerformanceEvaluationOverall> pes = performanceEvaluationOverallRepository.findAll(hasCycleId);
 
         List<String> labels = new ArrayList<>(ranges.stream().map(PerformanceRange::getText).toList());
@@ -516,11 +472,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         datasets.add(0, percentNotEval);
 
         return new PieChartDTO(labels, datasets);
-    }
-
-    @Override
-    public List<PerformanceRange> getPerformanceRanges() {
-        return performanceRangeRepository.findAll();
     }
 
     private float calculatePercent(int number, int total) {

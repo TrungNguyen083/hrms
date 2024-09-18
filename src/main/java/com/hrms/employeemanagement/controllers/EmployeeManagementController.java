@@ -1,15 +1,12 @@
 package com.hrms.employeemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.PercentageChangeDTO;
-import com.hrms.digitalassetmanagement.service.DamService;
+import com.hrms.digitalassetmanagement.services.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.dto.pagination.EmployeePagingDTO;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.global.dto.BarChartDTO;
-import com.hrms.global.models.Department;
-import com.hrms.global.models.JobLevel;
-import com.hrms.global.models.Position;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.repositories.PositionRepository;
