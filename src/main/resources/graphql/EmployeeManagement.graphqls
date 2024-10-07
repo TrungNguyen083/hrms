@@ -99,11 +99,6 @@ type EmployeeStatusDTO {
     profileImg: String
 }
 
-type EmployeeStatusPagination {
-    data: [EmployeeStatusDTO!]
-    pagination: Pagination
-}
-
 type EmployeeGoalDTO {
     id: Int
 

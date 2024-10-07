@@ -2,15 +2,6 @@ package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
-import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.global.mapper.HrmsMapper;
-import com.hrms.global.models.*;
-import com.hrms.performancemanagement.input.PerformanceRangeInput;
-import com.hrms.performancemanagement.model.PerformanceRange;
-import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
-import com.hrms.performancemanagement.repositories.PerformanceEvaluationOverallRepository;
-import com.hrms.performancemanagement.repositories.PerformanceRangeRepository;
-import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Employee;
@@ -22,21 +13,27 @@ import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.global.GlobalSpec;
 import com.hrms.global.dto.*;
+import com.hrms.global.models.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
+import com.hrms.global.repositories.DepartmentPositionRepository;
 import com.hrms.performancemanagement.dto.DatasetDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
-import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
+import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.performancemanagement.projection.IdOnly;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
-import com.hrms.performancemanagement.repositories.EvaluateTimeLineRepository;
+import com.hrms.performancemanagement.repositories.PerformanceEvaluationOverallRepository;
+import com.hrms.performancemanagement.repositories.PerformanceRangeRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.TypeToken;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,8 +41,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -65,10 +60,8 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final EmployeeSpecification employeeSpecification;
     private final DepartmentRepository departmentRepository;
     private final EmployeeManagementService employeeManagementService;
-    private final EvaluateTimeLineRepository evaluateTimeLineRepository;
     private final EmployeeRepository employeeRepository;
-    private final ProficiencyLevelRepository proficiencyLevelRepository;
-    private HrmsMapper mapper;
+    private final DepartmentPositionRepository departmentPositionRepository;
 
     @Autowired
     public PerformanceServiceImpl(EmployeeManagementService employeeService,
@@ -79,10 +72,8 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   EmployeeSpecification employeeSpecification,
                                   DepartmentRepository departmentRepository,
                                   EmployeeManagementService employeeManagementService,
-                                  EvaluateTimeLineRepository evaluateTimeLineRepository,
                                   EmployeeRepository employeeRepository,
-                                  ProficiencyLevelRepository proficiencyLevelRepository,
-                                  HrmsMapper mapper) {
+                                  DepartmentPositionRepository departmentPositionRepository) {
         this.employeeService = employeeService;
         this.performanceEvaluationOverallRepository = performanceEvaluationOverallRepository;
         this.evaluateCycleRepository = evaluateCycleRepository;
@@ -91,10 +82,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.employeeSpecification = employeeSpecification;
         this.departmentRepository = departmentRepository;
         this.employeeManagementService = employeeManagementService;
-        this.evaluateTimeLineRepository = evaluateTimeLineRepository;
         this.employeeRepository = employeeRepository;
-        this.proficiencyLevelRepository = proficiencyLevelRepository;
-        this.mapper = mapper;
+        this.departmentPositionRepository = departmentPositionRepository;
     }
 
 
@@ -113,16 +102,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
 
-    /**
-     * Performance Ranges : Unsatisfactory, Needs Improvement, Meets Expectations, Exceeds Expectations, Outstanding...
-     * A score belong to a range if it is greater than or equal to the min value and less than or equal to the max value
-     * Ex: Meets Expectation range has min value = 3 and max value = 4
-     * Label is a column in the chart. In this case, it is job level
-     *
-     * @param positionId
-     * @param cycleId
-     * @return
-     */
+
     @Override
     public StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId) {
         Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
@@ -214,8 +194,7 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     @Override
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId,
-                                                                                      Integer cycleId,
-                                                                                      Integer positionId) {
+                                                                                      Integer cycleId) {
         var result = getPotentialAndPerformance(departmentId, cycleId);
 
         var empIdsSetHasPosition = new HashSet<>(employeeRepository.findAllByDepartmentId(departmentId, EmployeeIdOnly.class)
@@ -360,71 +339,18 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public MultiBarChartDTO getDepartmentInCompletePerform(Integer cycleId) {
-        List<Department> departments = departmentRepository.findAll();
-        //Get all employees have department not null
-        List<Employee> employees = employeeManagementService.getAllEmployeesHaveDepartment();
-
-        List<Float> selfData = processDepartmentData(departments, SELF_EVAL_LABEL_NAME, cycleId, employees);
-        List<Float> managerData = processDepartmentData(departments, SUPERVISOR_EVAL_LABEL_NAME, cycleId, employees);
-
-        List<MultiBarChartDataDTO> datasets = new ArrayList<>();
-        datasets.add(new MultiBarChartDataDTO(SELF_EVAL_LABEL_NAME, selfData));
-        datasets.add(new MultiBarChartDataDTO(SUPERVISOR_EVAL_LABEL_NAME, managerData));
-
-        List<String> labels = departments.stream().map(Department::getDepartmentName).toList();
-        return new MultiBarChartDTO(labels, datasets);
-    }
-
-    private List<Float> processDepartmentData(List<Department> departments, String type,
-                                              Integer cycleId, List<Employee> employees) {
-        return departments.parallelStream().map(item -> {
-            List<Integer> departmentEmpIds = employees.stream()
-                    .filter(emp -> Objects.equals(emp.getDepartment().getId(), item.getId()))
-                    .map(Employee::getId)
-                    .toList();
-
-            return (type.equals(SELF_EVAL_LABEL_NAME))
-                    ? getEmployeeInCompletedPercent(cycleId, departmentEmpIds)
-                    : getEvaluatorInCompletePercent(cycleId, departmentEmpIds);
-        }).toList();
-    }
-
-    private Float getEmployeeInCompletedPercent(Integer cycleId, List<Integer> empIdSet) {
-        return calculatePercentage(cycleId, empIdSet, "selfAssessment");
-    }
-
-    private Float getEvaluatorInCompletePercent(Integer cycleId, List<Integer> empIdSet) {
-        return calculatePercentage(cycleId, empIdSet, "supervisorAssessment");
-    }
-
-    private Float calculatePercentage(Integer cycleId, List<Integer> empIdSet, String assessmentType) {
-        if (empIdSet.isEmpty()) return null;
-        //Get all performance evaluations
-        //have employeeId in empIdSet and roleField is not null and performanceCycleId = cycleId
-        Specification<PerformanceEvaluationOverall> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.isNotNull(root.get(assessmentType));
-
-        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
-        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
-
-        var completedCount = performanceEvaluationOverallRepository.count(spec.and(hasEmployees).and(hasCycle));
-        return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
-    }
-
-    @Override
-    public PieChartDTO getPerformanceEvalProgress(Integer performanceCycleId) {
-        List<Integer> empIdSet = employeeManagementService.getAllEmployees()
+    public PieChartDTO getPerformanceEvalProgress(Integer cycleId, Integer departmentId) {
+        List<Integer> empIdSet = employeeManagementService.getEmployeesInDepartment(departmentId)
                 .stream()
                 .map(Employee::getId)
                 .toList();
 
         //get all employees who have completed evaluation
         Specification<PerformanceEvaluationOverall> spec = (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("status"), "Completed");
+                criteriaBuilder.equal(root.get("finalStatus"), "Completed");
 
         Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
-        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(performanceCycleId);
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
 
         List<Float> datasets = new ArrayList<>();
         var completedPercent = (float) performanceEvaluationOverallRepository
@@ -476,6 +402,59 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     private float calculatePercent(int number, int total) {
         return ((float) number / total) * 100;
+    }
+
+    @Override
+    public MultiBarChartDTO getCompletedEvaluationByPosition(Integer cycleId, Integer departmentId) {
+        List<Department> departments = departmentRepository.findAllByIsEvaluate(true);
+        List<Employee> employees = employeeManagementService.getAllEmployeesHaveDepartment();
+
+        //Get all CompetencyEvaluationOverall of all employees have final status is agreed and get the latest cycle
+        List<Float> selfData = processDepartmentData(departments, SELF_EVAL_LABEL_NAME, cycleId, employees);
+        List<Float> managerData = processDepartmentData(departments, SUPERVISOR_EVAL_LABEL_NAME, cycleId, employees);
+
+        List<MultiBarChartDataDTO> datasets = new ArrayList<>();
+        datasets.add(new MultiBarChartDataDTO(SELF_EVAL_LABEL_NAME, selfData));
+        datasets.add(new MultiBarChartDataDTO(SUPERVISOR_EVAL_LABEL_NAME, managerData));
+
+        List<String> labels = departments.stream().map(Department::getDepartmentName).toList();
+        return new MultiBarChartDTO(labels, datasets);
+    }
+
+    private List<Float> processDepartmentData(List<Department> departments, String type,
+                                              Integer cycleId, List<Employee> employees) {
+        return departments.parallelStream().map(item -> {
+            List<Integer> departmentEmpIds = employees.stream()
+                    .filter(emp -> Objects.equals(emp.getDepartment().getId(), item.getId()))
+                    .map(Employee::getId)
+                    .toList();
+
+            return (type.equals(SELF_EVAL_LABEL_NAME))
+                    ? getEmployeeInCompletedPercent(cycleId, departmentEmpIds)
+                    : getEvaluatorInCompletePercent(cycleId, departmentEmpIds);
+        }).toList();
+    }
+
+    private Float getEmployeeInCompletedPercent(Integer cycleId, List<Integer> empIdSet) {
+        return calculatePercentage(cycleId, empIdSet, "selfAssessment");
+    }
+
+    private Float getEvaluatorInCompletePercent(Integer cycleId, List<Integer> empIdSet) {
+        return calculatePercentage(cycleId, empIdSet, "supervisorAssessment");
+    }
+
+    private Float calculatePercentage(Integer cycleId, List<Integer> empIdSet, String assessmentType) {
+        if (empIdSet.isEmpty()) return null;
+        //Get all performance evaluations
+        //have employeeId in empIdSet and roleField is not null and performanceCycleId = cycleId
+        Specification<PerformanceEvaluationOverall> spec = (root, query, criteriaBuilder) ->
+                criteriaBuilder.isNotNull(root.get(assessmentType));
+
+        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+
+        var completedCount = performanceEvaluationOverallRepository.count(spec.and(hasEmployees).and(hasCycle));
+        return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
     }
 
 }

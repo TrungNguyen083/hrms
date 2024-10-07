@@ -2,7 +2,6 @@ package com.hrms.careerpathmanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
-import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.models.*;
@@ -13,7 +12,6 @@ import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.projection.NameAndStatusOnly;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
-import com.hrms.employeemanagement.dto.pagination.EmployeeStatusPagination;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
@@ -24,6 +22,8 @@ import com.hrms.global.models.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.*;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
+import com.hrms.global.repositories.DepartmentPositionRepository;
+import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.hrms.performancemanagement.repositories.EvaluateTimeLineRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -81,6 +81,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
     private final EmployeeSpecification employeeSpecification;
     private final EvaluateCycleRepository evaluateCycleRepository;
+    private final DepartmentPositionRepository departmentPositionRepository;
     private final HrmsMapper modelMapper;
     private final CompetencyGroupRepository competencyGroupRepository;
     private final CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository;
@@ -100,6 +101,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  JobLevelRepository jobLevelRepository,
                                  PositionLevelSkillRepository positionLevelSkillRepository,
                                  EmployeeDamInfoRepository employeeDamInfoRepository,
+                                 DepartmentPositionRepository departmentPositionRepository,
                                  EmployeeSpecification employeeSpecification,
                                  EvaluateCycleRepository evaluateCycleRepository,
                                  HrmsMapper modelMapper,
@@ -116,6 +118,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.proficiencyLevelRepository = proficiencyLevelRepository;
         this.skillRepository = skillRepository;
         this.departmentRepository = departmentRepository;
+        this.departmentPositionRepository = departmentPositionRepository;
         this.employeeManagementService = employeeManagementService;
         this.jobLevelRepository = jobLevelRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
@@ -200,64 +203,137 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public MultiBarChartDTO getSumDepartmentIncompletePercent(Integer cycleId, Integer departmentId) {
-        Specification<CompetencyEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
-        Specification<CompetencyEvaluationOverall> hasEmployeeDepartment = GlobalSpec.hasEmployeeDepartmentId(departmentId);
+    public MultiBarChartDTO getSumDepartmentCompletePercent(Integer cycleId, Integer departmentId) {
+        Specification<DepartmentPosition> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+        List<Position> positions = departmentPositionRepository.findAll(hasDepartment).stream().map(
+                DepartmentPosition::getPosition
+        ).toList();
 
-        var evaluations = competencyEvaluationOverallRepository.findAll(hasCycle.and(hasEmployeeDepartment));
+        List<Employee> employees = employeeManagementService.getEmployeesInDepartment(departmentId);
 
-        // Positions in the department
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Position> query = cb.createQuery(Position.class);
-        Root<DepartmentPosition> root = query.from(DepartmentPosition.class);
+        //Get all CompetencyEvaluationOverall of all employees have final status is agreed and get the latest cycle
+        List<Float> selfData = processPositionData(positions, SELF_EVAL_LABEL_NAME, cycleId, employees);
+        List<Float> managerData = processPositionData(positions, SUPERVISOR_EVAL_LABEL_NAME, cycleId, employees);
 
-        query.select(root.get("position"))
-                .where(cb.equal(root.get("department").get("id"), departmentId));
+        List<MultiBarChartDataDTO> datasets = new ArrayList<>();
+        datasets.add(new MultiBarChartDataDTO(SELF_EVAL_LABEL_NAME, selfData));
+        datasets.add(new MultiBarChartDataDTO(SUPERVISOR_EVAL_LABEL_NAME, managerData));
 
-        var resultChart = new MultiBarChartDTO(List.of("Self", "Manager"), new ArrayList<>());
-        var positions = entityManager.createQuery(query).getResultList();
+        List<String> labels = positions.stream().map(Position::getPositionName).toList();
+        return new MultiBarChartDTO(labels, datasets);
+    }
 
-        for (var pos : positions) {
-            var completedCount = evaluations.stream()
-                    .filter(evaluation -> Objects.equals(evaluation.getEmployee().getPosition().getId(), pos.getId()))
-                    .filter(evaluation -> evaluation.getFinalStatus().equals(COMPETENCY_COMPLETED_STATUS))
-                    .count();
+    private List<Float> processPositionData(List<Position> positions, String type,
+                                              Integer evaluateCycleId, List<Employee> employees) {
+        return positions.parallelStream().map(item -> {
+            List<Integer> departmentEmpIds = employees.stream()
+                    .filter(emp -> Objects.equals(emp.getDepartment().getId(), item.getId()))
+                    .map(Employee::getId)
+                    .toList();
 
-            var incompleteCount = evaluations.stream()
-                    .filter(evaluation -> Objects.equals(evaluation.getEmployee().getPosition().getId(), pos.getId()))
-                    .filter(evaluation -> !evaluation.getFinalStatus().equals(COMPETENCY_COMPLETED_STATUS))
-                    .count();
+            return (type.equals(SELF_EVAL_LABEL_NAME))
+                    ? getEmployeeInCompletedPercent(evaluateCycleId, departmentEmpIds)
+                    : getEvaluatorInCompletePercent(evaluateCycleId, departmentEmpIds);
+        }).toList();
+    }
 
-            var data = List.of((float) incompleteCount, (float) completedCount);
+//    @Override
+//    public MultiBarChartDTO getSumDepartmentCompletePercent(Integer cycleId, Integer departmentId) {
+//        //Find all competency overall of this department
+//        Specification<CompetencyEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+//        Specification<CompetencyEvaluationOverall> hasEmployeeDepartment = GlobalSpec.hasEmployeeDepartmentId(departmentId);
+//
+//        List<CompetencyEvaluationOverall> evaluations = competencyEvaluationOverallRepository
+//                .findAll(hasCycle.and(hasEmployeeDepartment));
+//
+//        //Find all position in department
+//        Specification<DepartmentPosition> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+//        List<Position> positions = departmentPositionRepository.findAll(hasDepartment).stream().map(
+//                DepartmentPosition::getPosition
+//        ).toList();
+//
+//        return getMultiBarChartResult(positions, evaluations);
+//    }
 
-            resultChart.getDatasets().add(new MultiBarChartDataDTO(pos.getPositionName(), data));
-        }
+//    @NotNull
+//    private MultiBarChartDTO getMultiBarChartResult(List<Position> positions, List<CompetencyEvaluationOverall> evaluations) {
+//        MultiBarChartDTO resultChart = new MultiBarChartDTO(List.of("Self", "Manager"), new ArrayList<>());
+//
+//        positions.forEach(pos -> {
+//            //Find all employee belong to each position
+//            Specification<Employee> eHasPosition = GlobalSpec.hasPositionId(pos.getId());
+//            long totalCount = employeeRepository.findAll(eHasPosition).size();
+//
+//            long selfCompletedCount = evaluations.stream()
+//                    .filter(evaluation -> evaluation.getEmployee().getPosition().getId().equals(pos.getId())
+//                            && evaluation.getEmployeeStatus().equals(COMPETENCY_COMPLETED_STATUS))
+//                    .count();
+//
+//            long evaluatorCompletedCount = evaluations.stream()
+//                    .filter(evaluation -> evaluation.getEmployee().getPosition().getId().equals(pos.getId())
+//                            && evaluation.getEvaluatorStatus().equals(COMPETENCY_COMPLETED_STATUS))
+//                    .count();
+//
+//            float selfCompletePercent = totalCount == 0 ? 0 : ((float) selfCompletedCount / (float) totalCount) * 100;
+//            float evaluatorCompletePercent = totalCount == 0 ? 0 : ((float) evaluatorCompletedCount / (float) totalCount) * 100;
+//
+//            List<Float> data = List.of(selfCompletePercent, evaluatorCompletePercent);
+//            resultChart.getDatasets().add(new MultiBarChartDataDTO(pos.getPositionName(), data));
+//        });
+//
+//        return resultChart;
+//    }
 
-        return resultChart;
+    @Override
+    public PieChartDTO getCompetencyEvaProgressPieChart(Integer cycleId, Integer departmentId) {
+        List<Integer> empIdSet = employeeManagementService.getEmployeesInDepartment(departmentId)
+                .stream()
+                .map(Employee::getId)
+                .toList();
+
+        //get all employees who have completed evaluation
+        Specification<CompetencyEvaluationOverall> hasStatusComplete = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("finalStatus"), "Completed");
+        Specification<CompetencyEvaluationOverall> hasEmployeeIds = GlobalSpec.hasEmployeeIds(empIdSet);
+        Specification<CompetencyEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+
+        List<Float> datasets = new ArrayList<>();
+        var completedPercent = (float) competencyEvaluationOverallRepository
+                .count(hasStatusComplete.and(hasEmployeeIds).and(hasCycleId)) / empIdSet.size() * 100;
+        datasets.add(completedPercent);
+        datasets.add(100 - completedPercent);
+
+        return new PieChartDTO(List.of(COMPLETED_LABEL_NAME, IN_COMPLETED_LABEL_NAME), datasets);
     }
 
     @Override
-    public EmployeeStatusPagination getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId, Pageable page) {
+    public List<EmployeeStatusDTO> getCompetencyEvaluationsStatus(Integer cycleId, Integer departmentId) {
+        return getEvaluationStatus(cycleId, departmentId, CompetencyEvaluationOverall.class);
+    }
+
+    @Override
+    public List<EmployeeStatusDTO> getPerformanceEvaluationStatus(Integer cycleId, Integer departmentId) {
+        return getEvaluationStatus(cycleId, departmentId, PerformanceEvaluationOverall.class);
+    }
+
+    private List<EmployeeStatusDTO> getEvaluationStatus(Integer cycleId, Integer departmentId, Class<?> evaluationClass) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<NameAndStatusOnly> query = cb.createQuery(NameAndStatusOnly.class);
-        Root<CompetencyEvaluationOverall> root = query.from(CompetencyEvaluationOverall.class);
-        Join<CompetencyEvaluationOverall, Employee> empJoin = root.join("employee");
+        Root<?> root = query.from(evaluationClass);
+        Join<?, Employee> empJoin = root.join("employee");
 
         query.multiselect(empJoin.get("id"), empJoin.get("firstName"), empJoin.get("lastName"), root.get("finalStatus"))
                 .where(cb.equal(root.get("evaluateCycle").get("id"), cycleId),
                         cb.equal(empJoin.get("department").get("id"), departmentId))
                 .orderBy(cb.desc(root.get("finalStatus")));
 
-        var nameAndStatusList = entityManager.createQuery(query)
-                .setFirstResult((int) page.getOffset())
-                .setMaxResults(page.getPageSize())
-                .getResultList();
+        var nameAndStatusList = entityManager.createQuery(query).getResultList();
 
         var empIdsSet = nameAndStatusList.stream().map(NameAndStatusOnly::id).toList();
 
         var profileImages = employeeDamInfoRepository.findByEmployeeIdsSetAndFileType(empIdsSet, PROFILE_IMAGE);
 
-        var result = nameAndStatusList.stream()
+        return nameAndStatusList.stream()
                 .map(item -> new EmployeeStatusDTO(item.id(), item.firstName(), item.lastName(), item.status(),
                         profileImages.stream()
                                 .filter(profile -> profile.getEmployeeId().equals(item.id()))
@@ -265,11 +341,6 @@ public class CompetencyServiceImpl implements CompetencyService {
                                 .findFirst()
                                 .orElse(null)))
                 .toList();
-
-        var total = entityManager.createQuery(query).getResultList().size();
-        var pagination = setupPaging(total, page.getPageNumber() + 1, page.getPageSize());
-
-        return new EmployeeStatusPagination(result, pagination);
     }
 
     public double getSelfSkillAvgScore(Integer empId, Integer cycleId) {
@@ -285,15 +356,12 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
 
-
     @Override
     public MultiBarChartDTO getDepartmentCompleteComp(Integer evaluateCycleId) {
         List<Department> departments = departmentRepository.findAllByIsEvaluate(true);
         List<Employee> employees = employeeManagementService.getAllEmployeesHaveDepartment();
 
         //Get all CompetencyEvaluationOverall of all employees have final status is agreed and get the latest cycle
-
-
         List<Float> selfData = processDepartmentData(departments, SELF_EVAL_LABEL_NAME, evaluateCycleId, employees);
         List<Float> managerData = processDepartmentData(departments, SUPERVISOR_EVAL_LABEL_NAME, evaluateCycleId, employees);
 
@@ -328,7 +396,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private Float calculatePercentage(Integer evaluateCycleId, List<Integer> empIdSet, String evalType) {
-        if (empIdSet.isEmpty()) return null;
+        if (empIdSet.isEmpty()) return (float) 0;
         Specification<CompetencyEvaluationOverall> hasTypeCompleted = (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get(evalType), "Completed");
         Specification<CompetencyEvaluationOverall> hasEmployeeIds = GlobalSpec.hasEmployeeIds(empIdSet);
@@ -340,7 +408,6 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public PieChartDTO getCompetencyEvalProgress(Integer evaluateCycleId) {
-
         List<Integer> empIdSet = employeeManagementService.getAllEmployeesEvaluate()
                 .stream()
                 .map(Employee::getId)
@@ -612,8 +679,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         //Get previous cycle by current year - 1
         EvaluateCycle previousCycle = evaluateCycleRepository.findByYear(currentCycle.getYear() - 1);
 
-        if(previousCycle == null)
-            return  new DiffPercentDTO(avgCurrentEvalScore, highestScore, (float) 100, true);
+        if (previousCycle == null)
+            return new DiffPercentDTO(avgCurrentEvalScore, highestScore, (float) 100, true);
 
         float avgPreviousEvalScore = getAvgEvalScore(previousCycle.getId(), employeeIds);
 
@@ -1009,15 +1076,15 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<HeatmapItemDTO> getDepartmentSkillHeatmap(Integer departmentId, Integer evaluateCycleId,
-                                                          List<Integer> employeeIds, List<Integer> skillIds) {
+    public List<HeatmapItemDTO> getDepartmentSkillHeatmap(Integer cycleId,
+                                                          List<Integer> employeeIds, List<Integer> competencyIds) {
         proficiencyLevelRepository.findAll();
 
         List<SimpleItemDTO> employees = getEmployeeSimpleItemDTOS(employeeIds);
 
-        List<SimpleItemDTO> skills = getSkillSimpleItemDTOS(skillIds);
+        List<SimpleItemDTO> skills = getSkillSimpleItemDTOS(competencyIds);
 
-        List<SkillEvaluation> ssEvaluates = getSSEvalByEmployeeAndCycle(evaluateCycleId, employeeIds);
+        List<SkillEvaluation> ssEvaluates = getSSEvalByEmployeeAndCycle(cycleId, employeeIds);
 
         return employees.stream()
                 .flatMap(employee -> skills.stream()
@@ -1036,9 +1103,9 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @NotNull
-    private List<SimpleItemDTO> getSkillSimpleItemDTOS(List<Integer> skillIds) {
-        Specification<Skill> hasSkillIds = GlobalSpec.hasIds(skillIds);
-        return skillRepository.findAll(hasSkillIds)
+    private List<SimpleItemDTO> getSkillSimpleItemDTOS(List<Integer> competencyIds) {
+        Specification<Skill> hasCompetencyIds = GlobalSpec.hasCompetencyIds(competencyIds);
+        return skillRepository.findAll(hasCompetencyIds)
                 .stream()
                 .map(skill -> new SimpleItemDTO(skill.getId(), skill.getSkillName()))
                 .toList();
@@ -1061,17 +1128,18 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .filter(ssEva -> ssEva.getEmployee().getId() == employee.getId()
                         && Objects.equals(ssEva.getSkill().getId(), skill.getId())).findFirst().orElse(null);
 
-        float score = evaluationsHasEmployeeAndSkill == null ? 0 :
-                evaluationsHasEmployeeAndSkill.getFinalScore();
+        float score = (evaluationsHasEmployeeAndSkill == null || evaluationsHasEmployeeAndSkill.getFinalScore() == null)
+                ? 0
+                : evaluationsHasEmployeeAndSkill.getFinalScore();
 
         return new HeatmapItemDTO(employee.getName(), skill.getName(), score);
     }
 
     @Override
-    public RadarChartDTO getDepartmentCompetencyGap(Integer evaluateCycleId, List<Integer> employeeIds) {
+    public RadarChartDTO getDepartmentCompetencyGap(Integer cycleId, List<Integer> employeeIds) {
         List<Competency> competencies = competencyRepository.findAll();
         List<Employee> employees = employeeRepository.findAll(GlobalSpec.hasIds(employeeIds));
-        List<CompetencyEvaluation> competencyEvaluates = findByCycleAndEmployees(evaluateCycleId, employeeIds);
+        List<CompetencyEvaluation> competencyEvaluates = findByCycleAndEmployees(cycleId, employeeIds);
         proficiencyLevelRepository.findAll();
 
         List<Pair<Integer, Integer>> pairItems = createPairItems(employeeIds, competencies);
@@ -1114,7 +1182,9 @@ public class CompetencyServiceImpl implements CompetencyService {
                     .filter(compEva -> Objects.equals(compEva.getEmployee().getId(), employeeId)
                             && compEva.getCompetency().getId().equals(competencyId))
                     .findFirst().orElse(null);
-            Float score = compEvaluate == null ? 0 : compEvaluate.getFinalEvaluation();
+            Float score = (compEvaluate == null || compEvaluate.getFinalEvaluation() == null)
+                    ? 0
+                    : compEvaluate.getFinalEvaluation();
             return new RadarValueDTO(employeeId, competencyId, score);
         }).toList();
     }
@@ -1417,7 +1487,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                 })
                 .toList();
 
-        return new PieChartDTO(labels,datasets);
+        return new PieChartDTO(labels, datasets);
     }
 
     private float calculatePercent(int number, int total) {

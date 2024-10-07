@@ -63,6 +63,11 @@ type SkillMatrixData {
     competencyLevel: Float
 }
 
+type CompetencyMatrixTree {
+    data: String
+    children: [String]
+}
+
 
 type StackedBarChart {
     labels: [JobLevel!]!

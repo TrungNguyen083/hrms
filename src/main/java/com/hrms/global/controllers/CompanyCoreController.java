@@ -50,6 +50,10 @@ public class CompanyCoreController {
         return companyCoreService.getJobLevels();
     }
 
+    @QueryMapping(name = "competencies")
+    @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR') or hasAuthority('SUM')")
+    public List<Competency> getCompetencies() { return companyCoreService.getCompetencies(); }
+
     @QueryMapping(name = "positions")
     @PreAuthorize("hasAuthority('PM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
     public List<Position> getPositions() {
@@ -63,7 +67,7 @@ public class CompanyCoreController {
     }
 
     @QueryMapping(name = "evaluateCycles")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR') or hasAnyAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR') or hasAnyAuthority('EMPLOYEE')")
     public List<EvaluateCycle> getEvaluateCycles() {
         try {
             return companyCoreService.getEvaluateCycles();
@@ -74,7 +78,7 @@ public class CompanyCoreController {
     }
 
     @QueryMapping(name = "evaluateTimeLine")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
     public List<TimeLine> getEvaluateTimeLine(@Argument Integer evaluateCycleId) {
         try {
             return companyCoreService.getEvaluateTimeline(evaluateCycleId);
@@ -98,7 +102,7 @@ public class CompanyCoreController {
     }
 
     @QueryMapping(name = "proficiencyLevels")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
     public List<ProficiencyLevel> getProficiencyLevels() {
         return companyCoreService.getProficiencyLevels();
     }

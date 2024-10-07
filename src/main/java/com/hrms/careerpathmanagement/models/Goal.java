@@ -22,18 +22,15 @@ public class Goal {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "evaluate_cycle_id", referencedColumnName = "evaluate_cycle_id")
+    @JoinColumn(name = "evaluate_cycle_id")
     private EvaluateCycle evaluateCycle;
 
-    @Column(name = "weight")
-    private Float weight;
-
-    @Column(name = "title")
-    private String title;
+    @Column(name = "goal_name")
+    private String goalName;
 
     @Column(name = "description")
     private String description;
@@ -41,17 +38,12 @@ public class Goal {
     @Column(name = "progress")
     private Float progress;
 
-    @Column(name = "is_approved", columnDefinition = "boolean default false")
-    private Boolean isApproved;
-
-    @Column(name = "approved_at")
-    private Date approvedAt;
-
     @Column(name = "created_at")
     private Date createdAt;
 
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @Column(name = "status")
     private String status;
 }

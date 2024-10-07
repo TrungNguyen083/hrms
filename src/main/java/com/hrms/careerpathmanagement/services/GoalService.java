@@ -76,7 +76,7 @@ public class GoalService {
                     .getUrl();
 
             return new EmployeeGoalDTO(goal.getId(), emp.id(), emp.firstName(), emp.lastName(), profileImage,
-                    goal.getTitle(), goal.getDescription(), goal.getProgress());
+                    goal.getGoalName(), goal.getDescription(), goal.getProgress());
         }).toList();
 
         var pagination = PaginationSetup.setupPaging(result.size(), pageNo, pageSize);

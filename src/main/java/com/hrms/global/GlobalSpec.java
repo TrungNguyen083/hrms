@@ -26,6 +26,10 @@ public class GlobalSpec {
         return (root, query, cb) -> root.get("position").get("id").in(positionIds);
     }
 
+    public static <T> Specification<T> hasCompetencyIds(List<Integer> competencyIds) {
+        return (root, query, cb) -> root.get("competency").get("id").in(competencyIds);
+    }
+
     public static <T> Specification<T> hasStatusTrue() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("status"));
     }

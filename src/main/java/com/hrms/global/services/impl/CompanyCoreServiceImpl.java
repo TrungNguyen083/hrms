@@ -3,6 +3,7 @@ package com.hrms.global.services.impl;
 import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
+import com.hrms.careerpathmanagement.repositories.CompetencyRepository;
 import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
@@ -53,6 +54,7 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
     private final EvaluateTimeLineRepository evaluateTimeLineRepository;
     private final EvaluateCycleRepository evaluateCycleRepository;
     private final PerformanceRangeRepository performanceRangeRepository;
+    private final CompetencyRepository competencyRepository;
     private final HrmsMapper modelMapper;
 
     @Autowired
@@ -65,7 +67,8 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
             HrmsMapper modelMapper,
             EvaluateTimeLineRepository evaluateTimeLineRepository,
             EvaluateCycleRepository evaluateCycleRepository,
-            PerformanceRangeRepository performanceRangeRepository
+            PerformanceRangeRepository performanceRangeRepository,
+            CompetencyRepository competencyRepository
     ) {
         this.proficiencyLevelRepository = proficiencyLevelRepository;
         this.departmentRepository = departmentRepository;
@@ -75,6 +78,7 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
         this.evaluateTimeLineRepository = evaluateTimeLineRepository;
         this.evaluateCycleRepository = evaluateCycleRepository;
         this.performanceRangeRepository = performanceRangeRepository;
+        this.competencyRepository = competencyRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -252,5 +256,10 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
                 .orElseThrow(() -> new RuntimeException("Performance range not found"));
         performanceRangeRepository.delete(performanceRange);
         return Boolean.TRUE;
+    }
+
+    @Override
+    public List<Competency> getCompetencies() {
+        return competencyRepository.findAll();
     }
 }
