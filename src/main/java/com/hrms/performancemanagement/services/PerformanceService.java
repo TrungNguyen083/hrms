@@ -30,11 +30,11 @@ public interface PerformanceService {
     StackedBarChart getPerformanceByJobLevel(Integer positionId, Integer cycleId);
     DiffPercentDTO performanceDiffPercent(Integer cycleId, Integer departmentId);
     List<EmployeePotentialPerformanceDTO> getPotentialAndPerformance(Integer departmentId, Integer cycleId);
-    List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId, Integer cycleId, Integer positionId);
+    List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(Integer departmentId, Integer cycleId);
     EmployeeRatingPagination getPerformanceRating(Integer departmentId, Integer cycleId, PageRequest pageable);
     DataItemPagingDTO getEmployeePerformanceRatingScore(Integer employeeId, Integer pageNo, Integer pageSize);
-    MultiBarChartDTO getDepartmentInCompletePerform(Integer cycleId);
-    PieChartDTO getPerformanceEvalProgress(Integer performanceCycleId);
+    PieChartDTO getPerformanceEvalProgress(Integer cycleId, Integer departmentId);
     String performanceCyclePeriod(Integer cycleId);
     PieChartDTO getPerformancePieChartOverall(EvaluateCycle cycleId);
+    MultiBarChartDTO getCompletedEvaluationByPosition(Integer cycleId, Integer departmentId);
 }

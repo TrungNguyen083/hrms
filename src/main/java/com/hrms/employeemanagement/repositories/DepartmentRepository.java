@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface DepartmentRepository extends JpaRepository<Department, Integer>, JpaSpecificationExecutor<Department> {
     List<Department> findAllByIsEvaluate(Boolean isEvaluate);
+    Department findDepartmentBySum_Id(Integer sumId);
 }

@@ -2,19 +2,13 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
-import com.hrms.global.models.ProficiencyLevel;
-import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
-import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
 import com.hrms.performancemanagement.dto.StackedBarChart;
-import com.hrms.performancemanagement.input.PerformanceRangeInput;
-import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
-import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.performancemanagement.services.PerformanceService;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
 import java.util.List;
 
 
@@ -62,7 +54,7 @@ public class PerformanceController {
     }
 
     @QueryMapping(name = "topPerformers")
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('HR') or hasAuthority('SUM')")
     public EmployeeRatingPagination getPerformanceRating(@Argument @Nullable Integer departmentId,
                                                          @Argument Integer cycleId,
                                                          @Argument Integer pageNo,
@@ -110,29 +102,43 @@ public class PerformanceController {
      *
      */
 
-    @QueryMapping(name = "potentialAndPerformanceByPosition")
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @QueryMapping(name = "departmentPotentialAndPerformance")
+    @PreAuthorize("hasAuthority('SUM')")
     public List<EmployeePotentialPerformanceDTO> getPotentialAndPerformanceByPosition(@Argument Integer departmentId,
-                                                                                      @Argument Integer cycleId,
-                                                                                      @Argument Integer positionId) {
-        return performanceService.getPotentialAndPerformanceByPosition(departmentId, cycleId, positionId);
+                                                                                      @Argument Integer cycleId) {
+        return performanceService.getPotentialAndPerformanceByPosition(departmentId, cycleId);
+    }
+
+    @QueryMapping(name = "completedPerformEvaluationByPosition")
+    @PreAuthorize("hasAuthority('SUM')")
+    public MultiBarChartDTO getCompletedEvaluationByPosition(@Argument Integer cycleId, @Argument Integer departmentId) {
+        return performanceService.getCompletedEvaluationByPosition(cycleId, departmentId);
+    }
+
+    @QueryMapping(name = "performanceEvaluationProgressPieChart")
+    @PreAuthorize("hasAuthority('SUM')")
+    public PieChartDTO getPerformanceEvalProgress(@Argument Integer cycleId, @Argument Integer departmentId) {
+        return performanceService.getPerformanceEvalProgress(cycleId, departmentId);
     }
 
 
 
 
 
-    @QueryMapping(name = "departmentInCompletePerform")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public MultiBarChartDTO getDepartmentInCompletePerform(@Argument Integer performanceCycleId) {
-        return performanceService.getDepartmentInCompletePerform(performanceCycleId);
-    }
 
-    @QueryMapping(name = "performanceEvalProgress")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public PieChartDTO getPerformanceEvalProgress(@Argument Integer performanceCycleId) {
-        return performanceService.getPerformanceEvalProgress(performanceCycleId);
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @QueryMapping(name = "averagePerformanceScore")
     @PreAuthorize("hasAuthority('MANAGER')")

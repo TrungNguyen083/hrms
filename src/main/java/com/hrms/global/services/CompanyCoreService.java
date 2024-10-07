@@ -45,4 +45,6 @@ public interface CompanyCoreService {
     Boolean deleteProficiencyLevel(Integer id);
 
     Boolean deletePerformanceRange(Integer id);
+
+    List<Competency> getCompetencies();
 }

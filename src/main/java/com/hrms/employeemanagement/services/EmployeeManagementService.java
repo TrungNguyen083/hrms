@@ -35,19 +35,19 @@ public interface EmployeeManagementService {
 
     EmployeeOverviewDTO getProfileOverview(Integer employeeId);
 
-	List<SimpleItemDTO> getDepartmentEmployees(Integer departmentId, Integer positionId);
-
     List<ProfileImageOnly> getEmployeesNameAndAvatar(List<Integer> ids);
 
     List<Employee> getEmployeesInDepartment(Integer departmentId);
 
 	List<NameImageDTO> getNameImagesInDepartment(Integer departmentId);
 
-	PercentageChangeDTO getDepartmentHeadcount(Integer departmentId);
+	PercentageChangeDTO getDepartmentHeadcount(Integer cycleId, Integer departmentId);
 
 	BarChartDTO getDepartmentHeadcountChart(Integer departmentId);
 
 	Integer getEmployeeIdByEmail(String email);
 
 	String getProfileImageByEmail(String email);
+
+	Integer getDepartmentIdByEmail(String email);
 }

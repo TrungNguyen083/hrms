@@ -22,6 +22,7 @@ public interface EmployeeDamInfoRepository extends JpaRepository<EmployeeDamInfo
             "        SELECT MAX(edi2.uploadedAt) " +
             "        FROM EmployeeDamInfo edi2 " +
             "        WHERE edi2.employee.id = edi.employee.id " +
+            "        AND edi2.type = :fileType " +
             "    ) " +
             "    AND edi.type = :fileType")
     List<ProfileImageOnly> findByEmployeeIdsSetAndFileType(List<Integer> idsSet, String fileType);

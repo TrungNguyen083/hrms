@@ -72,15 +72,12 @@ public class Employee {
 	private Boolean status;
 	@Column(name = "left_date")
 	private Date leftDate;
-
 	@Column(name = "is_Evaluate")
 	private Boolean isEvaluate;
-
 	// For modification time
 	@Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modificationTime;
-
 	// For insertion time
 	@Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -88,7 +85,6 @@ public class Employee {
 	public String getFullName() {
 		return this.lastName + " " + this.firstName;
 	}
-
 	public Employee(Integer id) {
 		this.id = id;
 	}
