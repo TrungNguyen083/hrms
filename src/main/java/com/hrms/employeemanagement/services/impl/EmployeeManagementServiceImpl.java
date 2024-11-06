@@ -96,7 +96,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     private EvaluateCycle getLatestEvalCycle() {
-        return evaluateCycleRepository.findFirstByOrderByStartDateDesc();
+        return evaluateCycleRepository.findFirstByStatusNotOrderByStartDateDesc("Not Start");
     }
 
     @Override

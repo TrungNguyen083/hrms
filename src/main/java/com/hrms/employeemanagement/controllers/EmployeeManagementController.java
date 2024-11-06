@@ -57,13 +57,17 @@ public class EmployeeManagementController {
     }
 
     @QueryMapping(name = "employeeId")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') " +
+            "or hasAuthority('HR') or hasAuthority('ADMIN')" +
+            "or hasAuthority('PM')")
     public Integer getEmployeeIdByEmail(@Argument String email) {
         return employeeManagementService.getEmployeeIdByEmail(email);
     }
 
     @QueryMapping(name = "profileImage")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') " +
+            "or hasAuthority('HR') or hasAuthority('ADMIN')" +
+            "or hasAuthority('PM')")
     public String getProfileImageByEmail(@Argument String email) {
         return employeeManagementService.getProfileImageByEmail(email);
     }

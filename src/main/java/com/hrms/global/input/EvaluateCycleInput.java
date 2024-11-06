@@ -1,5 +1,6 @@
-package com.hrms.careerpathmanagement.input;
+package com.hrms.global.input;
 
+import com.hrms.global.input.TimeLineInput;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

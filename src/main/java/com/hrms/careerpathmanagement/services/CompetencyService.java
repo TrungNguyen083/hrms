@@ -7,6 +7,7 @@ import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.*;
+import com.hrms.global.models.CompetencyGroup;
 import jakarta.annotation.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -52,19 +53,39 @@ public interface CompetencyService {
 
     EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer evaluateCycleId, Integer pageNo, Integer pageSize);
 
-    List<TreeSimpleData> getEvaluateSkillForm(Integer employeeId);
-
-    List<CompetencyGroupDTO> getCompetencyGroups();
+    List<CompetencyGroup> getCompetencyGroups();
 
     List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer evaluateCycleId);
-
-    Boolean createSelfCompetencyEvaluation(CompetencyEvaluationInput input);
-
-    Boolean createEvaluatorCompetencyEvaluation(CompetencyEvaluationInput input);
-
-    Boolean createFinalCompetencyEvaluation(CompetencyEvaluationInput input);
 
     List<CycleOverallDTO> getCyclesOverall();
 
     PieChartDTO getCompetencyEvaProgressPieChart(Integer cycleId, Integer departmentId);
+
+    List<CompetencyMatrixTree> getCompetencyMatrixTree();
+
+    List<HeatmapItemDTO> getCompetencyBaseLine(Integer positionId);
+
+    CompetencyOverallDTO getCompetencyOverall(Integer employeeId, Integer cycleId);
+
+    List<CompetencyForm> getCompetencyEvaluationForm(Integer employeeId, Integer cycleId);
+
+    List<CompetencyGroupRating> getCompetencyGroupRating(Integer employeeId, Integer cycleId);
+
+    CompetencyOverallDTO getManagerCompetencyOverall(Integer employeeId, Integer cycleId);
+
+    List<CompetencyForm> getManagerCompetencyEvaluationForm(Integer employeeId, Integer cycleId);
+
+    List<CompetencyGroupRating> getManagerCompetencyGroupRating(Integer employeeId, Integer cycleId);
+
+    CompetencyOverallDTO getFinalCompetencyOverall(Integer employeeId, Integer cycleId);
+
+    List<CompetencyForm> getFinalCompetencyEvaluationForm(Integer employeeId, Integer cycleId);
+
+    List<CompetencyGroupRating> getFinalCompetencyGroupRating(Integer employeeId, Integer cycleId);
+
+    Boolean createSelfEvaluation(CompetencyEvaluationInput input);
+
+    Boolean initEmployeesEvaluation(Integer cycleId);
+
+    List<EmployeeFeedback> getEmployeeFeedback(Integer employeeId, Integer cycleId);
 }

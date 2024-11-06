@@ -1,4 +1,4 @@
-package com.hrms.careerpathmanagement.input;
+package com.hrms.global.input;
 
 import lombok.*;
 

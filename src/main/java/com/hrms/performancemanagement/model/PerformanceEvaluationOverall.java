@@ -35,8 +35,8 @@ public class PerformanceEvaluationOverall {
     @Column(name = "self_assessment")
     private Float selfAssessment;
 
-    @Column(name = "supervisor_assessment")
-    private Float supervisorAssessment;
+    @Column(name = "evaluator_assessment")
+    private Float evaluatorAssessment;
 
     @Column(name = "final_assessment")
     private Float finalAssessment;

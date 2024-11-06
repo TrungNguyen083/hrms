@@ -64,3 +64,32 @@ type PerformanceRangeData {
     jobLevelIds: [Int]
     data: [Float]
 }
+
+type PerformanceOverall {
+    evaluationCycleName: String
+    firstName: String
+    lastName: String
+    profileImage: String
+    position: String
+    level: String
+    rating: String
+    status: String
+    isSubmit: Boolean
+}
+
+type PerformanceCategoryRating {
+    categoryId: Int
+    categoryName: String
+    categoryDescription: String
+    weight: Int
+    rating: Float
+}
+
+type PerformanceQuestionRating {
+    questionId: Int
+    questionName: String
+    questionDescription: String
+    comment: String
+    rating: Float
+    categoryId: Int
+}

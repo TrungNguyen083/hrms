@@ -4,16 +4,14 @@ import com.hrms.employeemanagement.models.Employee;
 import com.hrms.global.models.Competency;
 import com.hrms.global.models.EvaluateCycle;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CompetencyEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,10 +1,7 @@
 package com.hrms.global.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -13,6 +10,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Competency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,18 +26,5 @@ public class Competency {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competency_group_id")
     private CompetencyGroup competencyGroup;
-
-    @Column(name = "ordered")
-    private Integer ordered;
-
-    // For modification time
-    @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modificationTime;
-
-    // For insertion time
-    @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date insertionTime;
 }
 

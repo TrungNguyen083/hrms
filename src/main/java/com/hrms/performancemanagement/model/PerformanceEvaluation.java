@@ -17,12 +17,12 @@ import lombok.Setter;
 public class PerformanceEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "answer_result_id")
+    @Column(name = "performance_evaluation_id")
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "evaluate_cycle_id", referencedColumnName = "evaluate_cycle_id")
-    private EvaluateCycle cycle;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
 
     @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")

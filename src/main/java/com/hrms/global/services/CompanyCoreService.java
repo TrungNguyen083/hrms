@@ -1,15 +1,16 @@
 package com.hrms.global.services;
 
 import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
+import com.hrms.global.input.CompetencyGroupInput;
+import com.hrms.global.input.CompetencyInput;
+import com.hrms.global.input.EvaluateCycleInput;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.global.models.*;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
-import com.hrms.performancemanagement.input.ProficiencyLevelInput;
+import com.hrms.careerpathmanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.usermanagement.model.Role;
 
-import java.text.ParseException;
 import java.util.List;
 
 public interface CompanyCoreService {
@@ -47,4 +48,16 @@ public interface CompanyCoreService {
     Boolean deletePerformanceRange(Integer id);
 
     List<Competency> getCompetencies();
+
+    Boolean createCompetencyGroup(CompetencyGroupInput input);
+
+    Boolean updateCompetencyGroup(Integer id, CompetencyGroupInput input);
+
+    Boolean deleteCompetencyGroup(Integer id);
+
+    Boolean createCompetency(CompetencyInput input);
+
+    Boolean updateCompetency(Integer id, CompetencyInput input);
+
+    Boolean deleteCompetency(Integer id);
 }

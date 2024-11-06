@@ -64,8 +64,8 @@ type SkillMatrixData {
 }
 
 type CompetencyMatrixTree {
-    data: String
-    children: [String]
+    data: CompetencyGroup
+    children: [Competency]
 }
 
 

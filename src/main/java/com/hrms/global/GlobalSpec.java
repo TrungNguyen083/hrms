@@ -34,6 +34,10 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("status"));
     }
 
+    public static <T> Specification<T> hasLevelTrue() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("hasLevel"));
+    }
+
     public static <T> Specification<T> hasJobLevelId(Integer jobLevelId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("jobLevel").get("id"), jobLevelId);
     }
@@ -59,6 +63,10 @@ public class GlobalSpec {
                 builder.equal(root.get("employee").get("id"), id),
                 builder.equal(root.get("type"), type)
         );
+    }
+
+    public static <T> Specification<T> hasYear(Integer year) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("year"), year);
     }
 
     public static <T> Specification<T> hasEmployeeId(Integer employeeId) {

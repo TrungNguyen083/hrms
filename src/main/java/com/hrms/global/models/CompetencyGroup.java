@@ -20,6 +20,13 @@ public class CompetencyGroup {
     @Column(name = "competency_group_name")
     private String competencyGroupName;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name = "weight")
-    private Float weight;
+    private Integer weight;
+
+    public CompetencyGroup(Integer id) {
+        this.id = id;
+    }
 }

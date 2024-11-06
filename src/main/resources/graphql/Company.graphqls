@@ -97,12 +97,6 @@ type Template {
     createdBy: Employee
 }
 
-type TreeSimpleData {
-    id: Int
-    name: String
-    children: [TreeSimpleData]
-}
-
 type EmployeeEvaProgress {
     employeeId: Int
     name: String
@@ -121,4 +115,12 @@ type EvaluationResult {
     skillId: Int
     selfEvaluation: Int
     evaluatorEvaluation: Int
+}
+
+type EmployeeFeedback {
+    feedBackerProfileImage: String
+    feedBackerFirstName: String
+    feedBackerLastName: String
+    content: String
+    createdAt: String
 }
