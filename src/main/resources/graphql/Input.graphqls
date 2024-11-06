@@ -59,15 +59,26 @@ input QuestionInput {
     weight: Float
 }
 
-input CompetencyEvaluationInput {
-    employeeId: Int!
-    competencyCycleId: Int!
-    isSubmitted: Boolean!
-    score: Float
-    skillScores: [SkillScoreInput]!
+input CompetencyGroupInput {
+    competencyGroupName: String
+    description: String
 }
 
-input SkillScoreInput {
-    skillId: Int!
-    score: Int!
+input CompetencyInput {
+    competencyName: String
+    description: String
+    competencyGroupId: Int
+}
+
+input CompetencyEvaluationInput {
+    employeeId: Int
+    cycleId: Int
+    isSubmit: Boolean
+    competencyRating: [ICompetencySubmit]
+}
+
+input ICompetencySubmit {
+    competencyId: Int
+    comment: String
+    rating: Int
 }

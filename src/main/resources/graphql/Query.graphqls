@@ -27,6 +27,7 @@ type Query {
     evaluateCycles: [EvaluateCycle]
     evaluateTimeLine(evaluateCycleId: Int!): [TimeLine]
     positionLevelSkills(positionId: Int!, jobLevelId: Int!): [SimpleItemDTO]
+    competencyGroups: [CompetencyGroup]
 
 
 
@@ -78,6 +79,7 @@ type Query {
     performanceEvaluationStatus(cycleId: Int!, departmentId: Int!): [EmployeeStatusDTO]
     employeesInDepartment(departmentId: Int!): [NameImageDTO]
     departmentPotentialAndPerformance(departmentId: Int!, cycleId: Int!): [EmployeePotentialPerformanceDTO!]
+    departmentGoalProgress(departmentId: Int!, cycleId: Int!): [GoalProgress]
 
 
     #cycle-template-rating control
@@ -86,13 +88,34 @@ type Query {
 
     #Competency Framework
     competencyMatrixTree: [CompetencyMatrixTree]
+    competencyBaseLine(positionId: Int!): [HeatmapItemDTO]
 
+    #Competency Evaluation
+    competencyOverall(employeeId: Int!, cycleId: Int!): CompetencyOverall
+    competencyEvaluationForm(employeeId: Int!, cycleId: Int!): [CompetencyForm]
+    competencyGroupRating(employeeId: Int!, cycleId: Int!): [CompetencyGroupRating]
+    managerCompetencyOverall(employeeId: Int!, cycleId: Int!): CompetencyOverall
+    managerCompetencyEvaluationForm(employeeId: Int!, cycleId: Int!): [CompetencyForm]
+    managerCompetencyGroupRating(employeeId: Int!, cycleId: Int!): [CompetencyGroupRating]
+    finalCompetencyOverall(employeeId: Int!, cycleId: Int!): CompetencyOverall
+    finalCompetencyEvaluationForm(employeeId: Int!, cycleId: Int!): [CompetencyForm]
+    finalCompetencyGroupRating(employeeId: Int!, cycleId: Int!): [CompetencyGroupRating]
+    employeeFeedback(employeeId: Int!, cycleId: Int!): [EmployeeFeedback]
+
+    #Performance Evaluation
+    performanceOverall(employeeId: Int!, cycleId: Int!): PerformanceOverall
+    performanceCategoryRating(employeeId: Int!, cycleId: Int!): [PerformanceCategoryRating]
+    performanceQuestionRating(employeeId: Int!, cycleId: Int!): [PerformanceQuestionRating]
+    managerPerformanceOverall(employeeId: Int!, cycleId: Int!): PerformanceOverall
+    managerPerformanceCategoryRating(employeeId: Int!, cycleId: Int!): [PerformanceCategoryRating]
+    managerPerformanceQuestionRating(employeeId: Int!, cycleId: Int!): [PerformanceQuestionRating]
+    finalPerformanceOverall(employeeId: Int!, cycleId: Int!): PerformanceOverall
+    finalPerformanceCategoryRating(employeeId: Int!, cycleId: Int!): [PerformanceCategoryRating]
+    finalPerformanceQuestionRating(employeeId: Int!, cycleId: Int!): [PerformanceQuestionRating]
 
 
 
     evaluateCyclePeriod(evaluateCycleId: Int!): String
-    evaluateSkillForm(employeeId: Int!): [TreeSimpleData]
-    competencyGroups: [CompetencyGroup]
     evaluationResult(employeeId: Int!, cycleId: Int!): [EvaluationResult]
     trackEvaluationProgress(cycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeeEvaProgressPaging
 
@@ -100,7 +123,6 @@ type Query {
     departmentInCompletePerform(evaluateCycleId: Int!): MultiBarChartDTO
     averagePerformanceScore(cycleId: Int!): Float
     performanceCyclePeriod(cycleId: Int!): String
-    feedbacks(feedbackReceiverId: Int!, cycleId: Int!) : [FeedbackDTO]
 
     #CarreerManagement:
     getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]

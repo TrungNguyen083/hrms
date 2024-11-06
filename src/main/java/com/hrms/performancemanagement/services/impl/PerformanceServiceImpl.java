@@ -1,7 +1,8 @@
 package com.hrms.performancemanagement.services.impl;
 
-import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
-import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.repositories.CategoryRepository;
+import com.hrms.careerpathmanagement.repositories.QuestionRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.employeemanagement.models.Employee;
@@ -16,14 +17,14 @@ import com.hrms.global.dto.*;
 import com.hrms.global.models.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
-import com.hrms.global.repositories.DepartmentPositionRepository;
-import com.hrms.performancemanagement.dto.DatasetDTO;
-import com.hrms.performancemanagement.dto.StackedBarChart;
+import com.hrms.performancemanagement.dto.*;
+import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.performancemanagement.projection.IdOnly;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.hrms.performancemanagement.repositories.PerformanceEvaluationOverallRepository;
+import com.hrms.performancemanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.performancemanagement.repositories.PerformanceRangeRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
 import jakarta.persistence.EntityManager;
@@ -33,7 +34,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,9 +59,11 @@ public class PerformanceServiceImpl implements PerformanceService {
     private final PerformanceRangeRepository performanceRangeRepository;
     private final EmployeeSpecification employeeSpecification;
     private final DepartmentRepository departmentRepository;
+    private final CategoryRepository categoryRepository;
+    private final QuestionRepository questionRepository;
+    private final PerformanceEvaluationRepository performanceEvaluationRepository;
     private final EmployeeManagementService employeeManagementService;
     private final EmployeeRepository employeeRepository;
-    private final DepartmentPositionRepository departmentPositionRepository;
 
     @Autowired
     public PerformanceServiceImpl(EmployeeManagementService employeeService,
@@ -70,20 +72,24 @@ public class PerformanceServiceImpl implements PerformanceService {
                                   JobLevelRepository jobLevelRepository,
                                   PerformanceRangeRepository performanceRangeRepository,
                                   EmployeeSpecification employeeSpecification,
+                                  CategoryRepository categoryRepository,
+                                  QuestionRepository questionRepository,
+                                  PerformanceEvaluationRepository performanceEvaluationRepository,
                                   DepartmentRepository departmentRepository,
                                   EmployeeManagementService employeeManagementService,
-                                  EmployeeRepository employeeRepository,
-                                  DepartmentPositionRepository departmentPositionRepository) {
+                                  EmployeeRepository employeeRepository) {
         this.employeeService = employeeService;
         this.performanceEvaluationOverallRepository = performanceEvaluationOverallRepository;
         this.evaluateCycleRepository = evaluateCycleRepository;
         this.jobLevelRepository = jobLevelRepository;
         this.performanceRangeRepository = performanceRangeRepository;
         this.employeeSpecification = employeeSpecification;
+        this.categoryRepository = categoryRepository;
+        this.questionRepository = questionRepository;
+        this.performanceEvaluationRepository = performanceEvaluationRepository;
         this.departmentRepository = departmentRepository;
         this.employeeManagementService = employeeManagementService;
         this.employeeRepository = employeeRepository;
-        this.departmentPositionRepository = departmentPositionRepository;
     }
 
 
@@ -100,7 +106,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         Specification<PerformanceEvaluationOverall> spec = employeeSpecification.hasEmployeeId(empId);
         return performanceEvaluationOverallRepository.findAll(spec, pageable);
     }
-
 
 
     @Override
@@ -147,8 +152,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         EvaluateCycle currentCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
         EvaluateCycle previousCycle = evaluateCycleRepository.findByYear(currentCycle.getYear() - 1);
 
-        if(previousCycle == null)
-            return  new DiffPercentDTO(averageScore, maxScore, (float) 100, true);
+        if (previousCycle == null)
+            return new DiffPercentDTO(averageScore, maxScore, (float) 100, true);
 
         var averageScoreLastCycle = averagePerformanceScore(previousCycle.getId(), departmentId);
         var diffPercent = (averageScore - averageScoreLastCycle) / averageScoreLastCycle * 100;
@@ -440,7 +445,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     private Float getEvaluatorInCompletePercent(Integer cycleId, List<Integer> empIdSet) {
-        return calculatePercentage(cycleId, empIdSet, "supervisorAssessment");
+        return calculatePercentage(cycleId, empIdSet, "evaluatorAssessment");
     }
 
     private Float calculatePercentage(Integer cycleId, List<Integer> empIdSet, String assessmentType) {
@@ -455,6 +460,241 @@ public class PerformanceServiceImpl implements PerformanceService {
 
         var completedCount = performanceEvaluationOverallRepository.count(spec.and(hasEmployees).and(hasCycle));
         return (float) (empIdSet.size() - completedCount) / empIdSet.size() * 100;
+    }
+
+    @Override
+    public PerformanceOverall getPerformanceOverall(Integer employeeId, Integer cycleId) {
+        Specification<PerformanceEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        PerformanceEvaluationOverall pEOverall = performanceEvaluationOverallRepository
+                .findOne(hasEmployeeId.and(hasCycleId))
+                .orElseThrow();
+
+        EvaluateCycle cycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+        String profileImage = employeeManagementService.getProfilePicture(employeeId);
+        String rating = (pEOverall.getSelfAssessment() != null)
+                ? getPerformanceRank(pEOverall.getSelfAssessment())
+                : "Not evaluate yet";
+
+        return PerformanceOverall.builder()
+                .evaluationCycleName(cycle.getEvaluateCycleName())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .profileImage(profileImage)
+                .position(employee.getPosition().getPositionName())
+                .level(employee.getJobLevel().getJobLevelName())
+                .isSubmit(pEOverall.getEmployeeStatus().equals("Completed"))
+                .rating(rating)
+                .status((pEOverall.getEmployeeStatus() != null)
+                        ? pEOverall.getEmployeeStatus()
+                        : "Not Start")
+                .build();
+    }
+
+    private String getPerformanceRank(Float score) {
+        List<PerformanceRange> performanceRanges = performanceRangeRepository.findAll();
+        return performanceRanges.stream()
+                .filter(pR -> score >= pR.getMinValue() && score <= pR.getMaxValue())
+                .findFirst()
+                .map(PerformanceRange::getText)
+                .orElseThrow();
+    }
+
+    @Override
+    public List<PerformanceCategoryRating> getPerformanceCategoryRating(Integer employeeId, Integer cycleId) {
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> cPs = performanceEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
+
+        List<Category> cs = categoryRepository.findAll();
+
+        return cs.stream().map(cg -> {
+            Float rating = !cPs.isEmpty() ? (float) cPs.stream()
+                    .filter(eval -> eval.getQuestion().getCategory().getId().equals(cg.getId()))
+                    .mapToDouble(cE -> cE.getSelfEvaluation() != null ? cE.getSelfEvaluation() : 0)
+                    .average()
+                    .orElse(0) : 0;
+            return new PerformanceCategoryRating(cg.getId(), cg.getCategoryName(), cg.getCategoryDescription(),
+                    cg.getCategoryWeight(), rating);
+        }).toList();
+    }
+
+    @Override
+    public List<PerformanceQuestionRating> getPerformanceQuestionRating(Integer employeeId, Integer cycleId) {
+        List<Question> qs = questionRepository.findAll();
+
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> pEs = performanceEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
+
+        return qs.stream()
+                .map(q -> {
+                    Float competencyRating = !pEs.isEmpty()
+                            && getPerformanceEvaluation(pEs, q.getId()).getSelfEvaluation() != null
+                            ? getPerformanceEvaluation(pEs, q.getId()).getSelfEvaluation()
+                            : 1;
+                    String comment = !pEs.isEmpty()
+                            && getPerformanceEvaluation(pEs, q.getId()).getSelfComment() != null
+                            ? getPerformanceEvaluation(pEs, q.getId()).getSelfComment()
+                            : "";
+
+                    return new PerformanceQuestionRating(q.getId(), q.getQuestionName(), q.getQuestionDescription(),
+                            comment, competencyRating, q.getCategory().getId());
+                }).toList();
+    }
+
+    private PerformanceEvaluation getPerformanceEvaluation(List<PerformanceEvaluation> pEs, Integer competencyId) {
+        return pEs.stream()
+                .filter(eval -> eval.getQuestion().getId().equals(competencyId))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    @Override
+    public PerformanceOverall getManagerPerformanceOverall(Integer employeeId, Integer cycleId) {
+        Specification<PerformanceEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        PerformanceEvaluationOverall pEOverall = performanceEvaluationOverallRepository
+                .findOne(hasEmployeeId.and(hasCycleId))
+                .orElseThrow();
+
+        EvaluateCycle cycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+        String profileImage = employeeManagementService.getProfilePicture(employeeId);
+        String rating = (pEOverall.getEvaluatorAssessment() != null)
+                ? getPerformanceRank(pEOverall.getEvaluatorAssessment())
+                : "Not evaluate yet";
+
+        return PerformanceOverall.builder()
+                .evaluationCycleName(cycle.getEvaluateCycleName())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .profileImage(profileImage)
+                .position(employee.getPosition().getPositionName())
+                .level(employee.getJobLevel().getJobLevelName())
+                .isSubmit(pEOverall.getEvaluatorStatus().equals("Completed"))
+                .rating(rating)
+                .status((pEOverall.getEvaluatorStatus() != null)
+                        ? pEOverall.getEvaluatorStatus()
+                        : "Not Start")
+                .build();
+    }
+
+    @Override
+    public List<PerformanceCategoryRating> getManagerPerformanceCategoryRating(Integer employeeId, Integer cycleId) {
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> cPs = performanceEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
+
+        List<Category> cs = categoryRepository.findAll();
+
+        return cs.stream().map(cg -> {
+            Float rating = !cPs.isEmpty() ? (float) cPs.stream()
+                    .filter(eval -> eval.getQuestion().getCategory().getId().equals(cg.getId()))
+                    .mapToDouble(cE -> cE.getSupervisorEvaluation() != null ? cE.getSupervisorEvaluation() : 0)
+                    .average()
+                    .orElse(0) : 0;
+            return new PerformanceCategoryRating(cg.getId(), cg.getCategoryName(), cg.getCategoryDescription(),
+                    cg.getCategoryWeight(), rating);
+        }).toList();
+    }
+
+    @Override
+    public List<PerformanceQuestionRating> getManagerPerformanceQuestionRating(Integer employeeId, Integer cycleId) {
+        List<Question> qs = questionRepository.findAll();
+
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> pEs = performanceEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
+
+        return qs.stream()
+                .map(q -> {
+                    Float competencyRating = !pEs.isEmpty()
+                            && getPerformanceEvaluation(pEs, q.getId()).getSupervisorEvaluation() != null
+                            ? getPerformanceEvaluation(pEs, q.getId()).getSupervisorEvaluation()
+                            : 1;
+                    String comment = !pEs.isEmpty()
+                            && getPerformanceEvaluation(pEs, q.getId()).getSupervisorComment() != null
+                            ? getPerformanceEvaluation(pEs, q.getId()).getSupervisorComment()
+                            : "";
+
+                    return new PerformanceQuestionRating(q.getId(), q.getQuestionName(), q.getQuestionDescription(),
+                            comment, competencyRating, q.getCategory().getId());
+                }).toList();
+    }
+
+    @Override
+    public PerformanceOverall getFinalPerformanceOverall(Integer employeeId, Integer cycleId) {
+        Specification<PerformanceEvaluationOverall> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluationOverall> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        PerformanceEvaluationOverall pEOverall = performanceEvaluationOverallRepository
+                .findOne(hasEmployeeId.and(hasCycleId))
+                .orElseThrow();
+
+        EvaluateCycle cycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+        String profileImage = employeeManagementService.getProfilePicture(employeeId);
+        String rating = (pEOverall.getFinalAssessment() != null)
+                ? getPerformanceRank(pEOverall.getFinalAssessment())
+                : "Not evaluate yet";
+
+        return PerformanceOverall.builder()
+                .evaluationCycleName(cycle.getEvaluateCycleName())
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .profileImage(profileImage)
+                .position(employee.getPosition().getPositionName())
+                .level(employee.getJobLevel().getJobLevelName())
+                .isSubmit(pEOverall.getFinalStatus().equals("Completed"))
+                .rating(rating)
+                .status((pEOverall.getFinalStatus() != null)
+                        ? pEOverall.getFinalStatus()
+                        : "Not Start")
+                .build();
+    }
+
+    @Override
+    public List<PerformanceCategoryRating> getFinalPerformanceCategoryRating(Integer employeeId, Integer cycleId) {
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> cPs = performanceEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
+
+        List<Category> cs = categoryRepository.findAll();
+
+        return cs.stream().map(cg -> {
+            Float rating = !cPs.isEmpty() ? (float) cPs.stream()
+                    .filter(eval -> eval.getQuestion().getCategory().getId().equals(cg.getId()))
+                    .mapToDouble(cE -> cE.getFinalEvaluation() != null ? cE.getFinalEvaluation() : 0)
+                    .average()
+                    .orElse(0) : 0;
+            return new PerformanceCategoryRating(cg.getId(), cg.getCategoryName(), cg.getCategoryDescription(),
+                    cg.getCategoryWeight(), rating);
+        }).toList();
+    }
+
+    @Override
+    public List<PerformanceQuestionRating> getFinalPerformanceQuestionRating(Integer employeeId, Integer cycleId) {
+        List<Question> qs = questionRepository.findAll();
+
+        Specification<PerformanceEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<PerformanceEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<PerformanceEvaluation> pEs = performanceEvaluationRepository.findAll(hasEmployeeId.and(hasCycleId));
+
+        return qs.stream()
+                .map(q -> {
+                    Float competencyRating = !pEs.isEmpty()
+                            && getPerformanceEvaluation(pEs, q.getId()).getFinalEvaluation() != null
+                            ? getPerformanceEvaluation(pEs, q.getId()).getFinalEvaluation()
+                            : 1;
+                    String comment = !pEs.isEmpty()
+                            && getPerformanceEvaluation(pEs, q.getId()).getFinalComment() != null
+                            ? getPerformanceEvaluation(pEs, q.getId()).getFinalComment()
+                            : "";
+
+                    return new PerformanceQuestionRating(q.getId(), q.getQuestionName(), q.getQuestionDescription(),
+                            comment, competencyRating, q.getCategory().getId());
+                }).toList();
     }
 
 }

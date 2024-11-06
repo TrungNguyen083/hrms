@@ -39,8 +39,40 @@ type HistoryEvaluation{
 type CompetencyGroup {
     id: Int!
     competencyGroupName: String
-    weight: Float
-    competencyIds: [Int]
+    description: String
+}
+
+type CompetencyForm {
+    competency: CompetencyRating
+    skills: [Skill]
+    competencyGroupId: Int
+}
+
+type CompetencyRating {
+    id: Int
+    competencyName: String
+    comment: String
+    rating: Float
+}
+
+type CompetencyGroupRating {
+    id: Int
+    competencyGroupName: String
+    weight: Int
+    rating: Float
+}
+
+type CompetencyOverall {
+    employeeId: Int
+    evaluationCycleName: String
+    firstName: String
+    lastName: String
+    profileImage: String
+    position: String
+    level: String
+    rating: Float
+    status: String
+    isSubmit: Boolean
 }
 
 type CycleOverallDTO {

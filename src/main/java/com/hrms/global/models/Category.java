@@ -22,5 +22,5 @@ public class Category {
     private String categoryDescription;
 
     @Column(name = "category_weight")
-    private Float categoryWeight;
+    private Integer categoryWeight;
 }

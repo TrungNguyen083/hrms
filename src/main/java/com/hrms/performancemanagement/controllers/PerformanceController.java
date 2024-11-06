@@ -7,6 +7,9 @@ import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
+import com.hrms.performancemanagement.dto.PerformanceCategoryRating;
+import com.hrms.performancemanagement.dto.PerformanceOverall;
+import com.hrms.performancemanagement.dto.PerformanceQuestionRating;
 import com.hrms.performancemanagement.dto.StackedBarChart;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -121,6 +124,65 @@ public class PerformanceController {
         return performanceService.getPerformanceEvalProgress(cycleId, departmentId);
     }
 
+
+    /**
+     * Performance Evaluation
+     *
+     */
+
+    @QueryMapping(name = "performanceOverall")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public PerformanceOverall getPerformanceOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getPerformanceOverall(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "performanceCategoryRating")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public List<PerformanceCategoryRating> getPerformanceCategoryRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getPerformanceCategoryRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "performanceQuestionRating")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public List<PerformanceQuestionRating> getPerformanceQuestionRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getPerformanceQuestionRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "managerPerformanceOverall")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public PerformanceOverall getManagerPerformanceOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getManagerPerformanceOverall(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "managerPerformanceCategoryRating")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public List<PerformanceCategoryRating> getManagerPerformanceCategoryRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getManagerPerformanceCategoryRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "managerPerformanceQuestionRating")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public List<PerformanceQuestionRating> getManagerPerformanceQuestionRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getManagerPerformanceQuestionRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "finalPerformanceOverall")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public PerformanceOverall getFinalPerformanceOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getFinalPerformanceOverall(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "finalPerformanceCategoryRating")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public List<PerformanceCategoryRating> getFinalPerformanceCategoryRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getFinalPerformanceCategoryRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "finalPerformanceQuestionRating")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    public List<PerformanceQuestionRating> getFinalPerformanceQuestionRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return performanceService.getFinalPerformanceQuestionRating(employeeId, cycleId);
+    }
 
 
 

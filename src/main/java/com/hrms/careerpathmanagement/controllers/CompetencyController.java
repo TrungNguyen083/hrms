@@ -8,6 +8,7 @@ import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.*;
+import com.hrms.global.models.CompetencyGroup;
 import jakarta.annotation.Nullable;
 
 import java.text.ParseException;
@@ -242,6 +243,106 @@ public class CompetencyController {
     }
 
 
+    /***
+     ********************************************** Competency Framework ****************************************
+     */
+    @QueryMapping(name = "competencyMatrixTree")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<CompetencyMatrixTree> getCompetencyMatrixTree() {
+        return competencyService.getCompetencyMatrixTree();
+    }
+
+    @QueryMapping(name = "competencyBaseLine")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<HeatmapItemDTO> getCompetencyBaseLine(@Argument Integer positionId) {
+        return competencyService.getCompetencyBaseLine(positionId);
+    }
+
+    @QueryMapping(name = "competencyGroups")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<CompetencyGroup> getCompetencyGroups() {
+        return competencyService.getCompetencyGroups();
+    }
+
+
+    /***
+     ********************************************** Competency Evaluation ****************************************
+     */
+
+    @QueryMapping(name = "competencyOverall")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public CompetencyOverallDTO getCompetencyOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getCompetencyOverall(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "competencyEvaluationForm")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<CompetencyForm> getCompetencyEvaluationForm(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getCompetencyEvaluationForm(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "competencyGroupRating")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<CompetencyGroupRating> getCompetencyGroupRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getCompetencyGroupRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "managerCompetencyOverall")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public CompetencyOverallDTO getManagerCompetencyOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getManagerCompetencyOverall(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "managerCompetencyEvaluationForm")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<CompetencyForm> getManagerCompetencyEvaluationForm(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getManagerCompetencyEvaluationForm(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "managerCompetencyGroupRating")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<CompetencyGroupRating> getManagerCompetencyGroupRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getManagerCompetencyGroupRating(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "finalCompetencyOverall")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public CompetencyOverallDTO getFinalCompetencyOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getFinalCompetencyOverall(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "finalCompetencyEvaluationForm")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<CompetencyForm> getFinalCompetencyEvaluationForm(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getFinalCompetencyEvaluationForm(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "finalCompetencyGroupRating")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<CompetencyGroupRating> getFinalCompetencyGroupRating(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getFinalCompetencyGroupRating(employeeId, cycleId);
+    }
+
+    @MutationMapping(name = "initEmployeesEvaluation")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean initEmployeesEvaluation(@Argument Integer cycleId) {
+        return competencyService.initEmployeesEvaluation(cycleId);
+    }
+
+    @MutationMapping(name = "selfCompetencyEvaluation")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM')")
+    public Boolean createSelfEvaluation(@Argument CompetencyEvaluationInput input) {
+        return competencyService.createSelfEvaluation(input);
+    }
+
+    @QueryMapping(name = "employeeFeedback")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    public List<EmployeeFeedback> getEmployeeFeedback(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getEmployeeFeedback(employeeId, cycleId);
+    }
+
+
+
 
 
 
@@ -273,41 +374,10 @@ public class CompetencyController {
         return competencyService.getTrackEvaluationProgress(evaluateCycleId, pageNo, pageSize);
     }
 
-
-    @QueryMapping(name = "evaluateSkillForm")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<TreeSimpleData> getEvaluateSkillForm(@Argument Integer employeeId) {
-        return competencyService.getEvaluateSkillForm(employeeId);
-    }
-
-    @QueryMapping(name = "competencyGroups")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<CompetencyGroupDTO> getCompetencyGroups() {
-        return competencyService.getCompetencyGroups();
-    }
-
     @QueryMapping(name = "evaluationResult")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
     public List<EvaluationResult> getEvaluationResult(@Argument Integer employeeId, @Argument Integer evaluateCycleId) {
         return competencyService.getEvaluationResult(employeeId, evaluateCycleId);
-    }
-
-    @MutationMapping(name = "createSelfCompetencyEvaluation")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public Boolean createSelfCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
-        return competencyService.createSelfCompetencyEvaluation(input);
-    }
-
-    @MutationMapping(name = "createEvaluatorCompetencyEvaluation")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public Boolean createEvaluatorCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
-        return competencyService.createEvaluatorCompetencyEvaluation(input);
-    }
-
-    @MutationMapping(name = "createFinalCompetencyEvaluation")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public Boolean createFinalCompetencyEvaluation(@Argument CompetencyEvaluationInput input) {
-        return competencyService.createFinalCompetencyEvaluation(input);
     }
 
 

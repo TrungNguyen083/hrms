@@ -1,5 +1,6 @@
 package com.hrms.careerpathmanagement.input;
 
+import com.hrms.global.input.TimeLineInput;
 import lombok.*;
 
 import java.util.List;

@@ -20,12 +20,14 @@ type Mutation {
     updatePerformanceRange(id: Int!, input : PerformanceRangeInput!): Boolean
     deleteProficiencyLevel(id: Int!): Boolean
     deletePerformanceRange(id: Int!): Boolean
+    createCompetencyGroup(input: CompetencyGroupInput!): Boolean
+    updateCompetencyGroup(id: Int!, input: CompetencyGroupInput!): Boolean
+    deleteCompetencyGroup(id: Int!): Boolean
+    createCompetency(input: CompetencyInput!): Boolean
+    updateCompetency(id: Int!, input: CompetencyInput!): Boolean
+    deleteCompetency(id: Int!): Boolean
 
-    #Competency Management
-    createSelfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
-    createEvaluatorCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
-    createFinalCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
-
-
-    createFeedbackRequest(requestorId: Int!, requestReceiverIds: [Int]!, cycleId: Int!, feedbackReceiverId: Int!): String
+    #Competency Evaluation
+    selfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
+    initEmployeesEvaluation(cycleId: Int!): Boolean
 }

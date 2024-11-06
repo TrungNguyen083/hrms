@@ -25,10 +25,6 @@ public class Goal {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @ManyToOne
-    @JoinColumn(name = "evaluate_cycle_id")
-    private EvaluateCycle evaluateCycle;
-
     @Column(name = "goal_name")
     private String goalName;
 
@@ -37,6 +33,9 @@ public class Goal {
 
     @Column(name = "progress")
     private Float progress;
+
+    @Column(name = "year")
+    private Integer year;
 
     @Column(name = "created_at")
     private Date createdAt;

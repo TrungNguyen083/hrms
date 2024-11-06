@@ -1,8 +1,10 @@
 package com.hrms.global.services.impl;
 
 import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
-import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
+import com.hrms.careerpathmanagement.repositories.CompetencyGroupRepository;
+import com.hrms.global.input.CompetencyGroupInput;
+import com.hrms.global.input.CompetencyInput;
+import com.hrms.global.input.EvaluateCycleInput;
 import com.hrms.careerpathmanagement.repositories.CompetencyRepository;
 import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
@@ -14,7 +16,7 @@ import com.hrms.global.mapper.HrmsMapper;
 import com.hrms.global.models.*;
 import com.hrms.global.services.CompanyCoreService;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
-import com.hrms.performancemanagement.input.ProficiencyLevelInput;
+import com.hrms.careerpathmanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.hrms.performancemanagement.repositories.EvaluateTimeLineRepository;
@@ -25,18 +27,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 
@@ -55,6 +53,7 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
     private final EvaluateCycleRepository evaluateCycleRepository;
     private final PerformanceRangeRepository performanceRangeRepository;
     private final CompetencyRepository competencyRepository;
+    private final CompetencyGroupRepository competencyGroupRepository;
     private final HrmsMapper modelMapper;
 
     @Autowired
@@ -68,7 +67,8 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
             EvaluateTimeLineRepository evaluateTimeLineRepository,
             EvaluateCycleRepository evaluateCycleRepository,
             PerformanceRangeRepository performanceRangeRepository,
-            CompetencyRepository competencyRepository
+            CompetencyRepository competencyRepository,
+            CompetencyGroupRepository competencyGroupRepository
     ) {
         this.proficiencyLevelRepository = proficiencyLevelRepository;
         this.departmentRepository = departmentRepository;
@@ -79,6 +79,7 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
         this.evaluateCycleRepository = evaluateCycleRepository;
         this.performanceRangeRepository = performanceRangeRepository;
         this.competencyRepository = competencyRepository;
+        this.competencyGroupRepository = competencyGroupRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -261,5 +262,56 @@ public class CompanyCoreServiceImpl implements CompanyCoreService {
     @Override
     public List<Competency> getCompetencies() {
         return competencyRepository.findAll();
+    }
+
+    @Override
+    public Boolean createCompetencyGroup(CompetencyGroupInput input) {
+        CompetencyGroup competencyGroup = modelMapper.map(input, CompetencyGroup.class);
+        competencyGroupRepository.save(competencyGroup);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean updateCompetencyGroup(Integer id, CompetencyGroupInput input) {
+        CompetencyGroup competencyGroup = competencyGroupRepository.findById(id).orElseThrow();
+        competencyGroup.setCompetencyGroupName(input.getCompetencyGroupName());
+        competencyGroup.setDescription(input.getDescription());
+        competencyGroupRepository.save(competencyGroup);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean deleteCompetencyGroup(Integer id) {
+        CompetencyGroup competencyGroup = competencyGroupRepository.findById(id).orElseThrow();
+        competencyGroupRepository.delete(competencyGroup);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean createCompetency(CompetencyInput input) {
+        Competency competency = Competency.builder()
+                .competencyName(input.getCompetencyName())
+                .description(input.getDescription())
+                .competencyGroup(new CompetencyGroup(input.getCompetencyGroupId()))
+                .build();
+        competencyRepository.save(competency);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean updateCompetency(Integer id, CompetencyInput input) {
+        Competency competency = competencyRepository.findById(id).orElseThrow();
+        competency.setCompetencyName(input.getCompetencyName());
+        competency.setDescription(input.getDescription());
+        competency.setCompetencyGroup(new CompetencyGroup(input.getCompetencyGroupId()));
+        competencyRepository.save(competency);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean deleteCompetency(Integer id) {
+        Competency competency = competencyRepository.findById(id).orElseThrow();
+        competencyRepository.delete(competency);
+        return Boolean.TRUE;
     }
 }

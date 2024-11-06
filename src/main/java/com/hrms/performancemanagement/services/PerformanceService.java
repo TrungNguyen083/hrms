@@ -3,24 +3,20 @@ package com.hrms.performancemanagement.services;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.global.models.EvaluateCycle;
-import com.hrms.global.models.ProficiencyLevel;
-import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
-import com.hrms.careerpathmanagement.dto.TimeLine;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
+import com.hrms.performancemanagement.dto.PerformanceCategoryRating;
+import com.hrms.performancemanagement.dto.PerformanceOverall;
+import com.hrms.performancemanagement.dto.PerformanceQuestionRating;
 import com.hrms.performancemanagement.dto.StackedBarChart;
-import com.hrms.performancemanagement.input.PerformanceRangeInput;
-import com.hrms.performancemanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
-import com.hrms.performancemanagement.model.PerformanceRange;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.text.ParseException;
 import java.util.List;
 
 public interface PerformanceService {
@@ -37,4 +33,22 @@ public interface PerformanceService {
     String performanceCyclePeriod(Integer cycleId);
     PieChartDTO getPerformancePieChartOverall(EvaluateCycle cycleId);
     MultiBarChartDTO getCompletedEvaluationByPosition(Integer cycleId, Integer departmentId);
+
+    PerformanceOverall getPerformanceOverall(Integer employeeId, Integer cycleId);
+
+    List<PerformanceCategoryRating> getPerformanceCategoryRating(Integer employeeId, Integer cycleId);
+
+    List<PerformanceQuestionRating> getPerformanceQuestionRating(Integer employeeId, Integer cycleId);
+
+    PerformanceOverall getManagerPerformanceOverall(Integer employeeId, Integer cycleId);
+
+    List<PerformanceCategoryRating> getManagerPerformanceCategoryRating(Integer employeeId, Integer cycleId);
+
+    List<PerformanceQuestionRating> getManagerPerformanceQuestionRating(Integer employeeId, Integer cycleId);
+
+    PerformanceOverall getFinalPerformanceOverall(Integer employeeId, Integer cycleId);
+
+    List<PerformanceCategoryRating> getFinalPerformanceCategoryRating(Integer employeeId, Integer cycleId);
+
+    List<PerformanceQuestionRating> getFinalPerformanceQuestionRating(Integer employeeId, Integer cycleId);
 }

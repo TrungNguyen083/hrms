@@ -4,15 +4,14 @@ import lombok.*;
 
 import java.util.List;
 
+@Data
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
 public class CompetencyEvaluationInput {
     private Integer employeeId;
-    private Integer evaluateCycleId;
-    private Boolean isSubmitted;
-    private Float score;
-    private List<SkillScoreInput> skillScores;
+    private Integer cycleId;
+    private Boolean isSubmit;
+    private List<ICompetencySubmit> competencyRating;
 }

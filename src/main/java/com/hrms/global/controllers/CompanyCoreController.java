@@ -1,12 +1,14 @@
 package com.hrms.global.controllers;
 
 import com.hrms.careerpathmanagement.dto.TimeLine;
-import com.hrms.careerpathmanagement.input.EvaluateCycleInput;
+import com.hrms.global.input.CompetencyGroupInput;
+import com.hrms.global.input.CompetencyInput;
+import com.hrms.global.input.EvaluateCycleInput;
 import com.hrms.employeemanagement.dto.SimpleItemDTO;
 import com.hrms.global.models.*;
 import com.hrms.global.services.CompanyCoreService;
 import com.hrms.performancemanagement.input.PerformanceRangeInput;
-import com.hrms.performancemanagement.input.ProficiencyLevelInput;
+import com.hrms.careerpathmanagement.input.ProficiencyLevelInput;
 import com.hrms.performancemanagement.model.PerformanceRange;
 import com.hrms.usermanagement.model.Role;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,7 +68,7 @@ public class CompanyCoreController {
     }
 
     @QueryMapping(name = "evaluateCycles")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR') or hasAnyAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR') or hasAnyAuthority('EMPLOYEE') or hasAuthority('PM')")
     public List<EvaluateCycle> getEvaluateCycles() {
         try {
             return companyCoreService.getEvaluateCycles();
@@ -147,5 +148,43 @@ public class CompanyCoreController {
     @PreAuthorize("hasAuthority('HR')")
     public Boolean deletePerformanceRange(@Argument Integer id) {
         return companyCoreService.deletePerformanceRange(id);
+    }
+
+    @MutationMapping(name = "createCompetencyGroup")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean createCompetencyGroup(@Argument CompetencyGroupInput input) {
+        return companyCoreService.createCompetencyGroup(input);
+    }
+
+    @MutationMapping(name = "updateCompetencyGroup")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean updateCompetencyGroup(@Argument Integer id, @Argument CompetencyGroupInput input)
+    {
+        return companyCoreService.updateCompetencyGroup(id, input);
+    }
+
+    @MutationMapping(name = "deleteCompetencyGroup")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean deleteCompetencyGroup(@Argument Integer id) {
+        return companyCoreService.deleteCompetencyGroup(id);
+    }
+
+    @MutationMapping(name = "createCompetency")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean createCompetency(@Argument CompetencyInput input) {
+        return companyCoreService.createCompetency(input);
+    }
+
+    @MutationMapping(name = "updateCompetency")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean updateCompetency(@Argument Integer id, @Argument CompetencyInput input)
+    {
+        return companyCoreService.updateCompetency(id, input);
+    }
+
+    @MutationMapping(name = "deleteCompetency")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean deleteCompetency(@Argument Integer id) {
+        return companyCoreService.deleteCompetency(id);
     }
 }

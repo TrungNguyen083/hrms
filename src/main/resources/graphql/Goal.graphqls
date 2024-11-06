@@ -14,3 +14,10 @@ type GoalPagination {
     data: [GoalProjection!]
     pagination: Pagination!
 }
+
+type GoalProgress {
+    employeeId: Int
+    goalName: String
+    profileImage: String
+    goalProgress: Float
+}
