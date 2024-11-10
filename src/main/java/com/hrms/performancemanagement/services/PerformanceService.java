@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.services;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.careerpathmanagement.dto.EvaluationPaging;
 import com.hrms.global.models.EvaluateCycle;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.BarChartDTO;
@@ -51,4 +52,6 @@ public interface PerformanceService {
     List<PerformanceCategoryRating> getFinalPerformanceCategoryRating(Integer employeeId, Integer cycleId);
 
     List<PerformanceQuestionRating> getFinalPerformanceQuestionRating(Integer employeeId, Integer cycleId);
+
+    EvaluationPaging getCompetencyEvaluationList(Integer departmentId, Integer cycleId, String name, Integer pageNo, Integer pageSize);
 }

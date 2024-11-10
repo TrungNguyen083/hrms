@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
+import com.hrms.careerpathmanagement.dto.EvaluationPaging;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
@@ -184,6 +185,13 @@ public class PerformanceController {
         return performanceService.getFinalPerformanceQuestionRating(employeeId, cycleId);
     }
 
+    @QueryMapping(name = "performanceEvaluationList")
+    @PreAuthorize("hasAuthority('SUM')")
+    public EvaluationPaging getCompetencyEvaluationList(@Argument Integer departmentId, @Argument Integer cycleId,
+                                                        @Nullable @Argument String name, @Argument Integer pageNo,
+                                                        @Argument Integer pageSize) {
+        return performanceService.getCompetencyEvaluationList(departmentId,cycleId,name,pageNo,pageSize);
+    }
 
 
 

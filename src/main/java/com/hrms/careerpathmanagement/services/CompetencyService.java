@@ -1,7 +1,6 @@
 package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
-import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
@@ -51,8 +50,6 @@ public interface CompetencyService {
 
     List<TimeLine> createCompetencyProcess(EvaluationProcessInput input) throws ParseException;
 
-    EmployeeEvaProgressPaging getTrackEvaluationProgress(Integer evaluateCycleId, Integer pageNo, Integer pageSize);
-
     List<CompetencyGroup> getCompetencyGroups();
 
     List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer evaluateCycleId);
@@ -85,7 +82,15 @@ public interface CompetencyService {
 
     Boolean createSelfEvaluation(CompetencyEvaluationInput input);
 
+    Boolean createManagerEvaluation(CompetencyEvaluationInput input);
+
     Boolean initEmployeesEvaluation(Integer cycleId);
 
     List<EmployeeFeedback> getEmployeeFeedback(Integer employeeId, Integer cycleId);
+
+    EvaluationPaging getCompetencyEvaluationList(Integer departmentId, Integer cycleId, String name, Integer pageNo, Integer pageSize);
+
+    EvaluationTitle getEvaluationTitle(Integer cycleId);
+
+    Boolean createFinalEvaluation(CompetencyEvaluationInput input);
 }
