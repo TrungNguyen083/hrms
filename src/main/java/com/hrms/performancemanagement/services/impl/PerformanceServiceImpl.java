@@ -1,6 +1,7 @@
 package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
 import com.hrms.careerpathmanagement.repositories.CategoryRepository;
 import com.hrms.careerpathmanagement.repositories.QuestionRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
@@ -695,6 +696,62 @@ public class PerformanceServiceImpl implements PerformanceService {
                     return new PerformanceQuestionRating(q.getId(), q.getQuestionName(), q.getQuestionDescription(),
                             comment, competencyRating, q.getCategory().getId());
                 }).toList();
+    }
+
+    @Override
+    public EvaluationPaging getCompetencyEvaluationList(Integer departmentId, Integer cycleId, String name, Integer pageNo, Integer pageSize) {
+        Page<Employee> es = filterListDepartmentEmployee(name, departmentId, pageNo, pageSize);
+        List<PerformanceEvaluationOverall> cEOs = getDepartmentEvaOverall(cycleId, es);
+
+
+        List<EmployeeEvaProgress> data = es.stream().map(e -> {
+            String profileImage = employeeManagementService.getProfilePicture(e.getId());
+            PerformanceEvaluationOverall cEO = cEOs.stream()
+                    .filter(item -> item.getEmployee().getId().equals(e.getId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            return EmployeeEvaProgress.builder()
+                    .employeeId(e.getId())
+                    .profileImage(profileImage)
+                    .firstName(e.getFirstName())
+                    .lastName(e.getLastName())
+                    .position(e.getPosition().getPositionName())
+                    .level(e.getJobLevel().getJobLevelName())
+                    .employeeStatus(cEO.getEmployeeStatus())
+                    .evaluatorStatus(cEO.getEvaluatorStatus())
+                    .finalStatus(cEO.getFinalStatus())
+                    .build();
+        }).toList();
+
+        Pagination pagination = PaginationSetup.setupPaging(es.getTotalElements(), pageNo, pageSize);
+        return new EvaluationPaging(data, pagination);
+    }
+
+    private List<PerformanceEvaluationOverall> getDepartmentEvaOverall(Integer cycleId, Page<Employee> es) {
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec
+                .hasEmployeeIds(es.stream().map(Employee::getId).toList());
+
+        return performanceEvaluationOverallRepository.findAll(hasCycle.and(hasEmployees));
+    }
+
+    private Page<Employee> filterListDepartmentEmployee(String name, Integer departmentId, Integer pageNo, Integer pageSize) {
+        Specification<Employee> filterSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                name != null
+                        ? criteriaBuilder.or(
+                        criteriaBuilder.like(root.get("lastName"), "%" + name + "%"),
+                        criteriaBuilder.like(root.get("firstName"), "%" + name + "%"))
+                        : criteriaBuilder.conjunction()
+        );
+
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), false);
+        Specification<Employee> hasEval = (root, query, builder) -> builder.equal(root.get("isEvaluate"), true);
+        Specification<Employee> hasDepartment = GlobalSpec.hasDepartmentId(departmentId);
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
+        return employeeRepository.findAll(filterSpec.and(spec.and(hasEval).and(hasDepartment)), pageable);
     }
 
 }

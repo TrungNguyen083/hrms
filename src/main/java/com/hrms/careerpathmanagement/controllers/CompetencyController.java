@@ -1,7 +1,6 @@
 package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
-import com.hrms.careerpathmanagement.dto.pagination.EmployeeEvaProgressPaging;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.services.CompetencyService;
@@ -330,15 +329,41 @@ public class CompetencyController {
     }
 
     @MutationMapping(name = "selfCompetencyEvaluation")
-    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')or hasAuthority('PM')")
     public Boolean createSelfEvaluation(@Argument CompetencyEvaluationInput input) {
         return competencyService.createSelfEvaluation(input);
+    }
+
+    @MutationMapping(name = "managerCompetencyEvaluation")
+    @PreAuthorize("hasAuthority('SUM')")
+    public Boolean createManagerEvaluation(@Argument CompetencyEvaluationInput input) {
+        return competencyService.createManagerEvaluation(input);
+    }
+
+    @MutationMapping(name = "finalCompetencyEvaluation")
+    @PreAuthorize("hasAuthority('SUM')")
+    public Boolean createFinalEvaluation(@Argument CompetencyEvaluationInput input) {
+        return competencyService.createFinalEvaluation(input);
     }
 
     @QueryMapping(name = "employeeFeedback")
     @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
     public List<EmployeeFeedback> getEmployeeFeedback(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getEmployeeFeedback(employeeId, cycleId);
+    }
+
+    @QueryMapping(name = "evaluationTitle")
+    @PreAuthorize("hasAuthority('SUM')")
+    public EvaluationTitle getEvaluationTitle(@Argument Integer cycleId) {
+        return competencyService.getEvaluationTitle(cycleId);
+    }
+
+    @QueryMapping(name = "competencyEvaluationList")
+    @PreAuthorize("hasAuthority('SUM')")
+    public EvaluationPaging getCompetencyEvaluationList(@Argument Integer departmentId, @Argument Integer cycleId,
+                                                                  @Nullable @Argument String name, @Argument Integer pageNo,
+                                                                  @Argument Integer pageSize) {
+        return competencyService.getCompetencyEvaluationList(departmentId,cycleId,name,pageNo,pageSize);
     }
 
 
@@ -364,14 +389,6 @@ public class CompetencyController {
     @PreAuthorize("hasAuthority('MANAGER')")
     public List<TimeLine> createCompetencyProcess(@Argument EvaluationProcessInput input) throws ParseException {
         return competencyService.createCompetencyProcess(input);
-    }
-
-    @QueryMapping(name = "trackEvaluationProgress")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public EmployeeEvaProgressPaging getTrackEvaluationProgress(@Argument Integer evaluateCycleId,
-                                                                @Argument @Nullable Integer pageNo,
-                                                                @Argument @Nullable Integer pageSize) {
-        return competencyService.getTrackEvaluationProgress(evaluateCycleId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "evaluationResult")

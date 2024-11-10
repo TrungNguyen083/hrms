@@ -101,6 +101,11 @@ type Query {
     finalCompetencyEvaluationForm(employeeId: Int!, cycleId: Int!): [CompetencyForm]
     finalCompetencyGroupRating(employeeId: Int!, cycleId: Int!): [CompetencyGroupRating]
     employeeFeedback(employeeId: Int!, cycleId: Int!): [EmployeeFeedback]
+    #Manager Competency Evaluation
+    competencyEvaluationList(departmentId: Int!, cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationPaging!
+    evaluationTitle(cycleId: Int!): EvaluationTitle!
+
+
 
     #Performance Evaluation
     performanceOverall(employeeId: Int!, cycleId: Int!): PerformanceOverall
@@ -112,12 +117,12 @@ type Query {
     finalPerformanceOverall(employeeId: Int!, cycleId: Int!): PerformanceOverall
     finalPerformanceCategoryRating(employeeId: Int!, cycleId: Int!): [PerformanceCategoryRating]
     finalPerformanceQuestionRating(employeeId: Int!, cycleId: Int!): [PerformanceQuestionRating]
-
+    #ManagerPerformanceEvaluation
+    performanceEvaluationList(departmentId: Int!, cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationPaging!
 
 
     evaluateCyclePeriod(evaluateCycleId: Int!): String
     evaluationResult(employeeId: Int!, cycleId: Int!): [EvaluationResult]
-    trackEvaluationProgress(cycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeeEvaProgressPaging
 
     #PerformanceEvaluation:
     departmentInCompletePerform(evaluateCycleId: Int!): MultiBarChartDTO

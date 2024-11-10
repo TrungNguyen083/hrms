@@ -29,5 +29,7 @@ type Mutation {
 
     #Competency Evaluation
     selfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
+    managerCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
+    finalCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
     initEmployeesEvaluation(cycleId: Int!): Boolean
 }

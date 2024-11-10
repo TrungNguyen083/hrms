@@ -9,9 +9,12 @@ import lombok.*;
 @Builder
 public class EmployeeEvaProgress {
     private Integer employeeId;
-    private String name;
-    private String image;
-    private String selfStatus;
+    private String profileImage;
+    private String firstName;
+    private String lastName;
+    private String position;
+    private String level;
+    private String employeeStatus;
     private String evaluatorStatus;
     private String finalStatus;
 }
