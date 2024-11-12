@@ -322,10 +322,10 @@ public class CompetencyController {
         return competencyService.getFinalCompetencyGroupRating(employeeId, cycleId);
     }
 
-    @MutationMapping(name = "initEmployeesEvaluation")
+    @MutationMapping(name = "activeNewEvaluation")
     @PreAuthorize("hasAuthority('HR')")
     public Boolean initEmployeesEvaluation(@Argument Integer cycleId) {
-        return competencyService.initEmployeesEvaluation(cycleId);
+        return competencyService.activeNewEvaluation(cycleId);
     }
 
     @MutationMapping(name = "selfCompetencyEvaluation")

@@ -82,3 +82,16 @@ input ICompetencySubmit {
     comment: String
     rating: Int
 }
+
+input PerformanceEvaluationInput {
+    employeeId: Int
+    cycleId: Int
+    isSubmit: Boolean
+    questionRating: [QuestionSubmit]
+}
+
+input QuestionSubmit {
+    questionId: Int
+    comment: String
+    rating: Int
+}

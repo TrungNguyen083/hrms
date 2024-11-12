@@ -3,15 +3,13 @@ package com.hrms.performancemanagement.controllers;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
 import com.hrms.careerpathmanagement.dto.EvaluationPaging;
+import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
-import com.hrms.performancemanagement.dto.PerformanceCategoryRating;
-import com.hrms.performancemanagement.dto.PerformanceOverall;
-import com.hrms.performancemanagement.dto.PerformanceQuestionRating;
-import com.hrms.performancemanagement.dto.StackedBarChart;
+import com.hrms.performancemanagement.dto.*;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.services.PerformanceService;
 import jakarta.annotation.Nullable;
@@ -21,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
@@ -193,6 +192,22 @@ public class PerformanceController {
         return performanceService.getCompetencyEvaluationList(departmentId,cycleId,name,pageNo,pageSize);
     }
 
+    @MutationMapping(name = "employeePerformanceEvaluation")
+    @PreAuthorize("hasAuthority('SUM')")
+    public Boolean createEmployeeEvaluation(@Argument PerformanceEvaluationInput input) {
+        return performanceService.createEmployeeEvaluation(input);
+    }
+
+    @MutationMapping(name = "managerPerformanceEvaluation")
+    @PreAuthorize("hasAuthority('SUM')")
+    public Boolean createManagerEvaluation(@Argument PerformanceEvaluationInput input) {
+        return performanceService.createManagerEvaluation(input);
+    }
+    @MutationMapping(name = "finalPerformanceEvaluation")
+    @PreAuthorize("hasAuthority('SUM')")
+    public Boolean createFinalEvaluation(@Argument PerformanceEvaluationInput input) {
+        return performanceService.createFinalEvaluation(input);
+    }
 
 
 

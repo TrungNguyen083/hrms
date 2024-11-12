@@ -9,10 +9,7 @@ import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
-import com.hrms.performancemanagement.dto.PerformanceCategoryRating;
-import com.hrms.performancemanagement.dto.PerformanceOverall;
-import com.hrms.performancemanagement.dto.PerformanceQuestionRating;
-import com.hrms.performancemanagement.dto.StackedBarChart;
+import com.hrms.performancemanagement.dto.*;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +31,6 @@ public interface PerformanceService {
     String performanceCyclePeriod(Integer cycleId);
     PieChartDTO getPerformancePieChartOverall(EvaluateCycle cycleId);
     MultiBarChartDTO getCompletedEvaluationByPosition(Integer cycleId, Integer departmentId);
-
     PerformanceOverall getPerformanceOverall(Integer employeeId, Integer cycleId);
 
     List<PerformanceCategoryRating> getPerformanceCategoryRating(Integer employeeId, Integer cycleId);
@@ -54,4 +50,12 @@ public interface PerformanceService {
     List<PerformanceQuestionRating> getFinalPerformanceQuestionRating(Integer employeeId, Integer cycleId);
 
     EvaluationPaging getCompetencyEvaluationList(Integer departmentId, Integer cycleId, String name, Integer pageNo, Integer pageSize);
+
+    Boolean createEmployeeEvaluation(PerformanceEvaluationInput input);
+
+    Boolean createManagerEvaluation(PerformanceEvaluationInput input);
+
+    Boolean createFinalEvaluation(PerformanceEvaluationInput input);
+
+    void initEmployeesEvaluation(Integer cycleId);
 }

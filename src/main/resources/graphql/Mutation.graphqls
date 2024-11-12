@@ -31,5 +31,10 @@ type Mutation {
     selfCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
     managerCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
     finalCompetencyEvaluation(input: CompetencyEvaluationInput!): Boolean
-    initEmployeesEvaluation(cycleId: Int!): Boolean
+    activeNewEvaluation(cycleId: Int!): Boolean
+
+    #Performance Evaluation
+    employeePerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
+    managerPerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
+    finalPerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
 }
