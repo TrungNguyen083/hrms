@@ -1733,6 +1733,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         cEO.setFinalAssessment(calculateAvgFinalCompetencyRating(cEs));
         cEO.setFinalStatus(input.getIsSubmit() ? "Completed" : "In Progress");
         cEO.setLastUpdated(new Date(System.currentTimeMillis()));
+        if (input.getIsSubmit()) cEO.setCompletedDate(new Date(System.currentTimeMillis()));
         competencyEvaluationOverallRepository.save(cEO);
     }
 
@@ -1744,7 +1745,13 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public Boolean initEmployeesEvaluation(Integer cycleId) {
+    public Boolean activeNewEvaluation(Integer cycleId) {
+        initEmployeesEvaluation(cycleId);
+        performanceService.initEmployeesEvaluation(cycleId);
+        return Boolean.TRUE;
+    }
+
+    public void initEmployeesEvaluation(Integer cycleId) {
         List<Employee> employees = employeeManagementService.getAllEmployeesEvaluate();
         EvaluateCycle cycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
         List<Competency> competencies = competencyRepository.findAll();
@@ -1757,7 +1764,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         competencyEvaluationOverallRepository.saveAll(cEOs);
         competencyEvaluationRepository.saveAll(cEs);
         skillEvaluationRepository.saveAll(sEs);
-        return Boolean.TRUE;
     }
 
     private List<CompetencyEvaluationOverall> newListEvaluationOverall(List<Employee> employees, EvaluateCycle cycle) {
@@ -1770,7 +1776,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                         .supervisorAssessment((float) 0)
                         .evaluatorStatus("In Progress")
                         .finalAssessment((float) 0)
-                        .evaluatorStatus("In Progress")
+                        .finalStatus("In Progress")
                         .lastUpdated(new Date(System.currentTimeMillis()))
                         .build())
                 .toList();

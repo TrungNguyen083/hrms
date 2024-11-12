@@ -1,7 +1,6 @@
 package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
-import com.hrms.careerpathmanagement.models.CompetencyEvaluationOverall;
 import com.hrms.careerpathmanagement.repositories.CategoryRepository;
 import com.hrms.careerpathmanagement.repositories.QuestionRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
@@ -752,6 +751,196 @@ public class PerformanceServiceImpl implements PerformanceService {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
 
         return employeeRepository.findAll(filterSpec.and(spec.and(hasEval).and(hasDepartment)), pageable);
+    }
+
+    @Override
+    public Boolean createEmployeeEvaluation(PerformanceEvaluationInput input) {
+        List<PerformanceEvaluation> pEs = updateEmployeePerformanceEvaluations(input);
+        updateEmployeePerformanceCompetencyEvaluationOverall(input, pEs);
+        return Boolean.TRUE;
+    }
+
+    private List<PerformanceEvaluation> updateEmployeePerformanceEvaluations(PerformanceEvaluationInput input) {
+        Specification<PerformanceEvaluation> hasEmployee = GlobalSpec.hasEmployeeId(input.getEmployeeId());
+        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(input.getCycleId());
+        List<PerformanceEvaluation> pEs = performanceEvaluationRepository.findAll(hasEmployee.and(hasCycle));
+
+        List<PerformanceEvaluation> updatedPerformanceEvaluation = input.getQuestionRating().stream()
+                .flatMap(qR -> pEs.stream()
+                        .filter(pE -> pE.getQuestion().getId().equals(qR.getQuestionId()))
+                        .peek(pE -> {
+                            pE.setSelfEvaluation(qR.getRating().floatValue());
+                            pE.setSelfComment(qR.getComment());
+                        })
+                ).toList();
+
+        return performanceEvaluationRepository.saveAll(updatedPerformanceEvaluation);
+    }
+
+    private void updateEmployeePerformanceCompetencyEvaluationOverall(PerformanceEvaluationInput input, List<PerformanceEvaluation> pEs) {
+        Specification<PerformanceEvaluationOverall> hasEmployee = GlobalSpec.hasEmployeeId(input.getEmployeeId());
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(input.getCycleId());
+        PerformanceEvaluationOverall pEO = performanceEvaluationOverallRepository.findOne(hasEmployee.and(hasCycle))
+                .orElseThrow();
+
+        pEO.setSelfAssessment(getEmployeeOverallScore(pEs));
+        pEO.setEmployeeStatus(input.getIsSubmit() ? "Completed" : "In Progress");
+        pEO.setLastUpdated(new Date(System.currentTimeMillis()));
+        performanceEvaluationOverallRepository.save(pEO);
+    }
+
+    private Float getEmployeeOverallScore(List<PerformanceEvaluation> pEs) {
+        List<Category> categories = categoryRepository.findAll();
+
+        List<Float> categoryRating = categories.stream().map(c -> (float) (pEs.stream()
+                .filter(pE -> pE.getQuestion().getCategory().getId().equals(c.getId()))
+                .mapToDouble(PerformanceEvaluation::getSelfEvaluation)
+                .average()
+                .orElse(0) * c.getCategoryWeight()) / 100).toList();
+
+        return (float) categoryRating.stream().mapToDouble(Float::floatValue).sum();
+    }
+
+    @Override
+    public Boolean createManagerEvaluation(PerformanceEvaluationInput input) {
+        List<PerformanceEvaluation> pEs = updateManagerPerformanceEvaluations(input);
+        updateManagerPerformanceCompetencyEvaluationOverall(input, pEs);
+        return Boolean.TRUE;
+    }
+
+    private List<PerformanceEvaluation> updateManagerPerformanceEvaluations(PerformanceEvaluationInput input) {
+        Specification<PerformanceEvaluation> hasEmployee = GlobalSpec.hasEmployeeId(input.getEmployeeId());
+        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(input.getCycleId());
+        List<PerformanceEvaluation> pEs = performanceEvaluationRepository.findAll(hasEmployee.and(hasCycle));
+
+        List<PerformanceEvaluation> updatedPerformanceEvaluation = input.getQuestionRating().stream()
+                .flatMap(qR -> pEs.stream()
+                        .filter(pE -> pE.getQuestion().getId().equals(qR.getQuestionId()))
+                        .peek(pE -> {
+                            pE.setSupervisorEvaluation(qR.getRating().floatValue());
+                            pE.setSupervisorComment(qR.getComment());
+                        })
+                ).toList();
+
+        return performanceEvaluationRepository.saveAll(updatedPerformanceEvaluation);
+    }
+
+    private void updateManagerPerformanceCompetencyEvaluationOverall(PerformanceEvaluationInput input, List<PerformanceEvaluation> pEs) {
+        Specification<PerformanceEvaluationOverall> hasEmployee = GlobalSpec.hasEmployeeId(input.getEmployeeId());
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(input.getCycleId());
+        PerformanceEvaluationOverall pEO = performanceEvaluationOverallRepository.findOne(hasEmployee.and(hasCycle))
+                .orElseThrow();
+
+        pEO.setEvaluatorAssessment(getManagerOverallScore(pEs));
+        pEO.setEvaluatorStatus(input.getIsSubmit() ? "Completed" : "In Progress");
+        pEO.setLastUpdated(new Date(System.currentTimeMillis()));
+        performanceEvaluationOverallRepository.save(pEO);
+    }
+
+    private Float getManagerOverallScore(List<PerformanceEvaluation> pEs) {
+        List<Category> categories = categoryRepository.findAll();
+
+        List<Float> categoryRating = categories.stream().map(c -> (float) (pEs.stream()
+                .filter(pE -> pE.getQuestion().getCategory().getId().equals(c.getId()))
+                .mapToDouble(PerformanceEvaluation::getSupervisorEvaluation)
+                .average()
+                .orElse(0) * c.getCategoryWeight()) / 100).toList();
+
+        return (float) categoryRating.stream().mapToDouble(Float::floatValue).sum();
+    }
+
+    @Override
+    public Boolean createFinalEvaluation(PerformanceEvaluationInput input) {
+        List<PerformanceEvaluation> pEs = updateFinalPerformanceEvaluations(input);
+        updateFinalPerformanceCompetencyEvaluationOverall(input, pEs);
+        return Boolean.TRUE;
+    }
+
+    private List<PerformanceEvaluation> updateFinalPerformanceEvaluations(PerformanceEvaluationInput input) {
+        Specification<PerformanceEvaluation> hasEmployee = GlobalSpec.hasEmployeeId(input.getEmployeeId());
+        Specification<PerformanceEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(input.getCycleId());
+        List<PerformanceEvaluation> pEs = performanceEvaluationRepository.findAll(hasEmployee.and(hasCycle));
+
+        List<PerformanceEvaluation> updatedPerformanceEvaluation = input.getQuestionRating().stream()
+                .flatMap(qR -> pEs.stream()
+                        .filter(pE -> pE.getQuestion().getId().equals(qR.getQuestionId()))
+                        .peek(pE -> {
+                            pE.setFinalEvaluation(qR.getRating().floatValue());
+                            pE.setFinalComment(qR.getComment());
+                        })
+                ).toList();
+
+        return performanceEvaluationRepository.saveAll(updatedPerformanceEvaluation);
+    }
+
+    private void updateFinalPerformanceCompetencyEvaluationOverall(PerformanceEvaluationInput input, List<PerformanceEvaluation> pEs) {
+        Specification<PerformanceEvaluationOverall> hasEmployee = GlobalSpec.hasEmployeeId(input.getEmployeeId());
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(input.getCycleId());
+        PerformanceEvaluationOverall pEO = performanceEvaluationOverallRepository.findOne(hasEmployee.and(hasCycle))
+                .orElseThrow();
+
+        pEO.setFinalAssessment(getFinalOverallScore(pEs));
+        pEO.setFinalStatus(input.getIsSubmit() ? "Completed" : "In Progress");
+        pEO.setLastUpdated(new Date(System.currentTimeMillis()));
+        if (input.getIsSubmit()) pEO.setCompletedDate(new Date(System.currentTimeMillis()));
+        performanceEvaluationOverallRepository.save(pEO);
+    }
+
+    private Float getFinalOverallScore(List<PerformanceEvaluation> pEs) {
+        List<Category> categories = categoryRepository.findAll();
+
+        List<Float> categoryRating = categories.stream().map(c -> (float) (pEs.stream()
+                .filter(pE -> pE.getQuestion().getCategory().getId().equals(c.getId()))
+                .mapToDouble(PerformanceEvaluation::getFinalEvaluation)
+                .average()
+                .orElse(0) * c.getCategoryWeight()) / 100).toList();
+
+        return (float) categoryRating.stream().mapToDouble(Float::floatValue).sum();
+    }
+
+    public void initEmployeesEvaluation(Integer cycleId) {
+        List<Employee> employees = employeeManagementService.getAllEmployeesEvaluate();
+        EvaluateCycle cycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+        List<Question> questions = questionRepository.findAll();
+
+        List<PerformanceEvaluationOverall> pEOs = newListEvaluationOverall(employees, cycle);
+        List<PerformanceEvaluation> pEs = newListQuestionEvaluation(employees, questions, cycle);
+
+        performanceEvaluationOverallRepository.saveAll(pEOs);
+        performanceEvaluationRepository.saveAll(pEs);
+    }
+
+    private List<PerformanceEvaluationOverall> newListEvaluationOverall(List<Employee> employees, EvaluateCycle cycle) {
+        return employees.stream()
+                .map(e -> PerformanceEvaluationOverall.builder()
+                        .employee(e)
+                        .evaluateCycle(cycle)
+                        .selfAssessment((float) 0)
+                        .employeeStatus("In Progress")
+                        .evaluatorAssessment((float) 0)
+                        .evaluatorStatus("In Progress")
+                        .finalAssessment((float) 0)
+                        .finalStatus("In Progress")
+                        .potentialScore((float) 0)
+                        .lastUpdated(new Date(System.currentTimeMillis()))
+                        .build())
+                .toList();
+    }
+
+    private List<PerformanceEvaluation> newListQuestionEvaluation(List<Employee> employees,
+                                                                  List<Question> questions,
+                                                                  EvaluateCycle cycle) {
+        return employees.stream()
+                .flatMap(e -> questions.stream()
+                        .map(c -> PerformanceEvaluation.builder()
+                                .evaluateCycle(cycle)
+                                .employee(e)
+                                .question(c)
+                                .selfEvaluation((float) 0)
+                                .supervisorEvaluation((float) 0)
+                                .finalEvaluation((float) 0)
+                                .build()))
+                .toList();
     }
 
 }

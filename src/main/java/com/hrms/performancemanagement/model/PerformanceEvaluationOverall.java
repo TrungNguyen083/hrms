@@ -5,7 +5,8 @@ import com.hrms.global.models.EvaluateCycle;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 @Entity
 @Getter

@@ -84,7 +84,7 @@ public interface CompetencyService {
 
     Boolean createManagerEvaluation(CompetencyEvaluationInput input);
 
-    Boolean initEmployeesEvaluation(Integer cycleId);
+    Boolean activeNewEvaluation(Integer cycleId);
 
     List<EmployeeFeedback> getEmployeeFeedback(Integer employeeId, Integer cycleId);
 
