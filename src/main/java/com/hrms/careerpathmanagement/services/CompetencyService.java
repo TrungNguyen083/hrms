@@ -93,4 +93,6 @@ public interface CompetencyService {
     EvaluationTitle getEvaluationTitle(Integer cycleId);
 
     Boolean createFinalEvaluation(CompetencyEvaluationInput input);
+
+    List<PositionOption> getPositionOption(String name);
 }

@@ -84,3 +84,9 @@ type CycleOverallDTO {
     competencyOverall: PieChartDTO
     performanceOverall: PieChartDTO
 }
+
+type PositionOption {
+    positionId: Int,
+    positionLevelName: String,
+    skillNo: Int,
+}

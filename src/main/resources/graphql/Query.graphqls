@@ -89,6 +89,7 @@ type Query {
     #Competency Framework
     competencyMatrixTree: [CompetencyMatrixTree]
     competencyBaseLine(positionId: Int!): [HeatmapItemDTO]
+    positionOption(name: String!): [PositionOption]
 
     #Competency Evaluation
     competencyOverall(employeeId: Int!, cycleId: Int!): CompetencyOverall
