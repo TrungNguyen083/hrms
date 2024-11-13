@@ -82,6 +82,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final EmployeeSpecification employeeSpecification;
     private final EvaluateCycleRepository evaluateCycleRepository;
     private final DepartmentPositionRepository departmentPositionRepository;
+    private final PositionRepository positionRepository;
     private final HrmsMapper modelMapper;
     private final CompetencyGroupRepository competencyGroupRepository;
     private final CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository;
@@ -101,6 +102,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  EmployeeManagementService employeeManagementService,
                                  JobLevelRepository jobLevelRepository,
                                  PositionLevelSkillRepository positionLevelSkillRepository,
+                                 PositionRepository positionRepository,
                                  EmployeeDamInfoRepository employeeDamInfoRepository,
                                  DepartmentPositionRepository departmentPositionRepository,
                                  EmployeeSpecification employeeSpecification,
@@ -123,6 +125,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.departmentPositionRepository = departmentPositionRepository;
         this.employeeManagementService = employeeManagementService;
         this.jobLevelRepository = jobLevelRepository;
+        this.positionRepository = positionRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
         this.employeeSpecification = employeeSpecification;
         this.evaluateCycleRepository = evaluateCycleRepository;
@@ -1260,8 +1263,8 @@ public class CompetencyServiceImpl implements CompetencyService {
                                     .toList();
 
                             return new HeatmapItemDTO(
-                                    c.getCompetencyName(),
                                     j.getJobLevelName(),
+                                    c.getCompetencyName(),
                                     (float) getAverageCompetencyLevel(listFilter));
                         })
                 ).toList();
@@ -1269,6 +1272,35 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private double getAverageCompetencyLevel(List<PositionLevelSkill> positionLevelSkills) {
         return positionLevelSkills.stream().mapToDouble(p -> p.getProficiencyLevel().getScore()).average().orElse(0);
+    }
+
+    @Override
+    public List<PositionOption> getPositionOption(String name) {
+        Specification<Position> filterSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                !Objects.equals(name, "")
+                        ? criteriaBuilder.or(
+                        criteriaBuilder.like(root.get("positionName"), "%" + name + "%"))
+                        : criteriaBuilder.conjunction()
+        );
+
+        Specification<Position> hasEval = (root, query, builder) -> builder.equal(root.get("hasEvaluation"), true);
+
+        List<Position> positions = positionRepository.findAll(filterSpec.and(hasEval));
+
+        Specification<PositionLevelSkill> hasPositions = GlobalSpec.hasPositionIds(positions.stream()
+                .map(Position::getId)
+                .toList());
+        Specification<PositionLevelSkill> hasLevel = GlobalSpec.hasJobLevelId(1);
+
+        List<PositionLevelSkill> pLSs = positionLevelSkillRepository.findAll(hasPositions.and(hasLevel));
+
+        return positions.stream().map(p -> {
+            List<PositionLevelSkill> filterList = pLSs.stream()
+                    .filter(pLS -> pLS.getPosition().getId().equals(p.getId()))
+                    .toList();
+
+            return new PositionOption(p.getId(), p.getPositionName(), filterList.size());
+        }).toList();
     }
 
     @Override

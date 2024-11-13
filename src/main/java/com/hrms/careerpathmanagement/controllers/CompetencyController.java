@@ -251,16 +251,22 @@ public class CompetencyController {
         return competencyService.getCompetencyMatrixTree();
     }
 
+    @QueryMapping(name = "competencyGroups")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<CompetencyGroup> getCompetencyGroups() {
+        return competencyService.getCompetencyGroups();
+    }
+
     @QueryMapping(name = "competencyBaseLine")
     @PreAuthorize("hasAuthority('HR')")
     public List<HeatmapItemDTO> getCompetencyBaseLine(@Argument Integer positionId) {
         return competencyService.getCompetencyBaseLine(positionId);
     }
 
-    @QueryMapping(name = "competencyGroups")
+    @QueryMapping(name = "positionOption")
     @PreAuthorize("hasAuthority('HR')")
-    public List<CompetencyGroup> getCompetencyGroups() {
-        return competencyService.getCompetencyGroups();
+    public List<PositionOption> getPositionOption(@Argument String name) {
+        return competencyService.getPositionOption(name);
     }
 
 

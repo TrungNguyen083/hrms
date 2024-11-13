@@ -25,15 +25,8 @@ public class Position {
     private Boolean hasLevel;
     @Column(name = "has_department")
     private Boolean hasDepartment;
-    // For modification time
-    @Column(name = "modification_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date modificationTime;
-
-    // For insertion time
-    @Column(name = "insertion_time", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date insertionTime;
+    @Column(name = "has_evaluation")
+    private Boolean hasEvaluation;
     public Position(Integer id) {
         this.id = id;
     }
