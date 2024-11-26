@@ -111,12 +111,6 @@ type EmployeeEvaProgressPaging {
     pagination: Pagination!
 }
 
-type EvaluationResult {
-    skillId: Int
-    selfEvaluation: Int
-    evaluatorEvaluation: Int
-}
-
 type EmployeeFeedback {
     feedBackerProfileImage: String
     feedBackerFirstName: String
@@ -127,6 +121,11 @@ type EmployeeFeedback {
 
 type EvaluationPaging {
     data: [EvaluationItem]!
+    pagination: Pagination!
+}
+
+type EvaluationOverviewPaging {
+    data: [EvaluationResult]!
     pagination: Pagination!
 }
 
@@ -142,9 +141,37 @@ type EvaluationItem {
     finalStatus: String
 }
 
+type EvaluationResult {
+    employeeId: Int
+    profileImage: String
+    firstName: String
+    lastName: String
+    position: String
+    level: String
+    competencyRating: Float
+    performanceRating: Float
+    potential: String
+    finalStatus: String
+}
+
 type EvaluationTitle {
     title: String
     status: String
     startDate: String
     dueDate: String
+}
+
+type PromotionPaging {
+    data: [EvaluationPromotion]!
+    pagination: Pagination!
+}
+
+type EvaluationPromotion {
+    employeeId: Int
+    profileImage: String
+    firstName: String
+    lastName: String
+    currentPositionLevel: String
+    promotePositionLevel: String
+    status: String
 }

@@ -121,6 +121,10 @@ public class GlobalSpec {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("finalStatus"), "Completed");
     }
 
+    public static <T> Specification<T> statusRemoveNotStart() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get("status"), "Not Start");
+    }
+
     private GlobalSpec() {
     }
 

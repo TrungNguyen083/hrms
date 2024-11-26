@@ -1,5 +1,7 @@
 package com.hrms.careerpathmanagement.controllers;
 
+import com.hrms.careerpathmanagement.dto.ChartData;
+import com.hrms.careerpathmanagement.dto.CompareGoal;
 import com.hrms.careerpathmanagement.dto.CountAndPercentDTO;
 import com.hrms.careerpathmanagement.dto.GoalProgressDTO;
 import com.hrms.careerpathmanagement.dto.pagination.EmployeeGoalPagination;
@@ -30,19 +32,15 @@ public class GoalController {
         return goalService.getDepartmentGoalProgress(departmentId, cycleId);
     }
 
-    // SUM Dashboard - Component: Goal Achievement
-    @QueryMapping(name = "goalsCountingStatistic")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public CountAndPercentDTO getGoalsStatistic(@Argument Integer departmentId,
-                                                @Argument Integer cycleId)
-    {
-        return goalService.countGoalsCompleted(departmentId, cycleId);
+    @QueryMapping("compareGoals")
+    @PreAuthorize("hasAuthority('HR')")
+    public List<CompareGoal> getCompareGoals(@Argument List<Integer> employeeIds, @Argument Integer cycleId) {
+        return goalService.getCompareGoals(employeeIds, cycleId);
     }
 
-    // SUM Dashboard - Component: Goal Achievement
-    @QueryMapping(name = "goalsStatusPieChart")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public PieChartDTO getPieChartGoalsStatus(@Argument Integer departmentId, @Argument Integer cycleId) {
-        return goalService.getGoalsStatusStatistic(departmentId, cycleId);
+    @QueryMapping("compareGoalPieChart")
+    @PreAuthorize("hasAuthority('HR')")
+    public ChartData getCompareGoalPieChart(@Argument List<Integer> employeeIds, @Argument Integer cycleId) {
+        return goalService.getCompareGoalPieChart(employeeIds, cycleId);
     }
 }

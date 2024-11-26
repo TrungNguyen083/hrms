@@ -1,33 +1,23 @@
 package com.hrms.careerpathmanagement.services.impl;
 
-import com.hrms.careerpathmanagement.dto.CountAndPercentDTO;
-import com.hrms.careerpathmanagement.dto.EmployeeGoalDTO;
-import com.hrms.careerpathmanagement.dto.GoalProgressDTO;
-import com.hrms.careerpathmanagement.dto.pagination.EmployeeGoalPagination;
-import com.hrms.careerpathmanagement.dto.pagination.GoalPagination;
+import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.Goal;
 import com.hrms.careerpathmanagement.repositories.GoalRepository;
 import com.hrms.careerpathmanagement.services.GoalService;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.projection.NameOnly;
 import com.hrms.employeemanagement.projection.ProfileImageOnly;
 import com.hrms.employeemanagement.repositories.EmployeeDamInfoRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.global.GlobalSpec;
-import com.hrms.global.dto.PieChartDTO;
 import com.hrms.global.models.EvaluateCycle;
-import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -35,18 +25,24 @@ public class GoalServiceImpl implements GoalService {
     private final GoalRepository goalRepository;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
     private final EvaluateCycleRepository evaluateCycleRepository;
+    private final EmployeeRepository employeeRepository;
     private final EmployeeManagementService employeeManagementService;
     static final String PROFILE_IMAGE = "PROFILE_IMAGE";
+    static final String COMPLETED = "Completed";
+    static final String UNCOMPLETED = "Uncompleted";
 
 
 
     @Autowired
-    public GoalServiceImpl(GoalRepository goalRepository, EmployeeDamInfoRepository employeeDamInfoRepository,
+    public GoalServiceImpl(GoalRepository goalRepository,
+                           EmployeeDamInfoRepository employeeDamInfoRepository,
+                           EmployeeRepository employeeRepository,
                            EmployeeManagementService employeeManagementService,
                            EvaluateCycleRepository evaluateCycleRepository)
     {
         this.goalRepository = goalRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
+        this.employeeRepository = employeeRepository;
         this.evaluateCycleRepository = evaluateCycleRepository;
         this.employeeManagementService = employeeManagementService;
     }
@@ -73,43 +69,47 @@ public class GoalServiceImpl implements GoalService {
                     .findFirst()
                     .orElse(null);
 
-            return new GoalProgressDTO(goal.getEmployee().getId(), goal.getGoalName(), profileImage, goal.getProgress());
+            return new GoalProgressDTO(goal.getEmployee().getId(), goal.getGoalName(), profileImage, (float) goal.getProgress());
         }).toList();
     }
 
-    public CountAndPercentDTO countGoalsCompleted(Integer departmentId, Integer cycleId)
-    {
-//        Specification<Goal> hasDepSpec = employeeSpecification.hasDepartmentId(departmentId);
-//        Specification<Goal> hasCycleSpec = GlobalSpec.hasEvaluateCycleId(cycleId);
-//        var totalGoals = goalRepository.count(hasDepSpec.and(hasCycleSpec));
-//
-//        Specification<Goal> completedSpec = (root, query, cb) -> cb.equal(root.get("status"), STATUS_COMPLETED);
-//        var completedCount = goalRepository.count(hasDepSpec.and(hasCycleSpec.and(completedSpec)));
-//
-//        var percentage = totalGoals == 0 ? null : (float) completedCount * 100 /totalGoals;
-//        return new CountAndPercentDTO(completedCount,  percentage);
+    @Override
+    public List<CompareGoal> getCompareGoals(List<Integer> employeeIds, Integer cycleId) {
+        List<Employee> employees = employeeRepository.findAll(GlobalSpec.hasIds(employeeIds));
+        EvaluateCycle evaluateCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
 
-        return null;
+        Specification<Goal> hasEmployees = GlobalSpec.hasEmployeeIds(employeeIds);
+        Specification<Goal> hasYear = GlobalSpec.hasYear(evaluateCycle.getYear());
+        List<Goal> goals = goalRepository.findAll(hasEmployees.and(hasYear));
+
+        return employees.stream().map(e -> {
+            List<CompareGoalItem> filterGoals = goals.stream()
+                    .filter(g -> g.getEmployee().getId().equals(e.getId()))
+                    .map(g -> new CompareGoalItem(g.getGoalName(), g.getProgress()))
+                    .toList();
+
+            return new CompareGoal(e.getFirstName(), e.getLastName(), filterGoals);
+        }).toList();
     }
 
-    public PieChartDTO getGoalsStatusStatistic(Integer departmentId, Integer cycleId)
-    {
-//        var goals = goalRepository.findAllByDepartmentAndCycle(departmentId, cycleId);
-//        long totalGoals = goals.size();
-//
-//        Map<String, Long> statusMap = goals.stream()
-//                .collect(Collectors.groupingBy(Goal::getStatus, Collectors.counting()));
-//
-//        var pieChart = new PieChartDTO(new ArrayList(), new ArrayList());
-//
-//        statusMap.entrySet().forEach(i -> {
-//            var status = i.getKey();
-//            var count = i.getValue();
-//            pieChart.getLabels().add(status);
-//            pieChart.getDatasets().add((float) count * 100 / totalGoals);
-//        });
-//
-//        return pieChart;
-        return null;
+    @Override
+    public ChartData getCompareGoalPieChart(List<Integer> employeeIds, Integer cycleId) {
+        List<Employee> employees = employeeRepository.findAll(GlobalSpec.hasIds(employeeIds));
+        EvaluateCycle evaluateCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
+
+        Specification<Goal> hasEmployees = GlobalSpec.hasEmployeeIds(employeeIds);
+        Specification<Goal> hasYear = GlobalSpec.hasYear(evaluateCycle.getYear());
+        List<Goal> goals = goalRepository.findAll(hasEmployees.and(hasYear));
+
+        List<ChartItem> datasets = employees.stream().map(e -> {
+            float eProgress = (float) goals.stream()
+                    .filter(g -> g.getEmployee().getId().equals(e.getId()))
+                    .mapToDouble(Goal::getProgress)
+                    .average().orElse(0);
+
+            return new ChartItem(e.getFullName(), List.of(eProgress, 100 - eProgress));
+        }).toList();
+
+        return new ChartData(List.of(COMPLETED, UNCOMPLETED), datasets);
     }
 }

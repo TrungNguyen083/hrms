@@ -1,8 +1,9 @@
 package com.hrms.performancemanagement.services;
 
+import com.hrms.careerpathmanagement.dto.ChartData;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
-import com.hrms.careerpathmanagement.dto.EvaluationPaging;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationPaging;
 import com.hrms.global.models.EvaluateCycle;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.BarChartDTO;
@@ -10,6 +11,7 @@ import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
 import com.hrms.performancemanagement.dto.*;
+import com.hrms.performancemanagement.input.PerformanceEvaluationInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,4 +60,6 @@ public interface PerformanceService {
     Boolean createFinalEvaluation(PerformanceEvaluationInput input);
 
     void initEmployeesEvaluation(Integer cycleId);
+
+    ChartData getComparePerformanceChart(List<Integer> employeeIds);
 }

@@ -90,3 +90,32 @@ type PositionOption {
     positionLevelName: String,
     skillNo: Int,
 }
+
+type CompareOverview {
+    profileImage: String
+    firstName: String
+    lastName: String
+    currentPosition: String
+    targetPosition: String
+}
+
+type ChartData {
+    labels: [String]
+    datasets: [ChartItem]
+}
+
+type ChartItem {
+    label: String
+    dataset: [Float]
+}
+
+type CompareGoal {
+    firstName: String
+    lastName: String
+    goals: [CompareGoalItem]
+}
+
+type CompareGoalItem {
+    goalName: String
+    goalProgress: Int
+}

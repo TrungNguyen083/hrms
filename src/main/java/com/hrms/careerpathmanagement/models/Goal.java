@@ -32,7 +32,7 @@ public class Goal {
     private String description;
 
     @Column(name = "progress")
-    private Float progress;
+    private Integer progress;
 
     @Column(name = "year")
     private Integer year;

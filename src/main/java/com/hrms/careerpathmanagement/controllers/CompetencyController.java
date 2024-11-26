@@ -1,6 +1,8 @@
 package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationOverviewPaging;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationPaging;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.services.CompetencyService;
@@ -305,7 +307,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "managerCompetencyGroupRating")
-    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('SUM') or hasAuthority('PM')")
     public List<CompetencyGroupRating> getManagerCompetencyGroupRating(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getManagerCompetencyGroupRating(employeeId, cycleId);
     }
@@ -359,7 +361,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "evaluationTitle")
-    @PreAuthorize("hasAuthority('SUM')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('HR')")
     public EvaluationTitle getEvaluationTitle(@Argument Integer cycleId) {
         return competencyService.getEvaluationTitle(cycleId);
     }
@@ -367,9 +369,27 @@ public class CompetencyController {
     @QueryMapping(name = "competencyEvaluationList")
     @PreAuthorize("hasAuthority('SUM')")
     public EvaluationPaging getCompetencyEvaluationList(@Argument Integer departmentId, @Argument Integer cycleId,
-                                                                  @Nullable @Argument String name, @Argument Integer pageNo,
-                                                                  @Argument Integer pageSize) {
+                                                        @Nullable @Argument String name, @Argument Integer pageNo,
+                                                        @Argument Integer pageSize) {
         return competencyService.getCompetencyEvaluationList(departmentId,cycleId,name,pageNo,pageSize);
+    }
+
+    @QueryMapping(name = "evaluationOverviewList")
+    @PreAuthorize("hasAuthority('HR')")
+    public EvaluationOverviewPaging getEvaluationOverviewList(@Argument Integer cycleId, @Nullable @Argument String name,
+                                                              @Argument Integer pageNo, @Argument Integer pageSize) {
+        return competencyService.getEvaluationOverviewList(cycleId, name, pageNo, pageSize);
+    }
+
+
+    /***
+     ********************************************** Promotion Comparison ****************************************
+     */
+
+    @QueryMapping(name = "compareCompetencyRadarChart")
+    @PreAuthorize("hasAuthority('HR')")
+    public ChartData getCompareCompetencyRadarChart(@Argument List<Integer> employeeIds, @Argument Integer cycleId) {
+        return competencyService.getCompareCompetencyRadarChart(employeeIds, cycleId);
     }
 
 
@@ -395,12 +415,6 @@ public class CompetencyController {
     @PreAuthorize("hasAuthority('MANAGER')")
     public List<TimeLine> createCompetencyProcess(@Argument EvaluationProcessInput input) throws ParseException {
         return competencyService.createCompetencyProcess(input);
-    }
-
-    @QueryMapping(name = "evaluationResult")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public List<EvaluationResult> getEvaluationResult(@Argument Integer employeeId, @Argument Integer evaluateCycleId) {
-        return competencyService.getEvaluationResult(employeeId, evaluateCycleId);
     }
 
 

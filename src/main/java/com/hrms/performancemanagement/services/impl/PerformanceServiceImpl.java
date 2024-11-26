@@ -1,6 +1,7 @@
 package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationPaging;
 import com.hrms.careerpathmanagement.repositories.CategoryRepository;
 import com.hrms.careerpathmanagement.repositories.QuestionRepository;
 import com.hrms.employeemanagement.dto.EmployeeRatingDTO;
@@ -18,6 +19,7 @@ import com.hrms.global.models.*;
 import com.hrms.global.paging.Pagination;
 import com.hrms.global.paging.PaginationSetup;
 import com.hrms.performancemanagement.dto.*;
+import com.hrms.performancemanagement.input.PerformanceEvaluationInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.model.PerformanceRange;
@@ -648,6 +650,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 .level(employee.getJobLevel().getJobLevelName())
                 .isSubmit(pEOverall.getFinalStatus().equals("Completed"))
                 .rating(rating)
+                .potential(pEOverall.getPotentialScore())
                 .status((pEOverall.getFinalStatus() != null)
                         ? pEOverall.getFinalStatus()
                         : "Not Start")
@@ -882,6 +885,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         pEO.setFinalAssessment(getFinalOverallScore(pEs));
         pEO.setFinalStatus(input.getIsSubmit() ? "Completed" : "In Progress");
         pEO.setLastUpdated(new Date(System.currentTimeMillis()));
+        pEO.setPotentialScore(input.getPotential());
         if (input.getIsSubmit()) pEO.setCompletedDate(new Date(System.currentTimeMillis()));
         performanceEvaluationOverallRepository.save(pEO);
     }
@@ -921,7 +925,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                         .evaluatorStatus("In Progress")
                         .finalAssessment((float) 0)
                         .finalStatus("In Progress")
-                        .potentialScore((float) 0)
+                        .potentialScore(0)
                         .lastUpdated(new Date(System.currentTimeMillis()))
                         .build())
                 .toList();
@@ -941,6 +945,36 @@ public class PerformanceServiceImpl implements PerformanceService {
                                 .finalEvaluation((float) 0)
                                 .build()))
                 .toList();
+    }
+
+    @Override
+    public ChartData getComparePerformanceChart(List<Integer> employeeIds) {
+        List<Employee> employees = employeeRepository.findAll(GlobalSpec.hasIds(employeeIds));
+
+        Specification<EvaluateCycle> statusRemoveNotStart = GlobalSpec.statusRemoveNotStart();
+        List<EvaluateCycle> cycles = evaluateCycleRepository.findAll(statusRemoveNotStart);
+
+        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec.hasEmployeeIds(employeeIds);
+        List<PerformanceEvaluationOverall> pEOs = performanceEvaluationOverallRepository
+                .findAll(hasEmployees);
+
+        List<String> labels = cycles.stream().map(EvaluateCycle::getEvaluateCycleName).toList();
+
+        List<ChartItem> datasets = employees.stream()
+                .map(e -> {
+                    List<Float> dataset = cycles.stream()
+                            .map(c -> pEOs.stream()
+                                    .filter(pEO -> pEO.getEmployee().getId().equals(e.getId())
+                                            && pEO.getEvaluateCycle().getId().equals(c.getId()))
+                                    .map(PerformanceEvaluationOverall::getFinalAssessment)
+                                    .findFirst() // Default to null if no matching evaluation exists
+                                    .orElse(0.0f)) // Or provide a default value (e.g., 0.0f)
+                            .toList();
+                    return new ChartItem(e.getFullName(), dataset);
+                })
+                .toList();
+
+        return new ChartData(labels, datasets);
     }
 
 }

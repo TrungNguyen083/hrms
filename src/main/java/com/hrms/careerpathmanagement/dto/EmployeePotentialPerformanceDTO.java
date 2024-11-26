@@ -11,6 +11,6 @@ public class EmployeePotentialPerformanceDTO {
     Integer employeeId;
     String fullName;
     String profileImgUri;
-    Float potential;
+    Integer potential;
     Float performance;
 }
