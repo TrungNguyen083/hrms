@@ -34,7 +34,10 @@ type Mutation {
     activeNewEvaluation(cycleId: Int!): Boolean
 
     #Performance Evaluation
-    employeePerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
+    selfPerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
     managerPerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
     finalPerformanceEvaluation(input: PerformanceEvaluationInput!): Boolean
+
+    #Promotion
+    requestPromotion(employeeIds: [Int!], cycleId: Int): Boolean
 }

@@ -87,6 +87,7 @@ input PerformanceEvaluationInput {
     employeeId: Int
     cycleId: Int
     isSubmit: Boolean
+    potential: Int
     questionRating: [QuestionSubmit]
 }
 

@@ -7,15 +7,12 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EvaluationResult {
+public class EvaluationPromotion {
     private Integer employeeId;
     private String profileImage;
     private String firstName;
     private String lastName;
-    private String position;
-    private String level;
-    private Float competencyRating;
-    private Float performanceRating;
-    private String potential;
-    private String finalStatus;
+    private String currentPositionLevel;
+    private String promotePositionLevel;
+    private String status;
 }

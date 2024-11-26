@@ -1,6 +1,8 @@
 package com.hrms.careerpathmanagement.services.impl;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationOverviewPaging;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationPaging;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.careerpathmanagement.models.*;
@@ -27,6 +29,7 @@ import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.repositories.EvaluateCycleRepository;
 import com.hrms.performancemanagement.repositories.EvaluateTimeLineRepository;
 import com.hrms.performancemanagement.repositories.FeedbackRepository;
+import com.hrms.performancemanagement.repositories.PerformanceEvaluationOverallRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
 import com.mysema.commons.lang.Pair;
 import jakarta.annotation.Nullable;
@@ -86,6 +89,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     private final HrmsMapper modelMapper;
     private final CompetencyGroupRepository competencyGroupRepository;
     private final CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository;
+    private final PerformanceEvaluationOverallRepository performanceEvaluationOverallRepository;
     private final FeedbackRepository feedbackRepository;
     private final PerformanceService performanceService;
     private EvaluateCycle latestEvaluateCycle;
@@ -111,6 +115,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                                  CompetencyGroupRepository competencyGroupRepository,
                                  FeedbackRepository feedbackRepository,
                                  CompetencyEvaluationOverallRepository competencyEvaluationOverallRepository,
+                                 PerformanceEvaluationOverallRepository performanceEvaluationOverallRepository,
                                  PerformanceService performanceService
     ) {
         this.competencyEvaluationRepository = competencyEvaluationRepository;
@@ -133,6 +138,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         this.modelMapper = modelMapper;
         this.competencyGroupRepository = competencyGroupRepository;
         this.competencyEvaluationOverallRepository = competencyEvaluationOverallRepository;
+        this.performanceEvaluationOverallRepository = performanceEvaluationOverallRepository;
         this.performanceService = performanceService;
     }
 
@@ -1169,20 +1175,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer evaluateCycleId) {
-        Specification<SkillEvaluation> hasEmployeeId = GlobalSpec.hasEmployeeId(employeeId);
-        Specification<SkillEvaluation> hasCycleId = GlobalSpec.hasEvaluateCycleId(evaluateCycleId);
-
-        List<SkillEvaluation> ssEvaluates = skillEvaluationRepository.findAll(hasCycleId.and(hasEmployeeId));
-
-        return ssEvaluates.stream().map(ssE -> EvaluationResult.builder()
-                .skillId(ssE.getSkill().getId())
-                .selfEvaluation(ssE.getSelfScore())
-                .evaluatorEvaluation(ssE.getEvaluatorScore())
-                .build()).toList();
-    }
-
-    @Override
     public List<CycleOverallDTO> getCyclesOverall() {
         List<EvaluateCycle> cycles = getEvaluateCycles();
         return cycles.stream().map(c -> {
@@ -1630,10 +1622,15 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private float calculateAvgSelfCompetencyRating(List<CompetencyEvaluation> cEs) {
-        return (float) cEs.stream()
+        List<CompetencyGroup> competencyGroups = competencyGroupRepository.findAll();
+
+        List<Float> groupRating = competencyGroups.stream().map(gr -> (float) (cEs.stream()
+                .filter(pE -> pE.getCompetency().getCompetencyGroup().getId().equals(gr.getId()))
                 .mapToDouble(CompetencyEvaluation::getSelfEvaluation)
                 .average()
-                .orElse(0);
+                .orElse(0) * gr.getWeight()) / 100).toList();
+
+        return (float) groupRating.stream().mapToDouble(Float::floatValue).sum();
     }
 
     @Transactional
@@ -1700,10 +1697,15 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private float calculateAvgManagerCompetencyRating(List<CompetencyEvaluation> cEs) {
-        return (float) cEs.stream()
-                .mapToDouble(CompetencyEvaluation::getSelfEvaluation)
+        List<CompetencyGroup> competencyGroups = competencyGroupRepository.findAll();
+
+        List<Float> groupRating = competencyGroups.stream().map(gr -> (float) (cEs.stream()
+                .filter(pE -> pE.getCompetency().getCompetencyGroup().getId().equals(gr.getId()))
+                .mapToDouble(CompetencyEvaluation::getSupervisorEvaluation)
                 .average()
-                .orElse(0);
+                .orElse(0) * gr.getWeight()) / 100).toList();
+
+        return (float) groupRating.stream().mapToDouble(Float::floatValue).sum();
     }
 
     @Override
@@ -1770,10 +1772,15 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     private float calculateAvgFinalCompetencyRating(List<CompetencyEvaluation> cEs) {
-        return (float) cEs.stream()
+        List<CompetencyGroup> competencyGroups = competencyGroupRepository.findAll();
+
+        List<Float> groupRating = competencyGroups.stream().map(gr -> (float) (cEs.stream()
+                .filter(pE -> pE.getCompetency().getCompetencyGroup().getId().equals(gr.getId()))
                 .mapToDouble(CompetencyEvaluation::getFinalEvaluation)
                 .average()
-                .orElse(0);
+                .orElse(0) * gr.getWeight()) / 100).toList();
+
+        return (float) groupRating.stream().mapToDouble(Float::floatValue).sum();
     }
 
     @Override
@@ -1863,9 +1870,9 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public EvaluationPaging getCompetencyEvaluationList(Integer departmentId, Integer cycleId, String name,
-                                                                  Integer pageNo, Integer pageSize) {
+                                                        Integer pageNo, Integer pageSize) {
         Page<Employee> es = filterListDepartmentEmployee(name, departmentId, pageNo, pageSize);
-        List<CompetencyEvaluationOverall> cEOs = getDepartmentEvaOverall(cycleId, es);
+        List<CompetencyEvaluationOverall> cEOs = getCompetencyEvaOverall(cycleId, es);
 
 
         List<EmployeeEvaProgress> data = es.stream().map(e -> {
@@ -1892,12 +1899,20 @@ public class CompetencyServiceImpl implements CompetencyService {
         return new EvaluationPaging(data, pagination);
     }
 
-    private List<CompetencyEvaluationOverall> getDepartmentEvaOverall(Integer cycleId, Page<Employee> es) {
+    private List<CompetencyEvaluationOverall> getCompetencyEvaOverall(Integer cycleId, Page<Employee> es) {
         Specification<CompetencyEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
         Specification<CompetencyEvaluationOverall> hasEmployees = GlobalSpec
                 .hasEmployeeIds(es.stream().map(Employee::getId).toList());
 
         return competencyEvaluationOverallRepository.findAll(hasCycle.and(hasEmployees));
+    }
+
+    private List<PerformanceEvaluationOverall> getPerformanceEvaOverall(Integer cycleId, Page<Employee> es) {
+        Specification<PerformanceEvaluationOverall> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+        Specification<PerformanceEvaluationOverall> hasEmployees = GlobalSpec
+                .hasEmployeeIds(es.stream().map(Employee::getId).toList());
+
+        return performanceEvaluationOverallRepository.findAll(hasCycle.and(hasEmployees));
     }
 
     private Page<Employee> filterListDepartmentEmployee(String name, Integer departmentId, Integer pageNo, Integer pageSize) {
@@ -1918,6 +1933,75 @@ public class CompetencyServiceImpl implements CompetencyService {
         return employeeRepository.findAll(filterSpec.and(spec.and(hasEval).and(hasDepartment)), pageable);
     }
 
+
+
+    @Override
+    public EvaluationOverviewPaging getEvaluationOverviewList(Integer cycleId, String name, Integer pageNo, Integer pageSize) {
+        Page<Employee> es = filterListEmployee(name, pageNo, pageSize);
+        List<CompetencyEvaluationOverall> cEOs = getCompetencyEvaOverall(cycleId, es);
+        List<PerformanceEvaluationOverall> pEOs = getPerformanceEvaOverall(cycleId, es);
+
+
+        List<EvaluationResult> data = es.stream().map(e -> {
+            String profileImage = employeeManagementService.getProfilePicture(e.getId());
+            CompetencyEvaluationOverall cEO = cEOs.stream()
+                    .filter(item -> item.getEmployee().getId().equals(e.getId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            PerformanceEvaluationOverall pEO = pEOs.stream()
+                    .filter(item -> item.getEmployee().getId().equals(e.getId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            return EvaluationResult.builder()
+                    .employeeId(e.getId())
+                    .profileImage(profileImage)
+                    .firstName(e.getFirstName())
+                    .lastName(e.getLastName())
+                    .position(e.getPosition().getPositionName())
+                    .level(e.getJobLevel().getJobLevelName())
+                    .competencyRating(cEO.getFinalAssessment() != null ? cEO.getFinalAssessment() : 0)
+                    .performanceRating(pEO.getFinalAssessment() != null ? pEO.getFinalAssessment() : 0)
+                    .potential(getPotentialRank(pEO.getPotentialScore()))
+                    .finalStatus(
+                            (Objects.equals(cEO.getFinalStatus(), "Completed")
+                                    && Objects.equals(pEO.getFinalStatus(), "Completed"))
+                            ? "Completed"
+                            : "In Progress"
+                    )
+                    .build();
+        }).toList();
+
+        Pagination pagination = PaginationSetup.setupPaging(es.getTotalElements(), pageNo, pageSize);
+        return new EvaluationOverviewPaging(data, pagination);
+    }
+
+    private String getPotentialRank(Integer potentialScore) {
+        if (potentialScore == null) return "Not evaluate yet";
+        if (potentialScore >= 0 && potentialScore < 2) return "Low";
+        if (potentialScore >= 2 && potentialScore < 4) return "Moderate";
+        if (potentialScore >= 4) return "High";
+        return "Not evaluate yet";
+    }
+
+    private Page<Employee> filterListEmployee(String name, Integer pageNo, Integer pageSize) {
+        Specification<Employee> filterSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                name != null
+                        ? criteriaBuilder.or(
+                        criteriaBuilder.like(root.get("lastName"), "%" + name + "%"),
+                        criteriaBuilder.like(root.get("firstName"), "%" + name + "%"))
+                        : criteriaBuilder.conjunction()
+        );
+
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), false);
+        Specification<Employee> hasEval = (root, query, builder) -> builder.equal(root.get("isEvaluate"), true);
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
+        return employeeRepository.findAll(filterSpec.and(spec.and(hasEval)), pageable);
+    }
+
     @Override
     public EvaluationTitle getEvaluationTitle(Integer cycleId) {
         EvaluateCycle evaluateCycle = evaluateCycleRepository.findById(cycleId).orElseThrow();
@@ -1929,5 +2013,25 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .startDate(evaluateCycle.getStartDate().toString())
                 .dueDate(evaluateCycle.getDueDate().toString())
                 .build();
+    }
+
+    @Override
+    public ChartData getCompareCompetencyRadarChart(List<Integer> employeeIds, Integer cycleId) {
+        List<Employee> employees = employeeRepository.findAll(GlobalSpec.hasIds(employeeIds));
+        List<String> labels = competencyRepository.findAll().stream().map(Competency::getCompetencyName).toList();
+
+        Specification<CompetencyEvaluation> hasEmployees = GlobalSpec.hasEmployeeIds(employeeIds);
+        Specification<CompetencyEvaluation> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+        List<CompetencyEvaluation> cEs = competencyEvaluationRepository.findAll(hasEmployees.and(hasCycle));
+
+        List<ChartItem> dataset = employees.stream().map(e -> {
+            List<Float> cEsScore = cEs.stream()
+                    .filter(cE -> cE.getEmployee().getId().equals(e.getId()))
+                    .map(CompetencyEvaluation::getFinalEvaluation).toList();
+
+            return new ChartItem(e.getFullName(), cEsScore);
+        }).toList();
+
+        return new ChartData(labels, dataset);
     }
 }

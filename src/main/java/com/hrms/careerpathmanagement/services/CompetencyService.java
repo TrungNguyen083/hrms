@@ -1,6 +1,8 @@
 package com.hrms.careerpathmanagement.services;
 
 import com.hrms.careerpathmanagement.dto.*;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationOverviewPaging;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationPaging;
 import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
 import com.hrms.careerpathmanagement.input.EvaluationProcessInput;
 import com.hrms.employeemanagement.dto.EmployeeStatusDTO;
@@ -52,8 +54,6 @@ public interface CompetencyService {
 
     List<CompetencyGroup> getCompetencyGroups();
 
-    List<EvaluationResult> getEvaluationResult(Integer employeeId, Integer evaluateCycleId);
-
     List<CycleOverallDTO> getCyclesOverall();
 
     PieChartDTO getCompetencyEvaProgressPieChart(Integer cycleId, Integer departmentId);
@@ -95,4 +95,8 @@ public interface CompetencyService {
     Boolean createFinalEvaluation(CompetencyEvaluationInput input);
 
     List<PositionOption> getPositionOption(String name);
+
+    EvaluationOverviewPaging getEvaluationOverviewList(Integer cycleId, String name, Integer pageNo, Integer pageSize);
+
+    ChartData getCompareCompetencyRadarChart(List<Integer> employeeIds, Integer cycleId);
 }

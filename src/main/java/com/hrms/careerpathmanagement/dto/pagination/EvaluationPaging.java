@@ -1,5 +1,6 @@
-package com.hrms.careerpathmanagement.dto;
+package com.hrms.careerpathmanagement.dto.pagination;
 
+import com.hrms.careerpathmanagement.dto.EmployeeEvaProgress;
 import com.hrms.global.paging.Pagination;
 import lombok.*;
 

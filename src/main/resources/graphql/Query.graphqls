@@ -105,6 +105,8 @@ type Query {
     #Manager Competency Evaluation
     competencyEvaluationList(departmentId: Int!, cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationPaging!
     evaluationTitle(cycleId: Int!): EvaluationTitle!
+    #Hr Evaluation Overview
+    evaluationOverviewList(cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationOverviewPaging!
 
 
 
@@ -121,9 +123,17 @@ type Query {
     #ManagerPerformanceEvaluation
     performanceEvaluationList(departmentId: Int!, cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationPaging!
 
+    #Promotion
+    promotionList(cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationOverviewPaging!
+    #Promotion - Comparison
+    compareOverviews(employeeIds: [Int!], cycleId: Int!): [CompareOverview]
+    compareCompetencyRadarChart(employeeIds: [Int!], cycleId: Int!): ChartData
+    compareGoals(employeeIds: [Int!], cycleId: Int!): [CompareGoal]
+    compareGoalPieChart(employeeIds: [Int!], cycleId: Int!): ChartData
+    comparePerformanceChart(employeeIds: [Int!]): ChartData
+
 
     evaluateCyclePeriod(evaluateCycleId: Int!): String
-    evaluationResult(employeeId: Int!, cycleId: Int!): [EvaluationResult]
 
     #PerformanceEvaluation:
     departmentInCompletePerform(evaluateCycleId: Int!): MultiBarChartDTO
@@ -135,7 +145,5 @@ type Query {
     getCareerPath(employeeId: Int!): PositionLevelNodeDTO
 
     goalsByDepartmentAndCycle(departmentId: Int!, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeGoalPagination
-    goalsStatusPieChart(departmentId: Int!, cycleId: Int!) : PieChartDTO
-    goalsCountingStatistic(departmentId: Int!, cycleId: Int!): CountAndPercentDTO
     goalsByEmployee(employeeId: Int!, pageNo: Int!, pageSize: Int = 10) : GoalPagination
 }

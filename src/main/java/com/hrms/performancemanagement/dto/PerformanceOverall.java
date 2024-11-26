@@ -16,6 +16,7 @@ public class PerformanceOverall {
     private String position;
     private String level;
     private String rating;
+    private Integer potential;
     private String status;
     private Boolean isSubmit;
 }

@@ -1,15 +1,16 @@
 package com.hrms.performancemanagement.controllers;
 
+import com.hrms.careerpathmanagement.dto.ChartData;
 import com.hrms.careerpathmanagement.dto.DiffPercentDTO;
 import com.hrms.careerpathmanagement.dto.EmployeePotentialPerformanceDTO;
-import com.hrms.careerpathmanagement.dto.EvaluationPaging;
-import com.hrms.careerpathmanagement.input.CompetencyEvaluationInput;
+import com.hrms.careerpathmanagement.dto.pagination.EvaluationPaging;
 import com.hrms.employeemanagement.dto.pagination.EmployeeRatingPagination;
 import com.hrms.global.dto.BarChartDTO;
 import com.hrms.global.dto.DataItemPagingDTO;
 import com.hrms.global.dto.MultiBarChartDTO;
 import com.hrms.global.dto.PieChartDTO;
 import com.hrms.performancemanagement.dto.*;
+import com.hrms.performancemanagement.input.PerformanceEvaluationInput;
 import com.hrms.performancemanagement.model.PerformanceEvaluationOverall;
 import com.hrms.performancemanagement.services.PerformanceService;
 import jakarta.annotation.Nullable;
@@ -131,37 +132,37 @@ public class PerformanceController {
      */
 
     @QueryMapping(name = "performanceOverall")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE')")
     public PerformanceOverall getPerformanceOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
         return performanceService.getPerformanceOverall(employeeId, cycleId);
     }
 
     @QueryMapping(name = "performanceCategoryRating")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE')")
     public List<PerformanceCategoryRating> getPerformanceCategoryRating(@Argument Integer employeeId, @Argument Integer cycleId) {
         return performanceService.getPerformanceCategoryRating(employeeId, cycleId);
     }
 
     @QueryMapping(name = "performanceQuestionRating")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE')")
     public List<PerformanceQuestionRating> getPerformanceQuestionRating(@Argument Integer employeeId, @Argument Integer cycleId) {
         return performanceService.getPerformanceQuestionRating(employeeId, cycleId);
     }
 
     @QueryMapping(name = "managerPerformanceOverall")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE')")
     public PerformanceOverall getManagerPerformanceOverall(@Argument Integer employeeId, @Argument Integer cycleId) {
         return performanceService.getManagerPerformanceOverall(employeeId, cycleId);
     }
 
     @QueryMapping(name = "managerPerformanceCategoryRating")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE')")
     public List<PerformanceCategoryRating> getManagerPerformanceCategoryRating(@Argument Integer employeeId, @Argument Integer cycleId) {
         return performanceService.getManagerPerformanceCategoryRating(employeeId, cycleId);
     }
 
     @QueryMapping(name = "managerPerformanceQuestionRating")
-    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE') or hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('SUM') or hasAuthority('EMPLOYEE')")
     public List<PerformanceQuestionRating> getManagerPerformanceQuestionRating(@Argument Integer employeeId, @Argument Integer cycleId) {
         return performanceService.getManagerPerformanceQuestionRating(employeeId, cycleId);
     }
@@ -192,8 +193,8 @@ public class PerformanceController {
         return performanceService.getCompetencyEvaluationList(departmentId,cycleId,name,pageNo,pageSize);
     }
 
-    @MutationMapping(name = "employeePerformanceEvaluation")
-    @PreAuthorize("hasAuthority('SUM')")
+    @MutationMapping(name = "selfPerformanceEvaluation")
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Boolean createEmployeeEvaluation(@Argument PerformanceEvaluationInput input) {
         return performanceService.createEmployeeEvaluation(input);
     }
@@ -207,6 +208,12 @@ public class PerformanceController {
     @PreAuthorize("hasAuthority('SUM')")
     public Boolean createFinalEvaluation(@Argument PerformanceEvaluationInput input) {
         return performanceService.createFinalEvaluation(input);
+    }
+
+    @QueryMapping(name = "comparePerformanceChart")
+    @PreAuthorize("hasAuthority('HR')")
+    public ChartData getComparePerformanceChart(@Argument List<Integer> employeeIds) {
+        return performanceService.getComparePerformanceChart(employeeIds);
     }
 
 

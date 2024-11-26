@@ -47,7 +47,7 @@ public class PerformanceEvaluationOverall {
     private EvaluateCycle evaluateCycle;
 
     @Column(name = "potential_score")
-    private Float potentialScore;
+    private Integer potentialScore;
 
     @Column(name = "last_updated")
     private Date lastUpdated;

@@ -73,6 +73,7 @@ type PerformanceOverall {
     position: String
     level: String
     rating: String
+    potential: Int
     status: String
     isSubmit: Boolean
 }

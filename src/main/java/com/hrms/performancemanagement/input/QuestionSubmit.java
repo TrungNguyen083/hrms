@@ -1,4 +1,4 @@
-package com.hrms.performancemanagement.dto;
+package com.hrms.performancemanagement.input;
 
 import lombok.*;
 
