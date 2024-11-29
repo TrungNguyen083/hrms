@@ -7,6 +7,7 @@ import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,9 +32,17 @@ public class CareerController {
         return ResponseEntity.ok(careerService.getMatchPercent(employeeId, positionId, levelId));
     }
 
-    @QueryMapping(name = "requestPromotion")
+    @QueryMapping(name = "compareOverviews")
     @PreAuthorize("hasAuthority('HR')")
-    public Boolean createRequestPromotion(@Argument List<Integer> employeeIds, @Nullable Integer cycleId) {
+    public List<CompareOverview> getCompareOverview(@Argument List<Integer> employeeIds, @Argument Integer cycleId) {
+        return careerService.getCompareOverview(employeeIds, cycleId);
+    }
+
+
+
+    @MutationMapping(name = "requestPromotion")
+    @PreAuthorize("hasAuthority('HR')")
+    public Boolean createRequestPromotion(@Argument List<Integer> employeeIds, @Argument Integer cycleId) {
         return careerService.createRequestPromotion(employeeIds, cycleId);
     }
 
@@ -44,9 +53,10 @@ public class CareerController {
         return careerService.getPromotionList(cycleId, name, pageNo, pageSize);
     }
 
-    @QueryMapping(name = "compareOverviews")
+    @MutationMapping(name = "updatePromotionRequest")
     @PreAuthorize("hasAuthority('HR')")
-    public List<CompareOverview> getCompareOverview(@Argument List<Integer> employeeIds, @Argument Integer cycleId) {
-        return careerService.getCompareOverview(employeeIds, cycleId);
+    public Boolean updatePromotionRequest(@Argument Integer employeeId, @Argument Integer cycleId,
+                                          @Argument Boolean isApprove, @Argument String comment) {
+        return careerService.updatePromotionRequest(employeeId, cycleId, isApprove, comment);
     }
 }

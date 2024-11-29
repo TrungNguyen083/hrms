@@ -1936,7 +1936,8 @@ public class CompetencyServiceImpl implements CompetencyService {
 
 
     @Override
-    public EvaluationOverviewPaging getEvaluationOverviewList(Integer cycleId, String name, Integer pageNo, Integer pageSize) {
+    public EvaluationOverviewPaging getEvaluationOverviewList(Integer cycleId, String name,
+                                                              Integer pageNo, Integer pageSize) {
         Page<Employee> es = filterListEmployee(name, pageNo, pageSize);
         List<CompetencyEvaluationOverall> cEOs = getCompetencyEvaOverall(cycleId, es);
         List<PerformanceEvaluationOverall> pEOs = getPerformanceEvaOverall(cycleId, es);

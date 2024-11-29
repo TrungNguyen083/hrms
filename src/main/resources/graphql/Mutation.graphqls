@@ -40,4 +40,5 @@ type Mutation {
 
     #Promotion
     requestPromotion(employeeIds: [Int!], cycleId: Int): Boolean
+    updatePromotionRequest(employeeId: Int!, cycleId: Int!, isApprove: Boolean!, comment: String!): Boolean
 }

@@ -3,8 +3,10 @@ package com.hrms.careerpathmanagement.services.impl;
 import com.hrms.careerpathmanagement.dto.CompareOverview;
 import com.hrms.careerpathmanagement.dto.EvaluationPromotion;
 import com.hrms.careerpathmanagement.dto.pagination.PromotionPaging;
+import com.hrms.careerpathmanagement.models.EmployeeCareerPath;
 import com.hrms.careerpathmanagement.models.Promotion;
 import com.hrms.careerpathmanagement.models.SkillEvaluation;
+import com.hrms.careerpathmanagement.repositories.EmployeeCareerPathRepository;
 import com.hrms.careerpathmanagement.repositories.PromotionRepository;
 import com.hrms.careerpathmanagement.repositories.SkillEvaluationRepository;
 import com.hrms.careerpathmanagement.services.CareerService;
@@ -40,11 +42,14 @@ public class CareerServiceImpl implements CareerService {
     @PersistenceContext
     EntityManager em;
     static String PROFILE_IMAGE = "PROFILE_IMAGE";
+    static String APPROVED = "Approved";
+    static String REJECTED = "Rejected";
     private final EmployeeRepository employeeRepository;
     private final PositionRepository positionRepository;
     private final JobLevelRepository jobLevelRepository;
     private final SkillEvaluationRepository skillEvaluationRepository;
     private final PromotionRepository promotionRepository;
+    private final EmployeeCareerPathRepository employeeCareerPathRepository;
     private final EmployeeManagementService employeeManagementService;
     private final EmployeeDamInfoRepository employeeDamInfoRepository;
 
@@ -57,6 +62,7 @@ public class CareerServiceImpl implements CareerService {
             PromotionRepository promotionRepository,
             SkillEvaluationRepository skillEvaluationRepository,
             EmployeeDamInfoRepository employeeDamInfoRepository,
+            EmployeeCareerPathRepository employeeCareerPathRepository,
             EmployeeManagementService employeeManagementService
     ) {
         this.positionRepository = positionRepository;
@@ -65,6 +71,7 @@ public class CareerServiceImpl implements CareerService {
         this.promotionRepository = promotionRepository;
         this.skillEvaluationRepository = skillEvaluationRepository;
         this.employeeDamInfoRepository = employeeDamInfoRepository;
+        this.employeeCareerPathRepository = employeeCareerPathRepository;
         this.employeeManagementService = employeeManagementService;
     }
 
@@ -106,7 +113,15 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     public Boolean createRequestPromotion(List<Integer> employeeIds, Integer cycleId) {
-        List<Promotion> promotions = employeeIds.stream().map(eId -> Promotion.builder()
+        List<Integer> newEmployeeIds = employeeIds.stream()
+                .filter(e -> {
+                    Specification<Promotion> hasId = GlobalSpec.hasEmployeeId(e);
+                    Specification<Promotion> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+                    return !promotionRepository.exists(hasId.and(hasCycle));
+                })
+                .toList();
+
+        List<Promotion> promotions = newEmployeeIds.stream().map(eId -> Promotion.builder()
                 .employee(new Employee(eId))
                 .evaluateCycle(new EvaluateCycle(cycleId))
                 .status("Pending")
@@ -118,47 +133,32 @@ public class CareerServiceImpl implements CareerService {
 
     @Override
     public PromotionPaging getPromotionList(Integer cycleId, String name, Integer pageNo, Integer pageSize) {
-        Page<Employee> es = filterListEmployee(name, pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<Promotion> promotions = promotionRepository.findAll(pageable);
 
-        List<EvaluationPromotion> data = es.stream().map(e -> {
-            String profileImage = employeeManagementService.getProfilePicture(e.getId());
+        List<EvaluationPromotion> data = promotions.stream().map(pr -> {
+            String profileImage = employeeManagementService.getProfilePicture(pr.getEmployee().getId());
 
-            List<SkillEvaluation> ssEvaluates = getSkillEvaluations(e.getId(), cycleId);
-            Promotion promotion = getEmployeePromotion(e.getId(), cycleId);
+            List<SkillEvaluation> ssEvaluates = getSkillEvaluations(pr.getEmployee().getId(), cycleId);
+            EmployeeCareerPath careerPath = getEmployeeCareerPath(pr.getEmployee().getId(), cycleId);
 
             return EvaluationPromotion.builder()
-                    .employeeId(e.getId())
+                    .employeeId(pr.getEmployee().getId())
                     .profileImage(profileImage)
-                    .firstName(e.getFirstName())
-                    .lastName(e.getLastName())
-                    .currentPositionLevel(e.getPosition().getPositionName() + e.getPosition().getPositionName())
-                    .promotePositionLevel(getNextPositionLevel(e.getPosition().getId(),
-                            e.getJobLevel().getId(),
+                    .firstName(pr.getEmployee().getFirstName())
+                    .lastName(pr.getEmployee().getLastName())
+                    .currentPositionLevel(careerPath.getJobLevel().getJobLevelName()
+                            + " " + careerPath.getPosition().getPositionName())
+                    .promotePositionLevel(getNextPositionLevel(careerPath.getPosition().getId(),
+                            careerPath.getJobLevel().getId(),
                             ssEvaluates)
                     )
-                    .status(promotion.getStatus())
+                    .status(pr.getStatus())
                     .build();
         }).toList();
 
-        Pagination pagination = PaginationSetup.setupPaging(es.getTotalElements(), pageNo, pageSize);
+        Pagination pagination = PaginationSetup.setupPaging(promotions.getTotalElements(), pageNo, pageSize);
         return new PromotionPaging(data, pagination);
-    }
-
-    private Page<Employee> filterListEmployee(String name, Integer pageNo, Integer pageSize) {
-        Specification<Employee> filterSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                name != null
-                        ? criteriaBuilder.or(
-                        criteriaBuilder.like(root.get("lastName"), "%" + name + "%"),
-                        criteriaBuilder.like(root.get("firstName"), "%" + name + "%"))
-                        : criteriaBuilder.conjunction()
-        );
-
-        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), false);
-        Specification<Employee> hasEval = (root, query, builder) -> builder.equal(root.get("isEvaluate"), true);
-
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-
-        return employeeRepository.findAll(filterSpec.and(spec.and(hasEval)), pageable);
     }
 
     private List<SkillEvaluation> getSkillEvaluations(Integer employeeId, Integer cycleId) {
@@ -168,15 +168,22 @@ public class CareerServiceImpl implements CareerService {
         return skillEvaluationRepository.findAll(hasEmployee.and(hasCycle));
     }
 
+    private EmployeeCareerPath getEmployeeCareerPath(Integer employeeId, Integer cycleId) {
+        Specification<EmployeeCareerPath> hasEmployee = GlobalSpec.hasEmployeeId(employeeId);
+        Specification<EmployeeCareerPath> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
+
+        return employeeCareerPathRepository.findAll(hasEmployee.and(hasCycle)).stream().findFirst().orElseThrow();
+    }
+
     private Promotion getEmployeePromotion(Integer employeeId, Integer cycleId) {
         Specification<Promotion> hasEmployee = GlobalSpec.hasEmployeeId(employeeId);
         Specification<Promotion> hasCycle = GlobalSpec.hasEvaluateCycleId(cycleId);
 
-        return promotionRepository.findOne(hasEmployee.and(hasCycle)).orElseThrow();
+        return promotionRepository.findAll(hasEmployee.and(hasCycle)).stream().findFirst().orElseThrow();
     }
 
     private String getNextPositionLevel(Integer position, Integer jobLevel,
-                                                             List<SkillEvaluation> ssEvaluates) {
+                                        List<SkillEvaluation> ssEvaluates) {
         int newJobLevel = getNextJobLevel(jobLevel);
         int newPosition = getNextPosition(position, newJobLevel, ssEvaluates);
         Position p = positionRepository.findById(newPosition).orElseThrow();
@@ -211,20 +218,51 @@ public class CareerServiceImpl implements CareerService {
 
         List<SkillEvaluation> sEs = skillEvaluationRepository.findAll(hasEmployees.and(hasCycle));
 
-        return employees.stream().map(e-> {
+        return employees.stream().map(e -> {
+            EmployeeCareerPath careerPath = getEmployeeCareerPath(e.getId(), cycleId);
+
             String profileImage = urls.stream()
                     .filter(pI -> pI.getEmployeeId().equals(e.getId()))
                     .map(ProfileImageOnly::getUrl).findFirst().orElse(null);
 
-            String currentPosition = e.getJobLevel().getJobLevelName() + " " + e.getPosition().getPositionName();
+            String currentPosition = careerPath.getJobLevel().getJobLevelName()
+                    + " " + careerPath.getPosition().getPositionName();
             List<SkillEvaluation> filtersEs = sEs.stream()
                     .filter(sE -> sE.getEmployee().getId().equals(e.getId()))
                     .toList();
 
-            String targetPosition = getNextPositionLevel(e.getPosition().getId(), e.getJobLevel().getId(), filtersEs);
+            String targetPosition = getNextPositionLevel(careerPath.getPosition().getId(),
+                    careerPath.getJobLevel().getId(), filtersEs);
 
-            return new CompareOverview(profileImage, e.getFirstName(), e.getLastName(), currentPosition, targetPosition);
+            return new CompareOverview(profileImage, e.getFirstName(), e.getLastName(),
+                    currentPosition, targetPosition);
         }).toList();
+    }
+
+    @Override
+    public Boolean updatePromotionRequest(Integer employeeId, Integer cycleId, Boolean isApprove, String comment) {
+        Promotion promotion = getEmployeePromotion(employeeId, cycleId);
+
+        promotion.setStatus((isApprove) ? APPROVED : REJECTED);
+        promotion.setComment(comment);
+
+        if (isApprove) {
+            //update career path for next cycle
+
+            //set new position for employee
+            Employee employee = employeeRepository.findById(employeeId).orElseThrow();
+            List<SkillEvaluation> ssEs = getSkillEvaluations(employeeId, cycleId);
+            int newJobLevel = getNextJobLevel(employee.getJobLevel().getId());
+            int newPosition = getNextPosition(employee.getPosition().getId(), newJobLevel, ssEs);
+            employee.setJobLevel(new JobLevel(newJobLevel));
+            employee.setPosition(new Position(newPosition));
+
+            employeeRepository.save(employee);
+        }
+
+        promotionRepository.save(promotion);
+
+        return Boolean.TRUE;
     }
 
 }

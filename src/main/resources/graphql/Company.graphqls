@@ -174,4 +174,5 @@ type EvaluationPromotion {
     currentPositionLevel: String
     promotePositionLevel: String
     status: String
+    comment: String
 }

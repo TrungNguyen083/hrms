@@ -124,7 +124,7 @@ type Query {
     performanceEvaluationList(departmentId: Int!, cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationPaging!
 
     #Promotion
-    promotionList(cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): EvaluationOverviewPaging!
+    promotionList(cycleId: Int!, name: String, pageNo: Int = 1, pageSize: Int = 10): PromotionPaging!
     #Promotion - Comparison
     compareOverviews(employeeIds: [Int!], cycleId: Int!): [CompareOverview]
     compareCompetencyRadarChart(employeeIds: [Int!], cycleId: Int!): ChartData
