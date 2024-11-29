@@ -15,4 +15,6 @@ public interface CareerService {
     PromotionPaging getPromotionList(Integer cycleId, String name, Integer pageNo, Integer pageSize);
 
     List<CompareOverview> getCompareOverview(List<Integer> employeeIds, Integer cycleId);
+
+    Boolean updatePromotionRequest(Integer employeeId, Integer cycleId, Boolean isApprove, String comment);
 }

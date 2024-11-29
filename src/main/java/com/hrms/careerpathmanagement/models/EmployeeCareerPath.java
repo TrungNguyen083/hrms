@@ -1,6 +1,7 @@
 package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.global.models.EvaluateCycle;
 import com.hrms.global.models.JobLevel;
 import com.hrms.global.models.Position;
 import jakarta.persistence.*;
@@ -24,6 +25,10 @@ public class EmployeeCareerPath {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evaluate_cycle_id")
+    private EvaluateCycle evaluateCycle;
+
     @ManyToOne
     @JoinColumn(name = "position_id")
     private Position position;
@@ -31,10 +36,4 @@ public class EmployeeCareerPath {
     @ManyToOne
     @JoinColumn(name = "job_level_id")
     private JobLevel jobLevel;
-
-    @Column(name = "ordered")
-    Integer ordered;
-
-    @Column(name = "match_percentage")
-    Float matchPercentage;
 }

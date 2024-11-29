@@ -15,4 +15,5 @@ public class EvaluationPromotion {
     private String currentPositionLevel;
     private String promotePositionLevel;
     private String status;
+    private String comment;
 }
