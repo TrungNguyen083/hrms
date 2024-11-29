@@ -94,15 +94,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         this.employeeRepository = employeeRepository;
     }
 
-
-    public Float getAveragePerformanceScore(Integer cycleId) {
-        var evalIds = performanceEvaluationOverallRepository.findAllByCycleId(cycleId, IdOnly.class)
-                .stream()
-                .map(IdOnly::id)
-                .toList();
-        return performanceEvaluationOverallRepository.avgEvalScoreByIdIn(evalIds).floatValue();
-    }
-
     @Override
     public Page<PerformanceEvaluationOverall> getPerformanceEvaluations(Integer empId, Pageable pageable) {
         Specification<PerformanceEvaluationOverall> spec = employeeSpecification.hasEmployeeId(empId);
@@ -366,14 +357,6 @@ public class PerformanceServiceImpl implements PerformanceService {
         datasets.add(100 - completedPercent);
 
         return new PieChartDTO(List.of(COMPLETED_LABEL_NAME, IN_COMPLETED_LABEL_NAME), datasets);
-    }
-
-    public String performanceCyclePeriod(Integer cycleId) {
-        EvaluateCycle cycle = evaluateCycleRepository.findAll(GlobalSpec.hasId(cycleId))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cycle not found"));
-        return String.format("%s - %s", cycle.getStartDate(), cycle.getDueDate());
     }
 
     @Override

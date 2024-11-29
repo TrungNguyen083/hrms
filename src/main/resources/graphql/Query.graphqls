@@ -133,17 +133,4 @@ type Query {
     comparePerformanceChart(employeeIds: [Int!]): ChartData
 
 
-    evaluateCyclePeriod(evaluateCycleId: Int!): String
-
-    #PerformanceEvaluation:
-    departmentInCompletePerform(evaluateCycleId: Int!): MultiBarChartDTO
-    averagePerformanceScore(cycleId: Int!): Float
-    performanceCyclePeriod(cycleId: Int!): String
-
-    #CarreerManagement:
-    getNextPositionLevel(currentPositionLevelId: Int!): [PositionLevel]
-    getCareerPath(employeeId: Int!): PositionLevelNodeDTO
-
-    goalsByDepartmentAndCycle(departmentId: Int!, cycleId: Int!, pageNo: Int, pageSize: Int): EmployeeGoalPagination
-    goalsByEmployee(employeeId: Int!, pageNo: Int!, pageSize: Int = 10) : GoalPagination
 }
