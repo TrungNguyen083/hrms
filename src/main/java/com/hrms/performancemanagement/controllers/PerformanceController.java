@@ -231,23 +231,6 @@ public class PerformanceController {
 
 
 
-
-    @QueryMapping(name = "averagePerformanceScore")
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public Float getAveragePerformanceScore(@Argument Integer cycleId) {
-        return performanceService.getAveragePerformanceScore(cycleId);
-    }
-
-    @QueryMapping(name = "performanceCyclePeriod")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('MANAGER')")
-    public String performanceCyclePeriod(@Argument Integer cycleId) {
-        return performanceService.performanceCyclePeriod(cycleId);
-    }
-
-
-
-
-
     //Don't have API in graphql yet
     @QueryMapping
     @PreAuthorize("hasAuthority('MANAGER')")
